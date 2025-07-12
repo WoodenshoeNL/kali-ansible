@@ -1,0 +1,46 @@
+
+- name: Azure CLI - Choose the Azure CLI repo suite
+  set_fact:
+    # If the host is Kali Rolling, use Debian 12 (bookworm) packages.
+    azcli_suite: >-
+      {{ 'bookworm'
+         if (ansible_distribution == 'Kali' and
+             ansible_distribution_release == 'kali-rolling')
+         else ansible_distribution_release }}
+
+- name: Azure CLI - Ensure prerequisite packages are present
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+
+- name: Azure CLI - Install Microsoft signing key (if not already present)
+  get_url:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    dest: /usr/share/keyrings/microsoft.asc.gpg
+    mode: '0644'
+  register: _microsoft_key
+
+- name: Azure CLI - Configure Azure CLI apt repository
+  apt_repository:
+    repo: >-
+      deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.asc.gpg]
+      https://packages.microsoft.com/repos/azure-cli/ {{ azcli_suite }} main
+    filename: azure-cli
+    state: present
+  register: _azcli_repo
+
+- name: Azure CLI - Refresh apt cache if repo or key changed
+  apt:
+    update_cache: yes
+  when: _azcli_repo.changed or _microsoft_key.changed
+
+- name: Azure CLI - Install / upgrade Azure CLI
+  apt:
+    name: azure-cli
+    state: latest

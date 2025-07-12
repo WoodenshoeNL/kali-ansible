@@ -1,0 +1,48 @@
+
+- name: Update indexes and perform full upgrade
+  ansible.builtin.apt:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Make sure mount-point exists
+  file:
+    path: /share/VMShare
+    state: directory
+
+- name: Mount VMShare and keep it in /etc/fstab
+  mount:
+    src: ".host:/VMShare"
+    path: /share/VMShare
+    fstype: fuse.vmhgfs-fuse
+    opts: allow_other,auto_unmount,defaults
+    state: present # ensure mounted - use 'present' instead of 'mounted' for idempotency
+    dump: 0
+    passno: 0                                   # record in fstab
+
+- name: Install core packages
+  apt:
+    name:
+      - zsh
+      - docker.io
+      - python3
+      - python3-pip
+      - python3-virtualenv
+    state: present
+    update_cache: yes
+
+- name: Copy dotfiles
+  copy:
+    src: files/dotfiles/
+    dest: /home/kali/
+    owner: kali
+    mode: preserve
+
+- name: Run tmux setup
+  import_tasks: tmux.yml
+
+- name: Run firefox quiet script
+  import_tasks: firefox.yml
+
+- name: Run disable screenlock script
+  import_tasks: disable_screen_lock.yml 

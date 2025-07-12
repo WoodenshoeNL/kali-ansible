@@ -1,0 +1,21 @@
+
+- name: Make sure ~/scripts exists
+  file:
+    path: "/home/kali/scripts"   # remote user’s home
+    state: directory
+    mode: "0755"
+
+- name: Copy quiet_firefox.py into ~/scripts
+  copy:
+    src: /share/VMShare/kali-ansible/files/quiet_firefox.py   # path on the control node
+    dest: "/home/kali/scripts/quiet_firefox.py"
+    mode: "0755"
+
+- name: Run quiet_firefox.py inside the kali profile
+  ansible.builtin.command: python3 quiet_firefox.py
+  args:
+    chdir: /home/kali/scripts           
+  become: true                          
+  become_user: kali                     
+  environment:
+    HOME: /home/kali 

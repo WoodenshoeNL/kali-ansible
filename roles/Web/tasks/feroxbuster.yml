@@ -1,0 +1,7 @@
+
+- name: Install feroxbuster packages
+  apt:
+    name:
+      - feroxbuster
+    state: present
+    update_cache: yes
