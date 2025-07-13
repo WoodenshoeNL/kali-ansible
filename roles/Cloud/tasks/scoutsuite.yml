@@ -1,0 +1,31 @@
+
+- name: scoutsuite - create project directory for Kali user
+  file:
+    path: /home/kali/scoutsuite
+    state: directory
+    owner: kali
+    group: kali
+    mode: "0755"
+
+- name: scoutsuite - create Python virtualenv (runs as kali)
+  command: python3 -m venv /home/kali/scoutsuite/venv
+  args:
+    creates: /home/kali/scoutsuite/venv/bin/activate
+  become: yes
+  become_user: kali
+
+- name: scoutsuite - install scoutsuite inside the virtualenv (runs as kali)
+  pip:
+    name: scoutsuite
+    virtualenv: /home/kali/scoutsuite/venv
+    virtualenv_python: python3
+    state: latest              # change to “present” if you prefer pinning
+  become: yes
+  become_user: kali
+
+- name: scoutsuite - create global wrapper in /usr/local/bin
+  file:
+    src: /home/kali/scoutsuite/venv/bin/scout
+    dest: /usr/local/bin/scout
+    state: link
+    force: yes                 # overwrite if link already exists

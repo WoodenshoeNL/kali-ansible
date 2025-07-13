@@ -25,7 +25,7 @@
 
 - name: roadtx - create global wrapper in /usr/local/bin
   file:
-    src: /home/kali/roadtx/venv/bin/roadrecon
+    src: /home/kali/roadtx/venv/bin/roadtx
     dest: /usr/local/bin/roadtx
     state: link
     force: yes                 # overwrite if link already exists

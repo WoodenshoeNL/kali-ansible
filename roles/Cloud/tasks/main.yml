@@ -7,3 +7,6 @@
 
 - name: Run Roadtx setup
   import_tasks: Roadtx.yml
+
+- name: Run scoutsuite setup
+  import_tasks: scoutsuite.yml
