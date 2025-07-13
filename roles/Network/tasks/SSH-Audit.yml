@@ -1,0 +1,5 @@
+
+- name: ssh-audit - install ssh-audit package
+  ansible.builtin.apt:
+    name: ssh-audit
+    state: latest

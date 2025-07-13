@@ -1,3 +1,6 @@
 
 - name: Run Enum4linux-ng setup
   import_tasks: Enum4linux-ng.yml
+
+- name: Run SSH-Audit setup
+  import_tasks: SSH-Audit.yml
