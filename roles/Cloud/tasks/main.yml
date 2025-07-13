@@ -13,3 +13,6 @@
 
 - name: Run azurehound setup
   import_tasks: azurehound.yml
+
+- name: Run BlackCat setup
+  import_tasks: BlackCat.yml

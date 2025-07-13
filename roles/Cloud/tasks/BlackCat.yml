@@ -1,0 +1,25 @@
+
+- name: BlackCat - clone repository
+  ansible.builtin.git:
+    repo: https://github.com/azurekid/blackcat.git
+    dest: /home/kali/blackcat            # fixed path keeps things predictable
+    version: main
+    update: yes
+    # force: yes           # uncomment if /home/kali/blackcat already exists but isn’t a repo
+  become: yes
+  become_user: kali
+  tags: blackCat
+
+- name: BlackCat - add quick reminder read-me
+  ansible.builtin.copy:
+    dest: /home/kali/README_blackCat_RUN.txt
+    mode: "0644"
+    content: |
+      HOW TO RUN
+
+      pwsh
+      PS> cd blackcat
+      PS> import-module ./blackcat.psd1
+  become: yes
+  become_user: kali
+  tags: blackCat

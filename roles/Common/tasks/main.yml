@@ -50,3 +50,6 @@
 
 - name: Run disable screenlock script
   import_tasks: disable_screen_lock.yml 
+
+- name: Run Powershell setup
+  import_tasks: powershell.yml

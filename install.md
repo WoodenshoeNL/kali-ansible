@@ -69,6 +69,3 @@ https://github.com/dirkjanm/mitm6
 
 chrome
 
-
-
-blackcat
