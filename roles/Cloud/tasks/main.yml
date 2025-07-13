@@ -10,3 +10,6 @@
 
 - name: Run scoutsuite setup
   import_tasks: scoutsuite.yml
+
+- name: Run azurehound setup
+  import_tasks: azurehound.yml

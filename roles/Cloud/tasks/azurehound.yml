@@ -1,0 +1,7 @@
+
+- name: azurehound - Install azurehound packages
+  apt:
+    name:
+      - azurehound
+    state: present
+    update_cache: yes

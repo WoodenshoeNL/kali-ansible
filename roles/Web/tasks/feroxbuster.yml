@@ -1,5 +1,5 @@
 
-- name: Install feroxbuster packages
+- name: feroxbuster - Install feroxbuster packages
   apt:
     name:
       - feroxbuster
