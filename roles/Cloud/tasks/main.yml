@@ -4,3 +4,6 @@
 
 - name: Run Roadrecon setup
   import_tasks: Roadrecon.yml
+
+- name: Run Roadtx setup
+  import_tasks: Roadtx.yml
