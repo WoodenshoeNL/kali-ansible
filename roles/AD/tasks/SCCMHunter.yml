@@ -1,0 +1,69 @@
+
+- name: sccmhunter - clone repository
+  ansible.builtin.git:
+    repo: https://github.com/garrettfoster13/sccmhunter.git
+    dest: /home/kali/sccmhunter            # fixed path keeps things predictable
+    version: main
+    update: yes
+    # force: yes           # uncomment if /home/kali/sccmhunter already exists but isn’t a repo
+  become: yes
+  become_user: kali
+  tags: sccmhunter
+
+# The pip module will CREATE the virtualenv automatically if it does not exist
+- name: sccmhunter - install Python requirements into virtualenv
+  ansible.builtin.pip:
+    requirements: /home/kali/sccmhunter/requirements.txt
+    virtualenv: /home/kali/sccmhunter/venv
+    virtualenv_python: python3
+    virtualenv_site_packages: no
+  become: yes
+  become_user: kali
+  tags: sccmhunter
+
+# Optional: expose a convenient wrapper in /usr/local/bin
+- name: sccmhunter - add helper launcher to system PATH
+  ansible.builtin.copy:
+    dest: /usr/local/bin/sccmhunter
+    mode: "0755"
+    content: |
+      #!/usr/bin/env bash
+      source /home/kali/sccmhunter/venv/bin/activate
+      exec python /home/kali/sccmhunter/sccmhunter.py "$@"
+  tags: sccmhunter
+
+# Light-weight functional check; ignored for idempotency purposes
+- name: sccmhunter - verify CLI starts
+  ansible.builtin.command: /home/kali/sccmhunter/venv/bin/python /home/kali/sccmhunter/sccmhunter.py -h
+  become: yes
+  become_user: kali
+  register: sccm_verify
+  changed_when: false
+  tags: sccmhunter
+
+- name: sccmhunter - place local launcher inside repo dir
+  ansible.builtin.copy:
+    dest: /home/kali/sccmhunter/run_sccmhunter.sh
+    mode: "0755"
+    content: |
+      #!/usr/bin/env bash
+      # Simple helper so you don't have to remember the full path
+      cd "$(dirname "$0")"
+      source venv/bin/activate
+      exec python sccmhunter.py "$@"
+  become: yes
+  become_user: kali
+  tags: sccmhunter
+
+- name: sccmhunter - add quick reminder read-me
+  ansible.builtin.copy:
+    dest: /home/kali/sccmhunter/README_RUN.txt
+    mode: "0644"
+    content: |
+      HOW TO RUN
+
+      1) Recommended:  /usr/local/bin/sccmhunter  (added by Ansible)
+      2) Alt:          ./run_sccmhunter.sh  from inside this folder
+  become: yes
+  become_user: kali
+  tags: sccmhunter

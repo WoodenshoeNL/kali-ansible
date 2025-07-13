@@ -1,63 +1,13 @@
 
 
 
-
-## Windapsearch
-
-https://github.com/ropnop/go-windapsearch/releases
-
-sudo mkdir windapsearch
-
-/opt/windapsearch/
-
-wget https://github.com/ropnop/go-windapsearch/releases/download/v0.3.0/windapsearch-linux-amd64
-
-cp windapsearch-linux-amd64 windapsearch
-
-chmod +x windapsearch
-
-vim .profile
-```
-export PATH=$PATH:/opt/windapsearch/
-```
-
-
-## SCCMHunter
-
-```
-cd ~
-git clone https://github.com/garrettfoster13/sccmhunter.git
-cd sccmhunter
-virtualenv --python=python3 .
-source bin/activate
-pip3 install -r requirements.txt
-python3 sccmhunter.py -h
-```
-
 ## TMUX
 
-
-vim .tmux.conf
-```
-C:\VMKali\tmux.conf
-```
-
-
-### TMUX Plugins
-https://github.com/tmux-plugins/tpm
-
-tmux new -s attack
 
 tmux source ~/.tmux.conf
 
 prefix > shift + i
 
-### TMUX-yank prereq
-https://github.com/tmux-plugins/tmux-yank
-
-```
-sudo apt-get install xsel
-```
 
 
 ## Enum4linux-ng
@@ -66,14 +16,6 @@ sudo apt-get install xsel
 sudo apt install enum4linux-ng
 ```
 
-
-
-## Upgrade Kali
-
-```
-sudo apt update
-sudo apt full-upgrade -y
-```
 
 
 ## NXC
@@ -146,28 +88,11 @@ sudo apt install gowitness
 
 
 
-## Feroxbuster
-
-```
-sudo apt install feroxbuster
-```
-
-
 ## Todo
 
 
-- xxx
-- Feroxbuster
-
 
 chrome
-
-
-Azure CLI
-
-```
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-```
 
 
 

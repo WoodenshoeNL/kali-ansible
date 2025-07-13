@@ -1,6 +1,5 @@
-# tasks/tmux.yml
 
-- name: Install tmux packages
+- name: Tmux - Install tmux packages
   apt:
     name:
       - tmux
@@ -8,7 +7,7 @@
     state: present
     update_cache: yes
 
-- name: Ensure ~/.tmux and ~/.tmux/plugins exist
+- name: Tmux - Ensure ~/.tmux and ~/.tmux/plugins exist
   become: true                 # sudo, but…
   become_user: "{{ ansible_user | default('kali') }}"   # …create as the login user
   file:
@@ -19,7 +18,7 @@
     - "/home/kali/.tmux"
     - "/home/kali/.tmux/plugins"
 
-- name: Clone TPM (Tmux Plugin Manager)
+- name: Tmux - Clone TPM (Tmux Plugin Manager)
   become: true
   become_user: "{{ ansible_user | default('kali') }}"
   ansible.builtin.git:
@@ -27,3 +26,15 @@
     dest: "/home/kali/.tmux/plugins/tpm"
     depth: 1          # shallow clone, faster
     update: yes       # pull if the remote got new commits
+
+- name: Tmux - add quick reminder read-me
+  ansible.builtin.copy:
+    dest: /home/kali/Tmux_README_First_RUN.txt
+    mode: "0644"
+    content: |
+      tmux source ~/.tmux.conf
+      prefix > shift + i
+  become: yes
+  become_user: kali
+  tags: sccmhunter
+  

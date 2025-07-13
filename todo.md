@@ -1,8 +1,6 @@
 
 
 Add tools:
-- windapsearch
-- SCCMHunter
 - Enum4linux-ng
 - NXC
 - SSH-Audit

@@ -1,3 +1,6 @@
 
 - name: Run windapsearch setup
   import_tasks: windapsearch.yml
+
+- name: Run SCCMHunter setup
+  import_tasks: SCCMHunter.yml
