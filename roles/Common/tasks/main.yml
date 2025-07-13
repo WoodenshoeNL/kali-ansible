@@ -28,10 +28,12 @@
       - python3
       - python3-pip
       - python3-virtualenv
+      - pipx 
       - git
       - pipx
       - golang
       - jq
+      - build-essential
     state: present
     update_cache: yes
 
@@ -53,3 +55,6 @@
 
 - name: Run Powershell setup
   import_tasks: powershell.yml
+
+- name: Run impacket  setup
+  import_tasks: impacket .yml
