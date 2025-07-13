@@ -1,0 +1,68 @@
+
+- name: BloodHound - Install BloodHound CE + Neo4j explicitly
+  apt:
+    name:
+      - bloodhound
+      - neo4j
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+#- name: BloodHound - Install Java 11 runtime
+#  apt:
+#    name: "openjdk-11-jre-headless"
+#    state: present
+#    update_cache: yes
+#    cache_valid_time: 3600
+#
+#- name: BloodHound - Set initial Neo4j password (idempotent)
+#  command: >
+#    /usr/share/neo4j/bin/neo4j-admin set-initial-password neo4j
+#  args:
+#    creates: /etc/neo4j/initial_password  # marker file so the task is skipped on re-runs
+#  environment:
+#    JAVA_HOME: "/usr/lib/jvm/java-11-openjdk-amd64"
+#  register: setpw
+#  changed_when: "'password has already been set' not in setpw.stdout"
+#
+#- name: BloodHound - Configure BloodHound API → Neo4j credentials
+#  copy:
+#    dest: /etc/bhapi/bhapi.json
+#    owner: root
+#    group: root
+#    mode: '0600'
+#    content: |
+#      {
+#        "database": {
+#          "host": "localhost",
+#          "port": 7687,
+#          "user": "neo4j",
+#          "secret": "neo4j"
+#        }
+#      }
+#
+#- name: BloodHound - Bootstrap BloodHound services
+#  command: bloodhound-setup
+#  args:
+#    creates: /var/lib/neo4j/data/databases/neo4j
+#
+#
+#- name: BloodHound - Set BloodHound admin password
+#  command: >
+#    env bhe_recreate_default_admin=true
+#    bloodhound --admin-password "admin"
+
+- name: BloodHound - add quick reminder read-me
+  ansible.builtin.copy:
+    dest: /home/kali/Bloodhound_README_First_RUN.txt
+    mode: "0644"
+    content: |
+      sudo bloodhound-setup
+      Start PostgreSQL and create the bloodhound DB/user.
+      Start Neo4j and ask you to change the default neo4j/neo4j password.
+      Remind you to put that new password in /etc/bhapi/bhapi.json
+      vim /etc/bhapi/bhapi.json
+      Then run the BloodHound CE GUI:
+      sudo bloodhound          # first-time login is admin / admin
+  become: yes
+  become_user: kali

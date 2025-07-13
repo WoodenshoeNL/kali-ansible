@@ -1,3 +1,6 @@
 
 - name: Run Feroxbuster setup
   import_tasks: feroxbuster.yml
+
+- name: Run - GoWitness setup
+  import_tasks: GoWitness.yml
