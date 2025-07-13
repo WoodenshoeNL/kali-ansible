@@ -1,0 +1,7 @@
+
+- name: enum4linux-ng - install package
+  ansible.builtin.apt:
+    name: enum4linux-ng
+    state: present
+  tags:
+    - enum4linux-ng
