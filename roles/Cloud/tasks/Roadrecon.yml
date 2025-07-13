@@ -1,0 +1,31 @@
+
+- name: roadrecon - create project directory for Kali user
+  file:
+    path: /home/kali/roadrecon
+    state: directory
+    owner: kali
+    group: kali
+    mode: "0755"
+
+- name: roadrecon - create Python virtualenv (runs as kali)
+  command: python3 -m venv /home/kali/roadrecon/venv
+  args:
+    creates: /home/kali/roadrecon/venv/bin/activate
+  become: yes
+  become_user: kali
+
+- name: roadrecon - install Roadrecon inside the virtualenv (runs as kali)
+  pip:
+    name: roadrecon
+    virtualenv: /home/kali/roadrecon/venv
+    virtualenv_python: python3
+    state: latest              # change to “present” if you prefer pinning
+  become: yes
+  become_user: kali
+
+- name: roadrecon - create global wrapper in /usr/local/bin
+  file:
+    src: /home/kali/roadrecon/venv/bin/roadrecon
+    dest: /usr/local/bin/roadrecon
+    state: link
+    force: yes                 # overwrite if link already exists

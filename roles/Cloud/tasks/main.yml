@@ -1,3 +1,6 @@
 
 - name: Run Azure CLI setup
   import_tasks: azcli.yml
+
+- name: Run Roadrecon setup
+  import_tasks: Roadrecon.yml

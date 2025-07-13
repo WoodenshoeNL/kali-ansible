@@ -10,12 +10,6 @@ prefix > shift + i
 
 
 
-## Enum4linux-ng
-
-```
-sudo apt install enum4linux-ng
-```
-
 
 
 ## NXC
@@ -37,13 +31,6 @@ Ldap binding issue.
 ```
 pipx runpip netexec install git+https://github.com/fortra/impacket.git@refs/pull/1844/merge
 ```
-
-## SSH-Audit
-
-```
-git clone https://github.com/jtesta/ssh-audit
-```
-
 
 
 ## impacket
@@ -75,18 +62,6 @@ https://github.com/dirkjanm/mitm6
 ```
 
 
-## GoWitness
-
-https://github.com/sensepost/gowitness
-```
-go install github.com/sensepost/gowitness@latest
-```
-
-```
-sudo apt install gowitness
-```
-
-
 
 ## Todo
 
@@ -96,15 +71,6 @@ chrome
 
 
 
-Road recon
-
-
-```
-sudo apt install python3-virtualenv
-virtualenv -p python3 venv
-source venv/bin/activate
-pip install roadrecon
-```
 
 
 scoute suite
