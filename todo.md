@@ -4,7 +4,6 @@ Add tools:
 - NXC
 - certify
 - dploot
-- seamlesspass
 - secretdump.py
 
 

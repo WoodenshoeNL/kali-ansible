@@ -16,3 +16,6 @@
 
 - name: Run BlackCat setup
   import_tasks: BlackCat.yml
+
+- name: Run SeamlessPass setup
+  import_tasks: SeamlessPass.yml

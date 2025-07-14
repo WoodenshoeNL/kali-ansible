@@ -1,0 +1,31 @@
+
+- name: SeamlessPass - create project directory for Kali user
+  file:
+    path: /home/kali/seamlesspass
+    state: directory
+    owner: kali
+    group: kali
+    mode: "0755"
+
+- name: SeamlessPass - create Python virtualenv (runs as kali)
+  command: python3 -m venv /home/kali/seamlesspass/venv
+  args:
+    creates: /home/kali/seamlesspass/venv/bin/activate
+  become: yes
+  become_user: kali
+
+- name: SeamlessPass - install SeamlessPass inside the virtualenv (runs as kali)
+  pip:
+    name: seamlesspass
+    virtualenv: /home/kali/seamlesspass/venv
+    virtualenv_python: python3
+    state: latest              # change to “present” if you prefer pinning
+  become: yes
+  become_user: kali
+
+- name: SeamlessPass - create global wrapper in /usr/local/bin
+  file:
+    src: /home/kali/seamlesspass/venv/bin/seamlesspass
+    dest: /usr/local/bin/seamlesspass
+    state: link
+    force: yes 
