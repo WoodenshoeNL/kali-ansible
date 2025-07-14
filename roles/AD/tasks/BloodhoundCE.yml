@@ -66,3 +66,11 @@
       sudo bloodhound          # first-time login is admin / admin
   become: yes
   become_user: kali
+
+- name: Refresh PostgreSQL collations (fix template mismatch)
+  become: true
+  become_user: postgres
+  shell: |
+    psql -Atc "ALTER DATABASE postgres REFRESH COLLATION VERSION;"
+    psql -Atc "ALTER DATABASE template1 REFRESH COLLATION VERSION;"
+  changed_when: false      # it’s idempotent
