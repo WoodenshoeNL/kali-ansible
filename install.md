@@ -33,12 +33,6 @@ pipx runpip netexec install git+https://github.com/fortra/impacket.git@refs/pull
 ```
 
 
-## impacket
-
-https://github.com/fortra/impacket
-```
-python3 -m pipx install impacket
-```
 
 
 ## LdapRelayScan
@@ -62,10 +56,4 @@ https://github.com/dirkjanm/mitm6
 ```
 
 
-
-## Todo
-
-
-
-chrome
 

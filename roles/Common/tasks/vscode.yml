@@ -1,0 +1,40 @@
+
+- name: vscode – remove legacy repo (Signed-By=/etc/apt/keyrings or plain apt-key)
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  loop:
+    - vscode.list
+    - microsoft-vscode.list
+  ignore_errors: yes
+
+- name: vscode – create keyrings directory
+  ansible.builtin.file:
+    path: /usr/share/keyrings
+    state: directory
+    mode: '0755'
+
+- name: vscode – fetch Microsoft GPG key (ASCII)
+  ansible.builtin.get_url:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    dest: /tmp/microsoft.asc
+    mode: '0644'
+    force: yes
+
+- name: vscode – de-armor key into /usr/share/keyrings/microsoft.gpg
+  ansible.builtin.command: >
+    gpg --dearmor --output /usr/share/keyrings/microsoft.gpg /tmp/microsoft.asc
+  args:
+    creates: /usr/share/keyrings/microsoft.gpg
+
+- name: vscode – add Visual Studio Code repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
+    filename: vscode
+    state: present
+    update_cache: yes        # runs apt-update only when the repo changes
+
+- name: vscode – install Visual Studio Code
+  ansible.builtin.apt:
+    name: code
+    state: present            # switch to “latest” if you always want newest

@@ -56,5 +56,11 @@
 - name: Run Powershell setup
   import_tasks: powershell.yml
 
-- name: Run impacket  setup
-  import_tasks: impacket .yml
+- name: Run impacket setup
+  import_tasks: impacket.yml
+
+- name: Run vscode setup
+  import_tasks: vscode.yml
+
+- name: Run chrome setup
+  import_tasks: chrome.yml

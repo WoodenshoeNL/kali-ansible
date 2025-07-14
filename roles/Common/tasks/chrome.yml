@@ -1,0 +1,30 @@
+
+- name: google-chrome - ensure prerequisite packages are present
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+    update_cache: false        # apt cache is already fresh earlier in the play
+
+- name: google-chrome - add Google Linux signing key (dearmored)
+  command: >
+    bash -c 'curl -fsSL https://dl.google.com/linux/linux_signing_key.pub |
+             gpg --dearmor -o /usr/share/keyrings/google-linux-signing-keyring.gpg'
+  args:
+    creates: /usr/share/keyrings/google-linux-signing-keyring.gpg
+  # Using `creates` keeps the task idempotent—runs only if the keyring file is absent.
+
+- name: google-chrome - add Google Chrome apt repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-signing-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main"
+    filename: google-chrome
+    state: present
+
+- name: google-chrome - install latest stable package
+  apt:
+    name: google-chrome-stable
+    state: latest
+    update_cache: yes          # refresh cache now that a new repo is in place
+    cache_valid_time: 3600     # skip refresh again for the next hour
