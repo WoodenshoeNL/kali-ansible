@@ -7,3 +7,6 @@
 
 - name: Run BloodhoundCE setup
   import_tasks: BloodhoundCE.yml
+
+- name: Run Certipy setup
+  import_tasks: Certipy.yml
