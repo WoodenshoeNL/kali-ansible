@@ -1,21 +1,38 @@
 
-- name: Make sure ~/scripts exists
+- name: Firefox - Make sure ~/scripts exists
   file:
-    path: "/home/kali/scripts"   # remote user’s home
+    path: /home/kali/scripts
     state: directory
     mode: "0755"
 
-- name: Copy quiet_firefox.py into ~/scripts
+- name: Firefox - Copy quiet_firefox.py into ~/scripts
   copy:
-    src: /share/VMShare/kali-ansible/files/quiet_firefox.py   # path on the control node
-    dest: "/home/kali/scripts/quiet_firefox.py"
+    src: /share/VMShare/kali-ansible/files/quiet_firefox.py
+    dest: /home/kali/scripts/quiet_firefox.py
     mode: "0755"
 
-- name: Run quiet_firefox.py inside the kali profile
-  ansible.builtin.command: python3 quiet_firefox.py
+- name: Firefox - Check if a Firefox profile already exists
+  stat:
+    path: /home/kali/.mozilla/firefox/profiles.ini
+  register: fx_profile
+  become: true
+  become_user: kali
+
+- name: Firefox - Create a default Firefox profile (headless) when needed
+  command: firefox --headless --createprofile default
   args:
-    chdir: /home/kali/scripts           
-  become: true                          
-  become_user: kali                     
+    creates: /home/kali/.mozilla/firefox/profiles.ini
+  become: true
+  become_user: kali
   environment:
-    HOME: /home/kali 
+    HOME: /home/kali
+  when: not fx_profile.stat.exists
+
+- name: Firefox - Run quiet_firefox.py inside the kali profile
+  command: python3 quiet_firefox.py
+  args:
+    chdir: /home/kali/scripts
+  become: true
+  become_user: kali
+  environment:
+    HOME: /home/kali
