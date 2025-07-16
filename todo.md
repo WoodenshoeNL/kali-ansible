@@ -7,6 +7,7 @@ Add tools:
 - certify
 - dploot
 - secretdump.py
+- prowler
 
 
 Download tools to vmdisk:
@@ -19,3 +20,4 @@ Download tools to vmdisk:
 - Powerview
 - Kerbrute
 - Powersharp/other sharp tools/powertools
+- DonPAPI

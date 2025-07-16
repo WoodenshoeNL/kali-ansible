@@ -19,3 +19,6 @@
 
 - name: Run SeamlessPass setup
   import_tasks: SeamlessPass.yml
+
+- name: Run EntraFalcon setup
+  import_tasks: EntraFalcon.yml
