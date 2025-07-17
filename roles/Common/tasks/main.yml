@@ -64,3 +64,6 @@
 
 - name: Run chrome setup
   import_tasks: chrome.yml
+
+- name: Run obsidian setup
+  import_tasks: obsidian.yml

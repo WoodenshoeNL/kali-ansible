@@ -1,0 +1,6 @@
+
+- name: obsidian - install package
+  ansible.builtin.apt:
+    name: obsidian
+    state: latest      # always pull the newest version available
+    update_cache: no   # cache was refreshed earlier
