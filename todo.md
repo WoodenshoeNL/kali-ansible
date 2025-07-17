@@ -5,8 +5,6 @@ Repair Bloodhound
 Add tools:
 - NXC
 - certify
-- dploot
-- secretdump.py
 - prowler
 
 

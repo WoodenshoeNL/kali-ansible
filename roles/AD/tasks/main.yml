@@ -11,3 +11,11 @@
 - name: Run Certipy setup
   import_tasks: Certipy.yml
 
+- name: Run dploot setup
+  import_tasks: dploot.yml
+
+
+
+
+
+

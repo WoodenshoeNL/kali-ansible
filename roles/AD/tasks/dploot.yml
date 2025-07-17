@@ -1,0 +1,6 @@
+
+- name: dploot - install packaged release
+  ansible.builtin.apt:
+    name: python3-dploot
+    state: present
+    update_cache: no
