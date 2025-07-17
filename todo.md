@@ -9,8 +9,6 @@ Add tools:
 
 
 Download tools to vmdisk:
-- Rubeus
-- Mimikatz
 - ADCollector.exe
 - AADInternals
 - adPeas
@@ -19,3 +17,4 @@ Download tools to vmdisk:
 - Kerbrute
 - Powersharp/other sharp tools/powertools
 - DonPAPI
+- sysinternals tools

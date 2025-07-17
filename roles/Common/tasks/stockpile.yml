@@ -1,0 +1,50 @@
+
+
+
+- name: Stockpile - Ensure stockpile exists
+  file:
+    path: /stockpile
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+
+- name: Stockpile - create Rubeus directory
+  file:
+    path: /stockpile/Rubeus
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Stockpile - Download Rubeus binary
+  get_url:
+    url: "https://raw.githubusercontent.com/r3motecontrol/Ghostpack-CompiledBinaries/master/dotnet%20v4.8.1%20compiled%20binaries/Rubeus.exe"
+    dest: "/stockpile/Rubeus/Rubeus.exe"
+    mode: "0755"              # makes it executable on *nix
+    force: true               # overwrite if changed upstream
+    use_proxy: false          # flip to true if you need a proxy
+    validate_certs: true      # set false only if your CA chain blocks TLS
+
+
+- name: Mimikatz ‑ create mimikatz directory
+  ansible.builtin.file:
+    path: /stockpile/mimikatz
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+
+- name: Mimikatz ‑ download & extract release
+  ansible.builtin.unarchive:
+    src: https://github.com/gentilkiwi/mimikatz/releases/download/2.2.0-20220919/mimikatz_trunk.zip
+    dest: /stockpile/mimikatz
+    remote_src: yes          # fetch directly from the URL on the remote host
+    creates: /stockpile/mimikatz/mimikatz.exe  # skip if already extracted
+
+
+- name: Get ADCollector
+  import_tasks: ADCollector.yml
+
