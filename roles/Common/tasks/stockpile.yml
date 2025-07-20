@@ -10,7 +10,7 @@
     mode: '0755'
 
 
-- name: Stockpile - create Rubeus directory
+- name: Rubeus - create Rubeus directory
   file:
     path: /stockpile/Rubeus
     state: directory
@@ -18,7 +18,7 @@
     group: root
     mode: '0755'
 
-- name: Stockpile - Download Rubeus binary
+- name: Rubeus - Download Rubeus binary
   get_url:
     url: "https://raw.githubusercontent.com/r3motecontrol/Ghostpack-CompiledBinaries/master/dotnet%20v4.8.1%20compiled%20binaries/Rubeus.exe"
     dest: "/stockpile/Rubeus/Rubeus.exe"
@@ -45,6 +45,122 @@
     creates: /stockpile/mimikatz/mimikatz.exe  # skip if already extracted
 
 
-- name: Get ADCollector
-  import_tasks: ADCollector.yml
+#- name: Get ADCollector
+#  import_tasks: ADCollector.yml
+
+- name: Sysinternals Suite – create sysinternals directory
+  file:
+    path: /stockpile/sysinternals-suite          # adjust if you prefer another name
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Sysinternals Suite – download ZIP
+  get_url:
+    url: https://download.sysinternals.com/files/SysinternalsSuite.zip
+    dest: /tmp/SysinternalsSuite.zip             # temporary location
+    mode: '0644'
+    force: yes                                   # always re‑download if newer
+  register: sysinternals_download
+
+- name: Sysinternals Suite – unpack into stockpile
+  when: sysinternals_download is changed          # only unzip if file was (re)fetched
+  unarchive:
+    src: /tmp/SysinternalsSuite.zip
+    dest: /stockpile/sysinternals-suite
+    remote_src: yes                               # ZIP is already on the target
+
+- name: Sysinternals Suite – remove temporary ZIP
+  file:
+    path: /tmp/SysinternalsSuite.zip
+    state: absent
+
+- name: PowerSharpBinaries – create destination directory
+  file:
+    path: /stockpile/PowerSharpBinaries
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: PowerSharpBinaries – shallow‑clone PowerSharpPack (temp)
+  git:
+    repo: https://github.com/S3cur3Th1sSh1t/PowerSharpPack.git
+    dest: /tmp/PowerSharpPack
+    depth: 1               # faster: only latest commit
+    update: no
+  register: psp_clone
+
+- name: PowerSharpBinaries – copy just the binaries folder
+  when: psp_clone.changed    # run only on first clone or repo update
+  copy:
+    src: /tmp/PowerSharpPack/PowerSharpBinaries/
+    dest: /stockpile/PowerSharpBinaries/
+    owner: root
+    group: root
+    mode: '0644'
+    remote_src: yes          # path is on the target already
+
+- name: Ghostpack‑CompiledBinaries – create destination directory
+  file:
+    path: /stockpile/Ghostpack-CompiledBinaries
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ghostpack‑CompiledBinaries – shallow‑clone repo (temp)
+  git:
+    repo: https://github.com/r3motecontrol/Ghostpack-CompiledBinaries.git
+    dest: /tmp/Ghostpack-CompiledBinaries
+    depth: 1          # faster: only latest commit
+    update: yes       # pull again if upstream changed
+  register: gp_clone
+
+- name: Ghostpack‑CompiledBinaries – copy only v4.8.1 binaries
+  when: gp_clone.changed          # run only if clone pulled new data
+  copy:
+    src: "/tmp/Ghostpack-CompiledBinaries/dotnet v4.8.1 compiled binaries/"
+    dest: /stockpile/Ghostpack-CompiledBinaries/
+    owner: root
+    group: root
+    mode: '0644'
+    remote_src: yes
+
+- name: PowerView – create destination directory
+  file:
+    path: /stockpile/PowerView
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: PowerView – download PowerView.ps1
+  get_url:
+    url: https://github.com/PowerShellMafia/PowerSploit/raw/refs/heads/master/Recon/PowerView.ps1
+    dest: /stockpile/PowerView/PowerView.ps1
+    mode: '0644'
+    force: yes          # re‑download if the upstream file changes
+
+- name: PowerSploit – create destination directory
+  file:
+    path: /stockpile/PowerSploit          # parent directory for the repo
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: PowerSploit – shallow‑clone repo (latest master)
+  git:
+    repo: https://github.com/PowerShellMafia/PowerSploit.git
+    dest: /stockpile/PowerSploit
+    depth: 1       # quick: only most recent commit
+    update: yes    # pull new commits on subsequent runs
+
+
+
+
+
+
 

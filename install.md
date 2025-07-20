@@ -70,8 +70,4 @@ pipx install evil-winrm-py
 
 https://github.com/prowler-cloud/prowler
 
-https://github.com/login-securite/DonPAPI
-
-
-https://github.com/S3cur3Th1sSh1t/PowerSharpPack/tree/master/PowerSharpBinaries
 

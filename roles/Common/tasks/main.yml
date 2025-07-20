@@ -33,6 +33,7 @@
       - pipx
       - golang
       - jq
+      - git
       - build-essential
     state: present
     update_cache: yes
