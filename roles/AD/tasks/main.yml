@@ -14,8 +14,8 @@
 - name: Run dploot setup
   import_tasks: dploot.yml
 
-- name: Run DonPAPI setup
-  import_tasks: DonPAPI.yml
+#- name: Run DonPAPI setup
+#  import_tasks: DonPAPI.yml
 
 - name: Run kerbrute setup
   import_tasks: kerbrute.yml

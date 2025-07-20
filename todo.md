@@ -1,6 +1,10 @@
 
 Repair Bloodhound
 
+To fix:
+- DonPAPI
+- ADCollector.exe
+
 
 Add tools:
 - NXC
@@ -11,7 +15,6 @@ Add tools:
 
 
 Download tools to vmdisk:
-- ADCollector.exe
 - AADInternals
 - adPeas
 - WinPeas/LinPeas
