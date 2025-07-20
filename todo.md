@@ -15,7 +15,7 @@ Download tools to vmdisk:
 - AADInternals
 - adPeas
 - WinPeas/LinPeas
-- Kerbrute
+
 
 
 

@@ -158,8 +158,56 @@
     depth: 1       # quick: only most recent commit
     update: yes    # pull new commits on subsequent runs
 
+- name: LinPEAS – create destination directory
+  file:
+    path: /stockpile/LinPEAS
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
+- name: LinPEAS – download LinPEAS
+  get_url:
+    url: https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh
+    dest: /stockpile/LinPEAS/linpeas.sh
+    mode: '0644'
+    force: yes          # re‑download if the upstream file changes
 
+- name: WinPEAS – create destination directory
+  file:
+    path: /stockpile/WinPEAS
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: WinPEAS – download WinPEAS - winPEASx64.exe
+  get_url:
+    url: https://github.com/peass-ng/PEASS-ng/releases/download/20250701-bdcab634/winPEASx64.exe
+    dest: /stockpile/WinPEAS/winPEASx64.exe
+    mode: '0644'
+    force: yes          # re‑download if the upstream file changes
+
+- name: WinPEAS – download WinPEAS - winPEASx86.exe
+  get_url:
+    url: https://github.com/peass-ng/PEASS-ng/releases/download/20250701-bdcab634/winPEASx86.exe
+    dest: /stockpile/WinPEAS/winPEASx86.exe
+    mode: '0644'
+    force: yes  
+
+- name: WinPEAS – download WinPEAS - winPEAS.bat
+  get_url:
+    url: https://github.com/peass-ng/PEASS-ng/releases/download/20250701-bdcab634/winPEAS.bat
+    dest: /stockpile/WinPEAS/winPEAS.bat
+    mode: '0644'
+    force: yes  
+
+- name: WinPEAS – download WinPEAS - winPEAS.ps1
+  get_url:
+    url: https://github.com/peass-ng/PEASS-ng/raw/refs/heads/master/winPEAS/winPEASps1/winPEAS.ps1
+    dest: /stockpile/WinPEAS/winPEAS.ps1
+    mode: '0644'
+    force: yes  
 
 
 
