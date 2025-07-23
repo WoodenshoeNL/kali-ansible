@@ -4,3 +4,8 @@
 
 - name: Run SSH-Audit setup
   import_tasks: SSH-Audit.yml
+
+- name: Run evil-winrm-py setup
+  import_tasks: evil-winrm-py.yml
+
+

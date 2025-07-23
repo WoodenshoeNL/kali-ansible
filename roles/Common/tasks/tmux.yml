@@ -42,4 +42,4 @@
   copy:
     src: /share/VMShare/kali-ansible/files/Tmux_cheat-sheet.txt
     dest: /home/kali/Tmux_cheat-sheet.txt
-    mode: "0755"
+    mode: "0644"

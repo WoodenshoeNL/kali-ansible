@@ -1,68 +1,21 @@
-## Windows
+# Windows
 
-#### Create window
-```bash
-Ctrl + b - c
-```
+## Create window
+<Prefix> - c
 
-#### Move to next Window
-```bash
-Ctrl + b - n
-```
+## Kill Window
+<Prefix> - &
 
-#### Move to Previous Window
-```bash
-Ctrl + b - p
-```
+# Panes
 
-#### Kill Window
-```bash
-Ctrl + b - &
-```
+## Split vertically |
+<Prefix> - %
 
-#### Rename Window
-```bash
-Ctrl + b - ,
-```
+## Split horizontally
+<Prefix> - “
 
-## Panes
+## Convert Pane to window
+<Prefix> - !
 
-#### Split vertically
-```bash
-Ctrl + b - %
-```
-
-#### Split horizontally
-```bash
-Ctrl + b - “
-```
-
-#### Move to pane to the right
-```bash
-Ctrl + b - <right arrow>
-```
-
-#### Move to pane to the left
-```bash
-Ctrl + b - <left arrow>
-```
-
-#### Move to pane above
-```bash
-Ctrl + b - <up arrow>
-```
-
-#### Move to pane below
-```bash
-Ctrl + b - <down arrow>
-```
-
-#### Convert Pane to window
-```bash
-Ctrl + b - !
-```
-
-#### Kill Pane
-```bash
-Ctrl + b - X
-```
+## Kill Pane
+<Prefix> - X

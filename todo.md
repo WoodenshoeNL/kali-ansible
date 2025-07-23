@@ -36,7 +36,6 @@ Add tools:
 - wfuzz
 - gobuster
 - evil-winrm
-- evil-winrm-py
 
 
 
@@ -44,7 +43,7 @@ Add tools:
 Download tools to vmdisk:
 - AADInternals
 - adPeas
-- SharpCollection
+
 
 
 

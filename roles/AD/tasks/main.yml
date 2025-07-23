@@ -21,3 +21,7 @@
   import_tasks: kerbrute.yml
 
 
+- name: Run ldapx setup
+  import_tasks: ldapx.yml
+
+
