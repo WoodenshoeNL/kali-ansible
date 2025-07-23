@@ -209,6 +209,51 @@
     mode: '0644'
     force: yes  
 
+- name: PayloadsAllTheThings – create destination directory
+  file:
+    path: /stockpile/PayloadsAllTheThings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: PayloadsAllTheThings – clone repo
+  git:
+    repo: https://github.com/swisskyrepo/PayloadsAllTheThings.git
+    dest: /stockpile/PayloadsAllTheThings
+    depth: 1          # faster: only latest commit
+    update: yes       # pull again if upstream changed
 
 
+- name: SecLists – create destination directory
+  file:
+    path: /stockpile/SecLists
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
+- name: SecLists – clone repo
+  git:
+    repo: https://github.com/danielmiessler/SecLists.git
+    dest: /stockpile/SecLists
+    depth: 1          # shallow clone, faster but fine for pulls
+    update: yes       # pull if upstream moved
+    force: yes        # throw away any local modifications
+
+
+- name: SharpCollection – create destination directory
+  file:
+    path: /stockpile/SharpCollection
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: SharpCollection – clone repo
+  git:
+    repo: https://github.com/Flangvik/SharpCollection.git
+    dest: /stockpile/SharpCollection
+    depth: 1          # shallow clone, faster but fine for pulls
+    update: yes       # pull if upstream moved
+    force: yes        # throw away any local modifications

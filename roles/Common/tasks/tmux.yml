@@ -38,3 +38,8 @@
   become_user: kali
   tags: sccmhunter
   
+- name: Tmux - Copy Tmux_cheat-sheet.txt into ~
+  copy:
+    src: /share/VMShare/kali-ansible/files/Tmux_cheat-sheet.txt
+    dest: /home/kali/Tmux_cheat-sheet.txt
+    mode: "0755"

@@ -16,7 +16,6 @@ Add tools:
 - adconnectdump
 - LaZagne
 - MFASweep
-- SecLists
 - AzureHound
 - Hoaxshell
 - Krbrelayx
@@ -45,7 +44,6 @@ Add tools:
 Download tools to vmdisk:
 - AADInternals
 - adPeas
-- PayloadsAllTheThings
 - SharpCollection
 
 
