@@ -1,9 +1,9 @@
 
-- name: evil-winrm-py - ensure pipx PATH for kali
-  become: yes
-  become_user: kali
-  ansible.builtin.command: python3 -m pipx ensurepath --force
-  changed_when: false   # running it twice is harmless; we suppress “changed”
+#- name: evil-winrm-py - ensure pipx PATH for kali
+#  become: yes
+#  become_user: kali
+#  ansible.builtin.command: python3 -m pipx ensurepath --force
+#  changed_when: false   # running it twice is harmless; we suppress “changed”
 
 - name: evil-winrm-py - install/upgrade evil-winrm-py via pipx
   become: yes

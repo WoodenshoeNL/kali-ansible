@@ -20,8 +20,8 @@
 - name: Run kerbrute setup
   import_tasks: kerbrute.yml
 
-
 - name: Run ldapx setup
   import_tasks: ldapx.yml
 
-
+- name: Run bloodhound-python setup
+  import_tasks: bloodhound-python.yml
