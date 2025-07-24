@@ -241,6 +241,12 @@
     update: yes       # pull if upstream moved
     force: yes        # throw away any local modifications
 
+- name: SecLists – unpack rockyou.txt
+  ansible.builtin.unarchive:
+    src: /stockpile/SecLists/Passwords/Leaked-Databases/rockyou.txt.tar.gz
+    dest: /stockpile/SecLists/Passwords/Leaked-Databases
+    remote_src: yes          # the archive is already on the target host
+    creates: /stockpile/SecLists/Passwords/Leaked-Databases/rockyou.txt
 
 - name: SharpCollection – create destination directory
   file:
