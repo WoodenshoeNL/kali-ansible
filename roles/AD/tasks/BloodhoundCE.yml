@@ -27,6 +27,8 @@
       BloodHoundCE docker compose located at ~/BloodHoundCE
       cd ~/BloodHoundCE
       sudo docker compose up -d
+      http://localhost:8080/ui/login
+      admin:<Initial Password>
   become: yes
   become_user: kali
 
