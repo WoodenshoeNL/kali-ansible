@@ -36,6 +36,7 @@
       - jq
       - git
       - build-essential
+      - freerdp3-x11
     state: present
     update_cache: yes
 
