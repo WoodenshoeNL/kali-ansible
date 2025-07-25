@@ -26,3 +26,5 @@
 - name: Run bloodhound-python setup
   import_tasks: bloodhound-python.yml
 
+- name: Run BloodyAD setup
+  import_tasks: BloodyAD.yml

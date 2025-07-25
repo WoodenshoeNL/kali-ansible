@@ -1,0 +1,6 @@
+
+- name: BloodyAD - install packaged release
+  ansible.builtin.apt:
+    name: bloodyad
+    state: present
+    update_cache: no
