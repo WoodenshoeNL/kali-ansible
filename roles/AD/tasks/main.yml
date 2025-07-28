@@ -28,3 +28,7 @@
 
 - name: Run BloodyAD setup
   import_tasks: BloodyAD.yml
+
+- name: Run ntdsdotsqlite setup
+  import_tasks: ntdsdotsqlite.yml
+

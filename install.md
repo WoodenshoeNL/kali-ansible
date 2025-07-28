@@ -71,3 +71,6 @@ pipx install evil-winrm-py
 https://github.com/prowler-cloud/prowler
 
 
+https://github.com/eslam3kl/meowEye
+
+
