@@ -73,4 +73,5 @@ https://github.com/prowler-cloud/prowler
 
 https://github.com/eslam3kl/meowEye
 
+https://github.com/projectdiscovery/nuclei
 

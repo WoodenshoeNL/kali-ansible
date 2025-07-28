@@ -32,3 +32,6 @@
 - name: Run ntdsdotsqlite setup
   import_tasks: ntdsdotsqlite.yml
 
+- name: Run gmsadumper setup
+  import_tasks: gmsadumper.yml
+

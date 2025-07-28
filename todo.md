@@ -11,7 +11,6 @@ Add tools:
 - NXC
 - certify
 - prowler
-- ldapx
 - godap
 - adconnectdump
 - LaZagne
@@ -36,6 +35,7 @@ Add tools:
 - wfuzz
 - gobuster
 - evil-winrm
+- nuclei
 
 
 
