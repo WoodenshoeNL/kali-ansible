@@ -5,11 +5,11 @@ To fix:
 - ADCollector.exe
 - BloodhoundCE
 
-
-
-Add tools:
+To Check:
 - NXC
 - certify
+
+Add tools:
 - prowler
 - adconnectdump
 - LaZagne

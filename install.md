@@ -58,9 +58,6 @@ https://github.com/dirkjanm/mitm6
 
 ## Extra 
 
-[https://github.com/Macmod/ldapx](https://github.com/Macmod/ldapx)
-[https://github.com/Macmod/godap](https://github.com/Macmod/godap)
-
 
 install evil-winrm-py
 ```
