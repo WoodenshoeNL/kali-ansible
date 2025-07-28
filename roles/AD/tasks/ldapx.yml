@@ -1,11 +1,4 @@
 
-- name: ldapx - ensure build prerequisites are present
-  ansible.builtin.apt:
-    name:
-      - golang          # Go tool‑chain for building the binary
-      - git             # Needed by go install to fetch sources
-    state: present
-
 - name: ldapx - install latest release with go install (idempotent)
   ansible.builtin.command: >
     go install github.com/Macmod/ldapx@latest

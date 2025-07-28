@@ -1,0 +1,9 @@
+
+- name: godap - install latest release with go install (idempotent)
+  ansible.builtin.command: >
+    go install github.com/Macmod/godap@latest
+  args:
+    creates: /usr/local/bin/godap     # skips rebuild if binary exists
+  environment:
+    GOBIN: /usr/local/bin            # install straight to system PATH
+    GO111MODULE: "on"

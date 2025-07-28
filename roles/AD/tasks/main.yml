@@ -35,3 +35,5 @@
 - name: Run gmsadumper setup
   import_tasks: gmsadumper.yml
 
+- name: Run godap setup
+  import_tasks: godap.yml

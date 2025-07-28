@@ -11,7 +11,6 @@ Add tools:
 - NXC
 - certify
 - prowler
-- godap
 - adconnectdump
 - LaZagne
 - MFASweep
