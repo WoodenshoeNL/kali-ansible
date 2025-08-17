@@ -7,7 +7,7 @@
 
 - name: Firefox - Copy quiet_firefox.py into ~/scripts
   copy:
-    src: /share/VMShare/kali-ansible/files/quiet_firefox.py
+    src: quiet_firefox.py
     dest: /home/kali/scripts/quiet_firefox.py
     mode: "0755"
 

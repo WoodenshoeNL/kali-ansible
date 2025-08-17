@@ -11,7 +11,7 @@
 # Copy conf files from BloodHound
 - name: Copy configuration templates
   template:
-    src: "files/bloodHoundCE/{{ item }}"
+    src: "bloodHoundCE/{{ item }}"
     dest: "/home/kali/BloodHoundCE/{{ item }}"
     mode: "0664"
   loop:

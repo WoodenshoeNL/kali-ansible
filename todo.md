@@ -35,6 +35,8 @@ Add tools:
 - gobuster
 - evil-winrm
 - nuclei
+- SSHscan
+- TestSSL
 
 
 

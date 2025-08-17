@@ -7,6 +7,12 @@
     state: present
     update_cache: yes
 
+- name: Tmux - Copy .tmux.conf
+  copy:
+    src: .tmux.conf
+    dest: /home/kali/.tmux.conf
+    mode: "0755"
+
 - name: Tmux - Ensure ~/.tmux and ~/.tmux/plugins exist
   become: true                 # sudo, but…
   become_user: "{{ ansible_user | default('kali') }}"   # …create as the login user
@@ -40,6 +46,6 @@
   
 - name: Tmux - Copy Tmux_cheat-sheet.txt into ~
   copy:
-    src: /share/VMShare/kali-ansible/files/Tmux_cheat-sheet.txt
+    src: Tmux_cheat-sheet.txt
     dest: /home/kali/Tmux_cheat-sheet.txt
     mode: "0644"

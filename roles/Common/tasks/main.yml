@@ -40,13 +40,6 @@
     state: present
     update_cache: yes
 
-- name: Copy dotfiles
-  copy:
-    src: files/dotfiles/
-    dest: /home/kali/
-    owner: kali
-    mode: preserve
-
 - name: Run tmux setup
   import_tasks: tmux.yml
 

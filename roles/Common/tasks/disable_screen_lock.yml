@@ -43,6 +43,6 @@
 #######################################################################
 - name: XFCE | drop helper disable_lock.py
   copy:
-    src: files/disable_lock.py
+    src: disable_lock.py
     dest: "/home/kali/scripts/disable_lock.py"
     mode: "0755"
