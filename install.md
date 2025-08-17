@@ -72,3 +72,12 @@ https://github.com/eslam3kl/meowEye
 
 https://github.com/projectdiscovery/nuclei
 
+
+https://github.com/dafthack/DomainPasswordSpray
+
+https://github.com/ropnop/windapsearch
+
+https://github.com/BloodHoundAD/BloodHound/tree/master/Collectors
+
+https://github.com/SnaffCon/Snaffler
+
