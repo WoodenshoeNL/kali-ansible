@@ -12,4 +12,4 @@ sudo /usr/bin/vmhgfs-fuse .host:/VMShare /share/VMShare -o subtype=vmhgfs-fuse,a
 
 # 3. Run with ansible-playbook
 cd /share/VMShare/kali-ansible
-sudo ansible-playbook -i localhost, -c local playbook.yml
+sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=workstation"

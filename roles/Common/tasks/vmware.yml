@@ -3,6 +3,7 @@
   file:
     path: /share/VMShare
     state: directory
+  when: vmware_env == "workstation"
 
 - name: VMware Mount - Mount VMShare and keep it in /etc/fstab
   mount:
@@ -13,3 +14,4 @@
     state: present # ensure mounted - use 'present' instead of 'mounted' for idempotency
     dump: 0
     passno: 0                                   # record in fstab
+  when: vmware_env == "workstation"
