@@ -37,6 +37,7 @@ Add tools:
 - nuclei
 - SSHscan
 - TestSSL
+- windapsearch.py
 
 
 
