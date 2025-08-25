@@ -1,5 +1,5 @@
 # kali-ansible/playbook.yml
-- hosts: localhost
+- hosts: all
   gather_facts: yes
   become: true
 

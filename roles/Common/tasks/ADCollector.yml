@@ -1,7 +1,8 @@
 
 - name: ADCollector - Install prerequisites (Mono + Git)
   ansible.builtin.apt:
-    update_cache: no
+    update_cache: yes
+    cache_valid_time: 3600
     name:
       - git
       - mono-complete        # runtime + SDK

@@ -6,46 +6,62 @@
       - xsel
     state: present
     update_cache: yes
+  tags:
+    - tmux
+    - common
 
 - name: Tmux - Copy .tmux.conf
+  become: false
   copy:
     src: .tmux.conf
-    dest: /home/kali/.tmux.conf
-    mode: "0755"
+    dest: "{{ login_home }}/.tmux.conf"
+    mode: "0644"
+  tags:
+    - tmux
+    - common
 
-- name: Tmux - Ensure ~/.tmux and ~/.tmux/plugins exist
-  become: true                 # sudo, but…
-  become_user: "{{ ansible_user | default('kali') }}"   # …create as the login user
+- name: Ensure .tmux dirs
+  become: false
   file:
     path: "{{ item }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
   loop:
-    - "/home/kali/.tmux"
-    - "/home/kali/.tmux/plugins"
+    - "{{ login_home }}/.tmux"
+    - "{{ login_home }}/.tmux/plugins"
+  tags:
+    - tmux
+    - common
 
-- name: Tmux - Clone TPM (Tmux Plugin Manager)
-  become: true
-  become_user: "{{ ansible_user | default('kali') }}"
-  ansible.builtin.git:
+- name: Clone TPM
+  become: false
+  git:
     repo: https://github.com/tmux-plugins/tpm.git
-    dest: "/home/kali/.tmux/plugins/tpm"
-    depth: 1          # shallow clone, faster
-    update: yes       # pull if the remote got new commits
+    dest: "{{ login_home }}/.tmux/plugins/tpm"
+    depth: 1
+    update: yes
+  tags:
+    - tmux
+    - common
 
 - name: Tmux - add quick reminder read-me
+  become: false
   ansible.builtin.copy:
-    dest: /home/kali/Tmux_README_First_RUN.txt
+    dest: "{{ login_home }}/Tmux_README_First_RUN.txt"
     mode: "0644"
     content: |
-      tmux source ~/.tmux.conf
+      tmux source {{ login_home }}/.tmux.conf
       prefix > shift + i
-  become: yes
-  become_user: kali
-  tags: sccmhunter
+  tags:
+    - tmux
+    - common
   
-- name: Tmux - Copy Tmux_cheat-sheet.txt into ~
+- name: Tmux - Copy Tmux_cheat-sheet.txt into {{ login_home }}
+  become: false
   copy:
     src: Tmux_cheat-sheet.txt
-    dest: /home/kali/Tmux_cheat-sheet.txt
+    dest: "{{ login_home }}/Tmux_cheat-sheet.txt"
     mode: "0644"
+  tags:
+    - tmux
+    - common

@@ -1,31 +1,31 @@
 
-- name: roadtx - create project directory for Kali user
+- name: roadtx - create project directory for "{{ login_user }}" user
   file:
-    path: /home/kali/roadtx
+    path: "{{ login_home }}/roadtx"
     state: directory
-    owner: kali
-    group: kali
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0755"
 
-- name: roadtx - create Python virtualenv (runs as kali)
-  command: python3 -m venv /home/kali/roadtx/venv
+- name: roadtx - create Python virtualenv (runs as "{{ login_user }}")
+  command: python3 -m venv "{{ login_home }}"/roadtx/venv
   args:
-    creates: /home/kali/roadtx/venv/bin/activate
+    creates: "{{ login_home }}/roadtx/venv/bin/activate"
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
-- name: roadtx - install roadtx inside the virtualenv (runs as kali)
+- name: roadtx - install roadtx inside the virtualenv (runs as "{{ login_user }}")
   pip:
     name: roadtx
-    virtualenv: /home/kali/roadtx/venv
+    virtualenv: "{{ login_home }}/roadtx/venv"
     virtualenv_python: python3
     state: latest              # change to “present” if you prefer pinning
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
 - name: roadtx - create global wrapper in /usr/local/bin
   file:
-    src: /home/kali/roadtx/venv/bin/roadtx
+    src: "{{ login_home }}/roadtx/venv/bin/roadtx"
     dest: /usr/local/bin/roadtx
     state: link
     force: yes                 # overwrite if link already exists

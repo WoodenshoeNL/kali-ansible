@@ -25,6 +25,7 @@
       - git
       - build-essential
       - freerdp3-x11
+      - unzip
     state: present
     update_cache: yes
 
@@ -44,7 +45,7 @@
   import_tasks: powershell.yml
 
 - name: Run impacket setup
-  import_tasks: impacket.yml
+  import_tasks: im_packet.yml
 
 - name: Run vscode setup
   import_tasks: vscode.yml

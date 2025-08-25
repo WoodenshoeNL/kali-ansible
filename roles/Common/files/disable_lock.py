@@ -34,7 +34,7 @@ def main():
     xfconf("xfce4-screensaver", "/saver/idle-activation-enabled")
 
     # 3. Stop xfce4-screensaver from autostarting next login
-    autostart = os.path.expanduser("~/.config/autostart/xfce4-screensaver.desktop")
+    autostart = os.path.expanduser("{{ login_home }}/.config/autostart/xfce4-screensaver.desktop")
     os.makedirs(os.path.dirname(autostart), exist_ok=True)
     with open(autostart, "w") as f:
         f.write("[Desktop Entry]\nHidden=true\n")

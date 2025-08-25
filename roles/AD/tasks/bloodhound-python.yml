@@ -1,20 +1,20 @@
 
-#- name: bloodhound-python - ensure pipx PATH for kali
+#- name: bloodhound-python - ensure pipx PATH for {{ login_user }}
 #  become: yes
-#  become_user: kali
+#  become_user: {{ login_user }}
 #  ansible.builtin.command: python3 -m pipx ensurepath --force
 #  changed_when: false   # running it twice is harmless; we suppress “changed”
 
 - name: bloodhound-python - install/upgrade bloodhound-python via pipx
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
   community.general.pipx:
     name: bloodhound
     state: latest       # upgrades if an older version is present
 
 - name: bloodhound-ce-python - install/upgrade bloodhound-ce-python via pipx
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
   community.general.pipx:
     name: bloodhound-ce
     state: latest       # upgrades if an older version is present

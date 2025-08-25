@@ -4,3 +4,5 @@
     name: powershell          # package present in Kali repo
     state: present            # idempotent install/upgrade
     install_recommends: false # keep image slim
+    update_cache: yes
+    cache_valid_time: 3600

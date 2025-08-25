@@ -1,31 +1,31 @@
 
-- name: ntdsdotsqlite - create project directory for Kali user
+- name: ntdsdotsqlite - create project directory for "{{ login_user }}" user
   file:
-    path: /home/kali/ntdsdotsqlite
+    path: "{{ login_home }}/ntdsdotsqlite"
     state: directory
-    owner: kali
-    group: kali
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0755"
 
-- name: ntdsdotsqlite - create Python virtualenv (runs as kali)
-  command: python3 -m venv /home/kali/ntdsdotsqlite/venv
+- name: ntdsdotsqlite - create Python virtualenv (runs as "{{ login_user }}")
+  command: python3 -m venv "{{ login_home }}"/ntdsdotsqlite/venv
   args:
-    creates: /home/kali/ntdsdotsqlite/venv/bin/activate
+    creates: "{{ login_home }}/ntdsdotsqlite/venv/bin/activate"
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
-- name: ntdsdotsqlite - install ntdsdotsqlite inside the virtualenv (runs as kali)
+- name: ntdsdotsqlite - install ntdsdotsqlite inside the virtualenv (runs as "{{ login_user }}")
   pip:
     name: ntdsdotsqlite
-    virtualenv: /home/kali/ntdsdotsqlite/venv
+    virtualenv: "{{ login_home }}/ntdsdotsqlite/venv"
     virtualenv_python: python3
     state: latest              # change to “present” if you prefer pinning
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
 - name: ntdsdotsqlite - create global wrapper in /usr/local/bin
   file:
-    src: /home/kali/ntdsdotsqlite/venv/bin/ntdsdotsqlite
+    src: "{{ login_home }}/ntdsdotsqlite/venv/bin/ntdsdotsqlite"
     dest: /usr/local/bin/ntdsdotsqlite
     state: link
     force: yes 

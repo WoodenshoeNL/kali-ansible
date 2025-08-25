@@ -1,47 +1,47 @@
 
-- name: gmsadumper - create project directory for Kali user
+- name: gmsadumper - create project directory for "{{ login_user }}" user
   file:
-    path: /home/kali/gmsadumper
+    path: "{{ login_home }}/gmsadumper"
     state: directory
-    owner: kali
-    group: kali
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0755"
 
 - name: gMSADumper – clone upstream repository
   ansible.builtin.git:
     repo: https://github.com/micahvandeusen/gMSADumper.git
-    dest: /home/kali/gmsadumper
+    dest: "{{ login_home }}/gmsadumper"
     version: "HEAD"
     update: yes
     force: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
-- name: gmsadumper - create Python virtualenv (runs as kali)
-  command: python3 -m venv /home/kali/gmsadumper/venv
+- name: gmsadumper - create Python virtualenv (runs as "{{ login_user }}")
+  command: python3 -m venv "{{ login_home }}"/gmsadumper/venv
   args:
-    creates: /home/kali/gmsadumper/venv/bin/activate
+    creates: "{{ login_home }}/gmsadumper/venv/bin/activate"
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
-#- name: gmsadumper - install gmsadumper inside the virtualenv (runs as kali)
+#- name: gmsadumper - install gmsadumper inside the virtualenv (runs as "{{ login_user }}")
 #  pip:
 #    name: gmsadumper
-#    virtualenv: /home/kali/gmsadumper/venv
+#    virtualenv: {{ login_home }}/gmsadumper/venv
 #    virtualenv_python: python3
 #    state: latest              # change to “present” if you prefer pinning
 #  become: yes
-#  become_user: kali
+#  become_user: "{{ login_user }}"
 
 - name: gMSADumper – install Python requirements into venv
   ansible.builtin.pip:
-    requirements: /home/kali/gmsadumper/requirements.txt
-    virtualenv: /home/kali/gmsadumper/venv
+    requirements: "{{ login_home }}/gmsadumper/requirements.txt"
+    virtualenv: "{{ login_home }}/gmsadumper/venv"
     virtualenv_command: /usr/bin/python3 -m venv
-  become_user: kali
+  become_user: "{{ login_user }}"
 
 #- name: gmsadumper - create global wrapper in /usr/local/bin
 #  file:
-#    src: /home/kali/gmsadumper/venv/bin/gmsadumper
+#    src: {{ login_home }}/gmsadumper/venv/bin/gmsadumper
 #    dest: /usr/local/bin/gmsadumper
 #    state: link
 #    force: yes 
@@ -54,4 +54,4 @@
     group: root
     content: |
       #!/usr/bin/env bash
-      exec /home/kali/gmsadumper/venv/bin/python /home/kali/gmsadumper/gMSADumper.py "$@"
+      exec "{{ login_home }}"/gmsadumper/venv/bin/python "{{ login_home }}"/gmsadumper/gMSADumper.py "$@"

@@ -3,9 +3,10 @@
 
 - name: XFCE | safety-net - make sure scripts dir exists
   file:
-    path: "/home/kali/scripts"
+    path: "{{ login_home }}/scripts"
     state: directory
     mode: "0755"
+  when: vmware_env == "workstation"
 
 #######################################################################
 # Option A - keep xfce4-screensaver but set every lock bit to false
@@ -17,6 +18,7 @@
     xfconf-query -c xfce4-screensaver -p /lock/sleep-activation     -n -t bool -s false
     xfconf-query -c xfce4-screensaver -p /saver/idle-activation-enabled -n -t bool -s false
   changed_when: true
+  when: vmware_env == "workstation"
 
 #######################################################################
 # Option B - stop the daemon so it never starts (comment out if unwanted)
@@ -27,6 +29,7 @@
     regexp: '^Hidden='
     line: 'Hidden=true'
     create: yes
+  when: vmware_env == "workstation"
 
 #######################################################################
 # ALSO disable legacy light-locker just in case the VM image still has it
@@ -37,6 +40,7 @@
     regexp: '^Hidden='
     line: 'Hidden=true'
     create: yes
+  when: vmware_env == "workstation"
 
 #######################################################################
 # (Optional) drop a helper script so you can run the same logic by hand
@@ -44,5 +48,6 @@
 - name: XFCE | drop helper disable_lock.py
   copy:
     src: disable_lock.py
-    dest: "/home/kali/scripts/disable_lock.py"
+    dest: "{{ login_home }}/scripts/disable_lock.py"
     mode: "0755"
+  when: vmware_env == "workstation"

@@ -4,7 +4,7 @@
 ## TMUX
 
 
-tmux source ~/.tmux.conf
+tmux source {{ login_home }}/.tmux.conf
 
 prefix > shift + i
 

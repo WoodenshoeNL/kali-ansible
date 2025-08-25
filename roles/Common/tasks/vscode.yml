@@ -7,12 +7,20 @@
     - vscode.list
     - microsoft-vscode.list
   ignore_errors: yes
+  when: vmware_env == "workstation"
+  tags:
+    - vscode
+    - common
 
 - name: vscode – create keyrings directory
   ansible.builtin.file:
     path: /usr/share/keyrings
     state: directory
     mode: '0755'
+  when: vmware_env == "workstation"
+  tags:
+    - vscode
+    - common
 
 - name: vscode – fetch Microsoft GPG key (ASCII)
   ansible.builtin.get_url:
@@ -20,12 +28,20 @@
     dest: /tmp/microsoft.asc
     mode: '0644'
     force: yes
+  when: vmware_env == "workstation"
+  tags:
+    - vscode
+    - common
 
 - name: vscode – de-armor key into /usr/share/keyrings/microsoft.gpg
   ansible.builtin.command: >
     gpg --dearmor --output /usr/share/keyrings/microsoft.gpg /tmp/microsoft.asc
   args:
     creates: /usr/share/keyrings/microsoft.gpg
+  when: vmware_env == "workstation"
+  tags:
+    - vscode
+    - common
 
 - name: vscode – add Visual Studio Code repository
   ansible.builtin.apt_repository:
@@ -33,8 +49,18 @@
     filename: vscode
     state: present
     update_cache: yes        # runs apt-update only when the repo changes
+  when: vmware_env == "workstation"
+  tags:
+    - vscode
+    - common
 
 - name: vscode – install Visual Studio Code
   ansible.builtin.apt:
     name: code
     state: present            # switch to “latest” if you always want newest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: vmware_env == "workstation"
+  tags:
+    - vscode
+    - common

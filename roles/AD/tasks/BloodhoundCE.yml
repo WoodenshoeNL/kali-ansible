@@ -1,10 +1,10 @@
 
-- name: BloodHoundCE - create BloodHoundCE directory for Kali user
+- name: BloodHoundCE - create BloodHoundCE directory for {{ login_user }} user
   file:
-    path: /home/kali/BloodHoundCE
+    path: "{{ login_home }}/BloodHoundCE"
     state: directory
-    owner: kali
-    group: kali
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0755"
 
 
@@ -12,7 +12,7 @@
 - name: Copy configuration templates
   template:
     src: "files/bloodHoundCE/{{ item }}"
-    dest: "/home/kali/BloodHoundCE/{{ item }}"
+    dest: "{{ login_home }}/BloodHoundCE/{{ item }}"
     mode: "0664"
   loop:
     - ".env"
@@ -21,14 +21,14 @@
 
 - name: BloodHoundCE - add quick reminder read-me
   ansible.builtin.copy:
-    dest: /home/kali/BloodhoundCE_README.txt
+    dest: "{{ login_home }}/BloodhoundCE_README.txt"
     mode: "0644"
     content: |
-      BloodHoundCE docker compose located at ~/BloodHoundCE
-      cd ~/BloodHoundCE
+      BloodHoundCE docker compose located at {{ login_home }}/BloodHoundCE
+      cd {{ login_home }}/BloodHoundCE
       sudo docker compose up -d
       http://localhost:8080/ui/login
       admin:<Initial Password>
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 

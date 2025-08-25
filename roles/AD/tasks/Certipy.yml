@@ -1,31 +1,31 @@
 
-- name: certipy - create project directory for Kali user
+- name: certipy - create project directory for {{ login_user }} user
   file:
-    path: /home/kali/certipy
+    path: "{{ login_home }}/certipy"
     state: directory
-    owner: kali
-    group: kali
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0755"
 
-- name: certipy - create Python virtualenv (runs as kali)
-  command: python3 -m venv /home/kali/certipy/venv
+- name: certipy - create Python virtualenv (runs as {{ login_user }})
+  command: python3 -m venv "{{ login_home }}"/certipy/venv
   args:
-    creates: /home/kali/certipy/venv/bin/activate
+    creates: "{{ login_home }}/certipy/venv/bin/activate"
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
-- name: certipy - install certipy inside the virtualenv (runs as kali)
+- name: certipy - install certipy inside the virtualenv (runs as {{ login_user }})
   pip:
     name: certipy-ad
-    virtualenv: /home/kali/certipy/venv
+    virtualenv: "{{ login_home }}/certipy/venv"
     virtualenv_python: python3
     state: latest              # change to “present” if you prefer pinning
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
 - name: certipy - create global wrapper in /usr/local/bin
   file:
-    src: /home/kali/certipy/venv/bin/certipy-ad
+    src: "{{ login_home }}/certipy/venv/bin/certipy-ad"
     dest: /usr/local/bin/certipy-ad
     state: link
     force: yes 

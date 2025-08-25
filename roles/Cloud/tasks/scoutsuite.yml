@@ -1,31 +1,31 @@
 
-- name: scoutsuite - create project directory for Kali user
+- name: scoutsuite - create project directory for "{{ login_user }}" user
   file:
-    path: /home/kali/scoutsuite
+    path: "{{ login_home }}/scoutsuite"
     state: directory
-    owner: kali
-    group: kali
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0755"
 
-- name: scoutsuite - create Python virtualenv (runs as kali)
-  command: python3 -m venv /home/kali/scoutsuite/venv
+- name: scoutsuite - create Python virtualenv (runs as "{{ login_user }}")
+  command: python3 -m venv "{{ login_home }}"/scoutsuite/venv
   args:
-    creates: /home/kali/scoutsuite/venv/bin/activate
+    creates: "{{ login_home }}/scoutsuite/venv/bin/activate"
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
-- name: scoutsuite - install scoutsuite inside the virtualenv (runs as kali)
+- name: scoutsuite - install scoutsuite inside the virtualenv (runs as "{{ login_user }}")
   pip:
     name: scoutsuite
-    virtualenv: /home/kali/scoutsuite/venv
+    virtualenv: "{{ login_home }}/scoutsuite/venv"
     virtualenv_python: python3
     state: latest              # change to “present” if you prefer pinning
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
 
 - name: scoutsuite - create global wrapper in /usr/local/bin
   file:
-    src: /home/kali/scoutsuite/venv/bin/scout
+    src: "{{ login_home }}/scoutsuite/venv/bin/scout"
     dest: /usr/local/bin/scout
     state: link
     force: yes                 # overwrite if link already exists

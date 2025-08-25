@@ -1,13 +1,13 @@
 
-#- name: evil-winrm-py - ensure pipx PATH for kali
+#- name: evil-winrm-py - ensure pipx PATH for "{{ login_user }}"
 #  become: yes
-#  become_user: kali
+#  become_user: "{{ login_user }}"
 #  ansible.builtin.command: python3 -m pipx ensurepath --force
 #  changed_when: false   # running it twice is harmless; we suppress “changed”
 
 - name: evil-winrm-py - install/upgrade evil-winrm-py via pipx
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
   community.general.pipx:
     name: evil-winrm-py
     state: latest       # upgrades if an older version is present

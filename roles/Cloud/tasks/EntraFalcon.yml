@@ -2,17 +2,17 @@
 - name: EntraFalcon - clone repository
   ansible.builtin.git:
     repo: https://github.com/CompassSecurity/EntraFalcon
-    dest: /home/kali/entrafalcon            # fixed path keeps things predictable
+    dest: "{{ login_home }}/entrafalcon"            # fixed path keeps things predictable
     version: main
     update: yes
-    # force: yes           # uncomment if /home/kali/blackcat already exists but isn’t a repo
+    # force: yes           # uncomment if {{ login_home }}/blackcat already exists but isn’t a repo
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
   tags: entrafalcon
 
 - name: EntraFalcon - add quick reminder read-me
   ansible.builtin.copy:
-    dest: /home/kali/README_entrafalcon_RUN.txt
+    dest: "{{ login_home }}/README_entrafalcon_RUN.txt"
     mode: "0644"
     content: |
       HOW TO RUN
@@ -21,5 +21,5 @@
       PS> cd EntraFalcon
       PS> .\run_EntraFalcon.ps1 -AuthMethod "DeviceCode"
   become: yes
-  become_user: kali
+  become_user: "{{ login_user }}"
   tags: blackCat

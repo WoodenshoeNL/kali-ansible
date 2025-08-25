@@ -1,38 +1,48 @@
 
-- name: Firefox - Make sure ~/scripts exists
+- name: Ensure Firefox is installed
+  package:
+    name: firefox-esr
+    state: present
+  when: vmware_env == "workstation"
+
+- name: Firefox - Make sure {{ login_home }}/scripts exists
   file:
-    path: /home/kali/scripts
+    path: "{{ login_home }}/scripts"
     state: directory
     mode: "0755"
+  when: vmware_env == "workstation"
 
-- name: Firefox - Copy quiet_firefox.py into ~/scripts
+- name: Firefox - Copy quiet_firefox.py into {{ login_home }}/scripts
   copy:
     src: quiet_firefox.py
-    dest: /home/kali/scripts/quiet_firefox.py
+    dest: "{{ login_home }}/scripts/quiet_firefox.py"
     mode: "0755"
+  when: vmware_env == "workstation"
 
 - name: Firefox - Check if a Firefox profile already exists
   stat:
-    path: /home/kali/.mozilla/firefox/profiles.ini
+    path: "{{ login_home }}/.mozilla/firefox/profiles.ini"
   register: fx_profile
   become: true
-  become_user: kali
+  become_user: "{{ login_user }}"
+  when: vmware_env == "workstation"
 
 - name: Firefox - Create a default Firefox profile (headless) when needed
   command: firefox --headless --createprofile default
   args:
-    creates: /home/kali/.mozilla/firefox/profiles.ini
+    creates: "{{ login_home }}/.mozilla/firefox/profiles.ini"
   become: true
-  become_user: kali
+  become_user: "{{ login_user }}"
   environment:
-    HOME: /home/kali
-  when: not fx_profile.stat.exists
+    HOME: "{{ login_home }}"
+  when: vmware_env == "workstation"
 
-- name: Firefox - Run quiet_firefox.py inside the kali profile
+- name: Firefox - Run quiet_firefox.py inside the {{ login_user }} profile
   command: python3 quiet_firefox.py
   args:
-    chdir: /home/kali/scripts
+    chdir: "{{ login_home }}/scripts"
   become: true
-  become_user: kali
+  become_user: "{{ login_user }}"
   environment:
-    HOME: /home/kali
+    HOME: "{{ login_home }}"
+  when: vmware_env == "workstation"
