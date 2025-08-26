@@ -8,7 +8,9 @@
     # force: yes           # uncomment if {{ login_home }}/blackcat already exists but isn’t a repo
   become: yes
   become_user: "{{ login_user }}"
-  tags: entrafalcon
+  tags:
+    - entrafalcon
+    - cloud
 
 - name: EntraFalcon - add quick reminder read-me
   ansible.builtin.copy:
@@ -22,4 +24,6 @@
       PS> .\run_EntraFalcon.ps1 -AuthMethod "DeviceCode"
   become: yes
   become_user: "{{ login_user }}"
-  tags: blackCat
+  tags:
+    - entrafalcon
+    - cloud

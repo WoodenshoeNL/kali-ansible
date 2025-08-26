@@ -6,6 +6,9 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
     mode: '0755'
+  tags:
+    - gowitness
+    - web
 
 - name: gowitness - install via go install (runs as "{{ login_user }}")
   become_user: "{{ login_user }}"       # drop to the non-root account
@@ -17,6 +20,9 @@
     go install github.com/sensepost/gowitness@latest
   args:
     creates: "{{ login_home }}/go/bin/gowitness"   # makes the task idempotent
+  tags:
+    - gowitness
+    - web
 
 - name: gowitness - copy binary to /usr/local/bin
   become: true
@@ -27,3 +33,6 @@
     group: root
     mode: '0755'
     remote_src: true
+  tags:
+    - gowitness
+    - web

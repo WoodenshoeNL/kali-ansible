@@ -7,6 +7,9 @@
     state: directory
     mode: "0755"
   when: vmware_env == "workstation"
+  tags:
+    - screenlock
+    - common
 
 #######################################################################
 # Option A - keep xfce4-screensaver but set every lock bit to false
@@ -19,6 +22,9 @@
     xfconf-query -c xfce4-screensaver -p /saver/idle-activation-enabled -n -t bool -s false
   changed_when: true
   when: vmware_env == "workstation"
+  tags:
+    - screenlock
+    - common
 
 #######################################################################
 # Option B - stop the daemon so it never starts (comment out if unwanted)
@@ -30,6 +36,9 @@
     line: 'Hidden=true'
     create: yes
   when: vmware_env == "workstation"
+  tags:
+    - screenlock
+    - common
 
 #######################################################################
 # ALSO disable legacy light-locker just in case the VM image still has it
@@ -41,6 +50,9 @@
     line: 'Hidden=true'
     create: yes
   when: vmware_env == "workstation"
+  tags:
+    - screenlock
+    - common
 
 #######################################################################
 # (Optional) drop a helper script so you can run the same logic by hand
@@ -51,3 +63,6 @@
     dest: "{{ login_home }}/scripts/disable_lock.py"
     mode: "0755"
   when: vmware_env == "workstation"
+  tags:
+    - screenlock
+    - common

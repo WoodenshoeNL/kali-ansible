@@ -7,3 +7,6 @@
   environment:
     GOBIN: /usr/local/bin            # install straight to system PATH
     GO111MODULE: "on"
+  tags:
+    - ldapx
+    - AD

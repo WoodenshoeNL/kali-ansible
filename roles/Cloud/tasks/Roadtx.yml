@@ -6,6 +6,9 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
     mode: "0755"
+  tags:
+    - roadtx
+    - cloud
 
 - name: roadtx - create Python virtualenv (runs as "{{ login_user }}")
   command: python3 -m venv "{{ login_home }}"/roadtx/venv
@@ -13,6 +16,9 @@
     creates: "{{ login_home }}/roadtx/venv/bin/activate"
   become: yes
   become_user: "{{ login_user }}"
+  tags:
+    - roadtx
+    - cloud
 
 - name: roadtx - install roadtx inside the virtualenv (runs as "{{ login_user }}")
   pip:
@@ -22,6 +28,9 @@
     state: latest              # change to “present” if you prefer pinning
   become: yes
   become_user: "{{ login_user }}"
+  tags:
+    - roadtx
+    - cloud
 
 - name: roadtx - create global wrapper in /usr/local/bin
   file:
@@ -29,3 +38,6 @@
     dest: /usr/local/bin/roadtx
     state: link
     force: yes                 # overwrite if link already exists
+  tags:
+    - roadtx
+    - cloud

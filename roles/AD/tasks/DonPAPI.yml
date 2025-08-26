@@ -3,6 +3,9 @@
   become_user: "{{ login_user }}"
   ansible.builtin.command: python3 -m pipx ensurepath --force
   changed_when: false   # running it twice is harmless; we suppress “changed”
+  tags:
+    - DonPAPI
+    - AD
 
 - name: DonPAPI - install/upgrade DonPAPI via pipx
   become: yes
@@ -10,3 +13,6 @@
   community.general.pipx:
     name: donpapi
     state: latest       # upgrades if an older version is present
+  tags:
+    - DonPAPI
+    - AD

@@ -6,6 +6,7 @@
       - xsel
     state: present
     update_cache: yes
+    cache_valid_time: 3600
   tags:
     - tmux
     - common
@@ -55,7 +56,7 @@
   tags:
     - tmux
     - common
-  
+
 - name: Tmux - Copy Tmux_cheat-sheet.txt into {{ login_home }}
   become: false
   copy:

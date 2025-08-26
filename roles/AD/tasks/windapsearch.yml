@@ -6,6 +6,9 @@
     owner: root
     group: root
     mode: "0755"
+  tags:
+    - windapsearch
+    - AD
 
 - name: windapsearch - Download Windapsearch binary (if missing or outdated)
   get_url:
@@ -14,6 +17,9 @@
     mode: "0755"
     force: no         # skip download when the file already exists and size/hash match
   register: windap_dl
+  tags:
+    - windapsearch
+    - AD
 
 - name: windapsearch - Create/update symlink in /usr/local/bin
   file:
@@ -23,14 +29,20 @@
     owner: root
     group: root
     force: yes        # replaces an old link pointing elsewhere if needed
+  tags:
+    - windapsearch
+    - AD
 
 - name: windapsearch - Verify installation
   command: windapsearch --version
   register: windapsearch_version
-  changed_when: false        
+  changed_when: false
   tags: [debug]
 
 - name: windapsearch - Show installed version
   debug:
     msg: "{{ windapsearch_version.stdout }}"
   when: windapsearch_version.stdout is defined
+  tags:
+    - windapsearch
+    - AD

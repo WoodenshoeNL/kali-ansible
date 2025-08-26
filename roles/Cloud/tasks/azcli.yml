@@ -7,6 +7,9 @@
          if (ansible_distribution == 'Kali' and
              ansible_distribution_release == 'kali-rolling')
          else ansible_distribution_release }}
+  tags:
+    - azcli
+    - cloud
 
 - name: Azure CLI - Ensure prerequisite packages are present
   apt:
@@ -18,6 +21,10 @@
       - lsb-release
     state: present
     update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - azcli
+    - cloud
 
 - name: Azure CLI - Install Microsoft signing key (if not already present)
   get_url:
@@ -25,6 +32,9 @@
     dest: /usr/share/keyrings/microsoft.asc.gpg
     mode: '0644'
   register: _microsoft_key
+  tags:
+    - azcli
+    - cloud
 
 - name: Azure CLI - Configure Azure CLI apt repository
   apt_repository:
@@ -34,13 +44,22 @@
     filename: azure-cli
     state: present
   register: _azcli_repo
+  tags:
+    - azcli
+    - cloud
 
 - name: Azure CLI - Refresh apt cache if repo or key changed
   apt:
     update_cache: yes
   when: _azcli_repo.changed or _microsoft_key.changed
+  tags:
+    - azcli
+    - cloud
 
 - name: Azure CLI - Install / upgrade Azure CLI
   apt:
     name: azure-cli
     state: latest
+  tags:
+    - azcli
+    - cloud

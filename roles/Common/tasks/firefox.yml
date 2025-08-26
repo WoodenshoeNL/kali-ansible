@@ -4,6 +4,9 @@
     name: firefox-esr
     state: present
   when: vmware_env == "workstation"
+  tags:
+    - Firefox
+    - common
 
 - name: Firefox - Make sure {{ login_home }}/scripts exists
   file:
@@ -11,6 +14,9 @@
     state: directory
     mode: "0755"
   when: vmware_env == "workstation"
+  tags:
+    - Firefox
+    - common
 
 - name: Firefox - Copy quiet_firefox.py into {{ login_home }}/scripts
   copy:
@@ -18,6 +24,9 @@
     dest: "{{ login_home }}/scripts/quiet_firefox.py"
     mode: "0755"
   when: vmware_env == "workstation"
+  tags:
+    - Firefox
+    - common
 
 - name: Firefox - Check if a Firefox profile already exists
   stat:
@@ -26,6 +35,9 @@
   become: true
   become_user: "{{ login_user }}"
   when: vmware_env == "workstation"
+  tags:
+    - Firefox
+    - common
 
 - name: Firefox - Create a default Firefox profile (headless) when needed
   command: firefox --headless --createprofile default
@@ -36,6 +48,9 @@
   environment:
     HOME: "{{ login_home }}"
   when: vmware_env == "workstation"
+  tags:
+    - Firefox
+    - common
 
 - name: Firefox - Run quiet_firefox.py inside the {{ login_user }} profile
   command: python3 quiet_firefox.py
@@ -46,3 +61,6 @@
   environment:
     HOME: "{{ login_home }}"
   when: vmware_env == "workstation"
+  tags:
+    - Firefox
+    - common

@@ -8,7 +8,9 @@
     # force: yes           # uncomment if {{ login_home }}/blackcat already exists but isn’t a repo
   become: yes
   become_user: "{{ login_user }}"
-  tags: blackCat
+  tags:
+    - blackcat
+    - cloud
 
 - name: BlackCat - add quick reminder read-me
   ansible.builtin.copy:
@@ -22,4 +24,6 @@
       PS> import-module ./blackcat.psd1
   become: yes
   become_user: "{{ login_user }}"
-  tags: blackCat
+  tags:
+    - blackcat
+    - cloud

@@ -6,8 +6,12 @@
       - curl
       - gnupg
     state: present
-    update_cache: false        # apt cache is already fresh earlier in the play
+    update_cache: yes
+    cache_valid_time: 3600
   when: vmware_env == "workstation"
+  tags:
+    - chrome
+    - common
 
 - name: google-chrome - add Google Linux signing key (dearmored)
   command: >

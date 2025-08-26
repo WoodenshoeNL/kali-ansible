@@ -6,6 +6,9 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
     mode: "0755"
+  tags:
+    - BloodHoundCE
+    - AD
 
 
 # Copy conf files from BloodHound
@@ -18,6 +21,9 @@
     - ".env"
     - "bloodhound.config.json"
     - "docker-compose.yml"
+  tags:
+    - BloodHoundCE
+    - AD
 
 - name: BloodHoundCE - add quick reminder read-me
   ansible.builtin.copy:
@@ -31,4 +37,7 @@
       admin:<Initial Password>
   become: yes
   become_user: "{{ login_user }}"
+  tags:
+    - BloodHoundCE
+    - AD
 

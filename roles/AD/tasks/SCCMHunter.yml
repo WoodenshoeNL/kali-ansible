@@ -8,7 +8,9 @@
     # force: yes           # uncomment if {{ login_home }}/sccmhunter already exists but isn’t a repo
   become: yes
   become_user: "{{ login_user }}"
-  tags: sccmhunter
+  tags:
+    - sccmhunter
+    - AD
 
 # The pip module will CREATE the virtualenv automatically if it does not exist
 - name: sccmhunter - install Python requirements into virtualenv
@@ -19,7 +21,9 @@
     virtualenv_site_packages: no
   become: yes
   become_user: "{{ login_user }}"
-  tags: sccmhunter
+  tags:
+    - sccmhunter
+    - AD
 
 # Optional: expose a convenient wrapper in /usr/local/bin
 - name: sccmhunter - add helper launcher to system PATH
@@ -30,7 +34,9 @@
       #!/usr/bin/env bash
       source "{{ login_home }}"/sccmhunter/venv/bin/activate
       exec python "{{ login_home }}"/sccmhunter/sccmhunter.py "$@"
-  tags: sccmhunter
+  tags:
+    - sccmhunter
+    - AD
 
 # Light-weight functional check; ignored for idempotency purposes
 - name: sccmhunter - verify CLI starts
@@ -39,7 +45,9 @@
   become_user: "{{ login_user }}"
   register: sccm_verify
   changed_when: false
-  tags: sccmhunter
+  tags:
+    - sccmhunter
+    - AD
 
 - name: sccmhunter - place local launcher inside repo dir
   ansible.builtin.copy:
@@ -53,7 +61,9 @@
       exec python sccmhunter.py "$@"
   become: yes
   become_user: "{{ login_user }}"
-  tags: sccmhunter
+  tags:
+    - sccmhunter
+    - AD
 
 - name: sccmhunter - add quick reminder read-me
   ansible.builtin.copy:
@@ -66,4 +76,6 @@
       2) Alt:          ./run_sccmhunter.sh  from inside this folder
   become: yes
   become_user: "{{ login_user }}"
-  tags: sccmhunter
+  tags:
+    - sccmhunter
+    - AD

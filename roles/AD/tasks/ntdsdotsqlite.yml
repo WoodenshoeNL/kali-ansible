@@ -6,6 +6,9 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
     mode: "0755"
+  tags:
+    - ntdsdotsqlite
+    - AD
 
 - name: ntdsdotsqlite - create Python virtualenv (runs as "{{ login_user }}")
   command: python3 -m venv "{{ login_home }}"/ntdsdotsqlite/venv
@@ -13,6 +16,9 @@
     creates: "{{ login_home }}/ntdsdotsqlite/venv/bin/activate"
   become: yes
   become_user: "{{ login_user }}"
+  tags:
+    - ntdsdotsqlite
+    - AD
 
 - name: ntdsdotsqlite - install ntdsdotsqlite inside the virtualenv (runs as "{{ login_user }}")
   pip:
@@ -22,10 +28,16 @@
     state: latest              # change to “present” if you prefer pinning
   become: yes
   become_user: "{{ login_user }}"
+  tags:
+    - ntdsdotsqlite
+    - AD
 
 - name: ntdsdotsqlite - create global wrapper in /usr/local/bin
   file:
     src: "{{ login_home }}/ntdsdotsqlite/venv/bin/ntdsdotsqlite"
     dest: /usr/local/bin/ntdsdotsqlite
     state: link
-    force: yes 
+    force: yes
+  tags:
+    - ntdsdotsqlite
+    - AD

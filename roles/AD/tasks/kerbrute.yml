@@ -7,3 +7,6 @@
     owner: root
     group: root
     force: no          # skip download if exact same file already present
+  tags:
+    - kerbrute
+    - AD
