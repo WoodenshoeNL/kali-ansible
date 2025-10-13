@@ -5,7 +5,7 @@
     state: latest      # always pull the newest version available
     update_cache: yes
     cache_valid_time: 3600
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - obsidian
     - common

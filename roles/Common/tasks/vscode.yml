@@ -7,7 +7,7 @@
     - vscode.list
     - microsoft-vscode.list
   ignore_errors: yes
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - vscode
     - common
@@ -17,7 +17,7 @@
     path: /usr/share/keyrings
     state: directory
     mode: '0755'
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - vscode
     - common
@@ -28,7 +28,7 @@
     dest: /tmp/microsoft.asc
     mode: '0644'
     force: yes
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - vscode
     - common
@@ -38,7 +38,7 @@
     gpg --dearmor --output /usr/share/keyrings/microsoft.gpg /tmp/microsoft.asc
   args:
     creates: /usr/share/keyrings/microsoft.gpg
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - vscode
     - common
@@ -49,7 +49,7 @@
     filename: vscode
     state: present
     update_cache: yes        # runs apt-update only when the repo changes
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - vscode
     - common
@@ -60,7 +60,7 @@
     state: present            # switch to “latest” if you always want newest
     update_cache: yes
     cache_valid_time: 3600
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - vscode
     - common

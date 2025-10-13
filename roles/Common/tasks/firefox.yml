@@ -3,7 +3,7 @@
   package:
     name: firefox-esr
     state: present
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - Firefox
     - common
@@ -13,7 +13,7 @@
     path: "{{ login_home }}/scripts"
     state: directory
     mode: "0755"
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - Firefox
     - common
@@ -23,7 +23,7 @@
     src: quiet_firefox.py
     dest: "{{ login_home }}/scripts/quiet_firefox.py"
     mode: "0755"
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - Firefox
     - common
@@ -34,7 +34,7 @@
   register: fx_profile
   become: true
   become_user: "{{ login_user }}"
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - Firefox
     - common
@@ -47,7 +47,7 @@
   become_user: "{{ login_user }}"
   environment:
     HOME: "{{ login_home }}"
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - Firefox
     - common
@@ -60,7 +60,7 @@
   become_user: "{{ login_user }}"
   environment:
     HOME: "{{ login_home }}"
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - Firefox
     - common

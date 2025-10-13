@@ -6,7 +6,7 @@
     path: "{{ login_home }}/scripts"
     state: directory
     mode: "0755"
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - screenlock
     - common
@@ -21,7 +21,7 @@
     xfconf-query -c xfce4-screensaver -p /lock/sleep-activation     -n -t bool -s false
     xfconf-query -c xfce4-screensaver -p /saver/idle-activation-enabled -n -t bool -s false
   changed_when: true
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - screenlock
     - common
@@ -35,7 +35,7 @@
     regexp: '^Hidden='
     line: 'Hidden=true'
     create: yes
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - screenlock
     - common
@@ -49,7 +49,7 @@
     regexp: '^Hidden='
     line: 'Hidden=true'
     create: yes
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - screenlock
     - common
@@ -62,7 +62,7 @@
     src: disable_lock.py
     dest: "{{ login_home }}/scripts/disable_lock.py"
     mode: "0755"
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - screenlock
     - common

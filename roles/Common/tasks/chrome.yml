@@ -8,7 +8,7 @@
     state: present
     update_cache: yes
     cache_valid_time: 3600
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
   tags:
     - chrome
     - common
@@ -20,14 +20,14 @@
   args:
     creates: /usr/share/keyrings/google-linux-signing-keyring.gpg
   # Using `creates` keeps the task idempotent—runs only if the keyring file is absent.
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
 
 - name: google-chrome - add Google Chrome apt repository
   apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-signing-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main"
     filename: google-chrome
     state: present
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
 
 - name: google-chrome - install latest stable package
   apt:
@@ -35,4 +35,4 @@
     state: latest
     update_cache: yes          # refresh cache now that a new repo is in place
     cache_valid_time: 3600     # skip refresh again for the next hour
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "laptop"]
