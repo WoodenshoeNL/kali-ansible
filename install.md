@@ -82,3 +82,252 @@ https://github.com/BloodHoundAD/BloodHound/tree/master/Collectors
 https://github.com/SnaffCon/Snaffler
 
  
+## OSINT
+
+sherlock
+```
+pipx install sherlock-project
+```
+github.com/sherlock-project
+
+
+SocialScan
+```
+pipx install socialscan
+```
+github.com/iojw/socialscan
+
+
+Blackbird
+```
+cd ~/Downloads/Programs
+git clone https://github.com/p1ngul1n0/blackbird
+cd blackbird
+python3 -m venv blackbirdEnvironment
+source blackbirdEnvironment/bin/activate
+sudo pip install -r requirements.txt
+deactivate
+```
+github.com/p1ngul1n0/blackbird
+
+
+
+Maigret
+```
+cd ~/Downloads/Programs
+git clone https://github.com/soxoj/maigret
+cd maigret
+python3 -m venv maigretEnvironment
+source maigretEnvironment/bin/activate
+sudo pip3 install .
+deactivat
+```
+github.com/soxoj/maigret
+
+
+WhatsMyName-Python
+```
+cd ~/Downloads/Programs
+git clone https://github.com/C3n7ral051nt4g3ncy/WhatsMyName-
+Python.git
+cd WhatsMyName-Python
+python3 -m venv wmnpythonEnvironment
+source wmnpythonEnvironment/bin/activate
+sudo pip3 install -r requirements.txt
+deactivate
+```
+github.com/C3n7ral051nt4g3ncy
+
+
+Holehe
+```
+pipx install holehe
+```
+github.com/megadose/holehe
+
+
+Eyes
+```
+mkdir ~/Downloads/Programs/eyes
+cd ~/Downloads/Programs/eyes
+git clone https://github.com/N0rz3/Eyes.git
+cd Eyes
+python3 -m venv eyesEnvironment
+source eyesEnvironment/bin/activate
+sudo pip install -r requirements.txt
+deactivate
+```
+https://github.com/N0rz3/Eyes
+
+
+
+GHunt
+```
+pipx install ghunt
+```
+github.com/mxrch/Ghunt
+
+
+H8Mail
+```
+pipx install h8mail
+```
+https://github.com/khast3x/h8mail
+
+
+Hash Tools
+```
+pipx install search-that-hash
+pipx install name-that-hash
+```
+github.com/HashPals/
+
+
+Amass
+```
+cd ~/Downloads
+ver=$(dpkg --print-architecture)
+wget https://github.com/owasp-
+amass/amass/releases/latest/download/amass_Linux_"$ver".zip
+mkdir ~/Downloads/Programs/Amass
+unzip amass_Linux_"$ver".zip -d ~/Downloads/Programs/Amass/
+cd Programs/Amass/amass_Linux_"$ver"/
+mv * ~/Downloads/Programs/Amass
+rm -r ~/Downloads/Programs/Amass/amass_Linux_"$ver"/
+rm '/home/osint/Downloads/amass_Linux_arm64.zip'
+```
+https://github.com/owasp-amass/amass
+
+
+
+Photon
+```
+cd ~/Downloads/Programs
+git clone https://github.com/s0md3v/Photon.git
+cd Photon
+python3 -m venv PhotonEnvironment
+source PhotonEnvironment/bin/activate
+sudo pip install -r requirements.txt
+deactivate
+```
+https://github.com/s0md3v/Photon
+
+
+Sublist3r
+```
+cd ~/Downloads/Programs
+git clone https://github.com/aboul3la/Sublist3r.git
+cd Sublist3r
+python3 -m venv Sublist3rEnvironment
+source Sublist3rEnvironment/bin/activate
+sudo pip install -r requirements.txt
+deactivate
+```
+https://github.com/aboul3la/Sublist3r
+
+
+
+TheHarvester
+```
+cd ~/Downloads/Programs
+git clone https://github.com/laramies/theHarvester.git
+cd theHarvester
+python3 -m venv theHarvesterEnvironment
+source theHarvesterEnvironment/bin/activate
+sudo pip install -r requirements.txt
+deactivate
+```
+https://github.com/laramies/theHarvester
+
+
+
+Carbon14
+```
+cd ~/Downloads/Programs
+git clone https://github.com/Lazza/Carbon14
+cd Carbon14
+python3 -m venv Carbon14Environment
+source Carbon14Environment/bin/activate
+sudo pip install -r requirements.txt
+deactivate
+```
+https://github.com/Lazza/Carbon14
+
+
+
+
+Change Detection
+```
+pipx install changedetection.io
+```
+github.com/dgtlmoon/changedetection.io
+
+
+Exiftool
+```
+sudo apt update && sudo apt install libimage-exiftool-perl -y
+```
+https://exiftool.org/
+
+
+MediaInfo
+```
+sudo apt update && sudo apt install mediainfo-gui -y
+```
+https://mediaarea.net/en/MediaInfo
+
+
+Spiderfoot
+```
+cd ~/Downloads/Programs
+git clone https://github.com/smicallef/spiderfoot.git
+cd spiderfoot
+python3 -m venv spiderfootEnvironment
+source spiderfootEnvironment/bin/activate
+sudo pip install -r requirements.txt
+deactivate
+```
+https://github.com/smicallef/spiderfoot.git
+
+
+Recon-ng
+```
+cd ~/Downloads/Programs
+git clone https://github.com/lanmaster53/recon-ng.git
+cd recon-ng
+python3 -m venv recon-ngEnvironment
+source recon-ngEnvironment/bin/activate
+sudo pip install -r REQUIREMENTS
+deactivate
+```
+https://github.com/lanmaster53/recon-ng.git
+
+
+Mr. Holmes
+```
+cd ~/Downloads/Programs
+git clone https://github.com/Lucksi/Mr.Holmes
+cd Mr.Holmes
+sudo apt update
+sudo chmod +x install.sh
+sudo bash install.sh
+```
+https://github.com/Lucksi/Mr.Holmes
+
+
+sn0int
+```
+cd ~/Downloads/Programs
+sudo apt install curl sq
+curl -sSf https://apt.vulns.sexy/kpcyrd.pgp | sq dearmor |
+sudo tee /etc/apt/trusted.gpg.d/apt-vulns-sexy.gpg
+echo deb http://apt.vulns.sexy stable main | sudo tee
+/etc/apt/sources.list.d/apt-vulns-sexy.list
+sudo apt update && sudo apt install sn0int
+```
+https://github.com/kpcyrd/sn0int
+
+
+
+sudo apt install -y jq
+sudo apt install -y ripgrep
