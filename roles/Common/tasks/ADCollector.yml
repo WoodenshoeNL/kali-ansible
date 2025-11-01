@@ -8,22 +8,34 @@
       - mono-complete        # runtime + SDK
       - mono-xbuild          # brings the xbuild CLI
     state: present
+  tags:
+    - stockpile
+    - common
 
 - name: ADCollector - Clone or update ADCollector repo
   ansible.builtin.git:
     repo: "https://github.com/dev-2null/ADCollector.git"
     dest: "/stockpile/ADCollector"
     update: yes
+  tags:
+    - stockpile
+    - common
 
 - name: ADCollector - Build with Mono’s MSBuild
   ansible.builtin.shell: |
     xbuild "/stockpile/ADCollector/ADCollector3/ADCollector3.sln" /p:Configuration=Release /p:Platform="Any CPU"
   args:
     chdir: "/stockpile/ADCollector"
+  tags:
+    - stockpile
+    - common
 
 - name: ADCollector - Copy the EXE to a clean output folder
   ansible.builtin.copy:
     remote_src: yes
     src: "/stockpile/ADCollector/ADCollector3/bin/Release//stockpile/ADCollector"
     dest: "/stockpile/ADCollector/"
+  tags:
+    - stockpile
+    - common
 

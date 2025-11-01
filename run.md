@@ -38,3 +38,11 @@ Run Ansible
 ```
 sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=laptop login_user=kali login_home=/home/kali"
 ```
+
+## Tags
+
+Install with specific tag:
+```
+sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=workstation login_user=kali login_home=/home/kali" --tags core
+```
+
