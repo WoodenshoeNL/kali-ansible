@@ -25,8 +25,8 @@ def main():
     print("Disabling every known XFCE lock trigger…")
 
     # 1. Kill the daemon if it is already up (harmless if not)
-    if shutil.which("pkill"):
-        cmd("pkill", "-f", "xfce4-screensaver")
+    #if shutil.which("pkill"):
+    #    cmd("pkill", "-f", "xfce4-screensaver")
 
     # 2. Flip all lock bits in xfce4-screensaver
     xfconf("xfce4-screensaver", "/lock/enabled")
@@ -38,10 +38,6 @@ def main():
     os.makedirs(os.path.dirname(autostart), exist_ok=True)
     with open(autostart, "w") as f:
         f.write("[Desktop Entry]\nHidden=true\n")
-
-    # 4. Legacy light-locker (rare on Kali ≥2023 but cheap insurance)
-    if os.path.exists("/etc/xdg/autostart/light-locker.desktop"):
-        cmd("sudo", "sed", "-i", "s/^Hidden=.*/Hidden=true/", "/etc/xdg/autostart/light-locker.desktop")
 
     print("Done.  Log out and back in once to make sure the change sticks.")
 

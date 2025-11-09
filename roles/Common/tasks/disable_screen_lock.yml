@@ -1,18 +1,8 @@
 ---
 # Disable ANY auto-lock on a Kali XFCE VM (idle OR suspend)
 
-- name: XFCE | safety-net - make sure scripts dir exists
-  file:
-    path: "{{ login_home }}/scripts"
-    state: directory
-    mode: "0755"
-  when: vmware_env in ["workstation", "laptop"]
-  tags:
-    - screenlock
-    - common
-
 #######################################################################
-# Option A - keep xfce4-screensaver but set every lock bit to false
+# keep xfce4-screensaver but set every lock bit to false
 #######################################################################
 - name: XFCE | turn off xfce4-screensaver locking via xfconf
   become_user: "{{ ansible_user_id }}"          # run as the desktop user
@@ -27,7 +17,7 @@
     - common
 
 #######################################################################
-# Option B - stop the daemon so it never starts (comment out if unwanted)
+# stop the daemon so it never starts (comment out if unwanted)
 #######################################################################
 - name: XFCE | block xfce4-screensaver autostart system-wide
   lineinfile:
@@ -35,33 +25,6 @@
     regexp: '^Hidden='
     line: 'Hidden=true'
     create: yes
-  when: vmware_env in ["workstation", "laptop"]
-  tags:
-    - screenlock
-    - common
-
-#######################################################################
-# ALSO disable legacy light-locker just in case the VM image still has it
-#######################################################################
-- name: XFCE | ensure light-locker also stays gone
-  lineinfile:
-    path: /etc/xdg/autostart/light-locker.desktop
-    regexp: '^Hidden='
-    line: 'Hidden=true'
-    create: yes
-  when: vmware_env in ["workstation", "laptop"]
-  tags:
-    - screenlock
-    - common
-
-#######################################################################
-# (Optional) drop a helper script so you can run the same logic by hand
-#######################################################################
-- name: XFCE | drop helper disable_lock.py
-  copy:
-    src: disable_lock.py
-    dest: "{{ login_home }}/scripts/disable_lock.py"
-    mode: "0755"
   when: vmware_env in ["workstation", "laptop"]
   tags:
     - screenlock
