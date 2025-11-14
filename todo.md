@@ -38,7 +38,9 @@ Add tools:
 - SSHscan
 - TestSSL
 - windapsearch.py
-
+- John the ripper (newer version)
+- hashcat
+- vim
 
 
 
@@ -48,5 +50,5 @@ Download tools to vmdisk:
 
 
 
-
+Fix read right seclist/rockyou
 
