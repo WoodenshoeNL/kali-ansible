@@ -62,3 +62,6 @@
 
 - name: Run obsidian setup
   import_tasks: obsidian.yml
+
+- name: Run Fix mouse pointer
+  import_tasks: fix-mouse-pointer.yml
