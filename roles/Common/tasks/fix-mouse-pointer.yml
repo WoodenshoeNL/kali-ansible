@@ -1,0 +1,16 @@
+
+- name: FixMousePointer - add /etc/X11/xorg.conf.d/20-vmware-cursor.conf
+  ansible.builtin.copy:
+    dest: "/etc/X11/xorg.conf.d/20-vmware-cursor.conf"
+    mode: "0644"
+    content: |
+      Section "Device"
+        Identifier "VMware SVGA"
+        Driver "vmware"
+        Option "HWcursor" "off"
+      EndSection
+  become: yes
+  become_user: "root"
+  tags:
+    - FixMousePointer
+    - common
