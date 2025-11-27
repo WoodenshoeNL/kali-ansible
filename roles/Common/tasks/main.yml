@@ -62,3 +62,6 @@
 
 - name: Run obsidian setup
   import_tasks: obsidian.yml
+
+- name: Run rust setup
+  import_tasks: rust.yml

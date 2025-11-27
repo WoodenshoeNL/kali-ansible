@@ -1,0 +1,35 @@
+
+- name: Rust - Check if cargo is installed
+  shell: command -v cargo
+  register: cargo_exists
+  ignore_errors: yes
+  changed_when: false
+  tags:
+    - rust
+    - common
+
+- name: Rust - Download rustup-init.sh
+  get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-init.sh
+    mode: '0755'
+  when: cargo_exists.rc != 0
+  tags:
+    - rust
+    - common
+
+- name: Rust - Install rust
+  shell: /tmp/rustup-init.sh -y
+  when: cargo_exists.rc != 0
+  tags:
+    - rust
+    - common
+
+- name: Rust - Remove rustup-init.sh
+  file:
+    path: /tmp/rustup-init.sh
+    state: absent
+  when: cargo_exists.rc != 0
+  tags:
+    - rust
+    - common
