@@ -29,6 +29,8 @@
       - build-essential
       - freerdp3-x11
       - unzip
+      - libssl-dev
+      - pkg-config
     state: present
     update_cache: yes
     cache_valid_time: 3600
