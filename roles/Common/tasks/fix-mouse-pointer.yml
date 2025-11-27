@@ -11,6 +11,7 @@
       EndSection
   become: yes
   become_user: "root"
+  when: vmware_env in ["workstation"]
   tags:
     - FixMousePointer
     - common
