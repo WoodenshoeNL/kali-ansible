@@ -54,11 +54,12 @@
     - spiderfoot
     - OSINT
 
-- name: spiderfoot - Install requirements in venv
+- name: spiderfoot - Install requirements in venv (excluding lxml)
   become: yes
   become_user: "{{ login_user }}"
-  command:
-    cmd: "{{ login_home }}/Programs/spiderfoot/venv/bin/pip install -r requirements.txt"
+  shell: |
+    grep -v '^lxml' requirements.txt | {{ login_home }}/Programs/spiderfoot/venv/bin/pip install -r /dev/stdin
+  args:
     chdir: "{{ login_home }}/Programs/spiderfoot"
   tags:
     - spiderfoot
