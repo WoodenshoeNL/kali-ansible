@@ -1,0 +1,36 @@
+================================================================================
+                           OSINT Tools Reference
+================================================================================
+
+Sherlock
+--------
+  Command: sherlock
+  Description: Hunt down social media accounts by username across social networks.
+  GitHub: https://github.com/sherlock-project/sherlock
+
+Maigret
+-------
+  Command: maigret
+  Description: Collect a dossier on a person by username from thousands of sites.
+  GitHub: https://github.com/soxoj/maigret
+
+Sublist3r
+---------
+  Command: sublist3r
+  Description: Fast subdomain enumeration tool using OSINT sources.
+  GitHub: https://github.com/aboul3la/Sublist3r
+
+TheHarvester
+------------
+  Command: theHarvester
+  Description: E-mails, subdomains and names harvester from public sources.
+  GitHub: https://github.com/laramies/theHarvester
+
+Carbon14
+--------
+  Command: carbon14
+  Description: Estimate the date of a web page by analyzing metadata and resources.
+  GitHub: https://github.com/Lazza/Carbon14
+
+================================================================================
+

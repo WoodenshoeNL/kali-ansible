@@ -1,0 +1,12 @@
+
+- name: carbon14 - install/upgrade Carbon14 via pipx from git
+  become: yes
+  become_user: "{{ login_user }}"
+  community.general.pipx:
+    name: carbon14
+    source: git+https://github.com/Lazza/Carbon14.git
+    state: latest       # upgrades if an older version is present
+  tags:
+    - carbon14
+    - OSINT
+

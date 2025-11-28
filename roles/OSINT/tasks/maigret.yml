@@ -1,0 +1,11 @@
+
+- name: maigret - install/upgrade maigret via pipx
+  become: yes
+  become_user: "{{ login_user }}"
+  community.general.pipx:
+    name: maigret
+    state: latest       # upgrades if an older version is present
+  tags:
+    - maigret
+    - OSINT
+

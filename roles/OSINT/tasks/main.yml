@@ -1,4 +1,25 @@
 
+- name: OSINT - Copy OSINT_Tools.txt to home directory
+  become: false
+  copy:
+    src: OSINT_Tools.txt
+    dest: "{{ login_home }}/OSINT_Tools.txt"
+    mode: "0644"
+  tags:
+    - OSINT
+
 - name: Run - Sherlock setup
   import_tasks: sherlock.yml
+
+- name: Run - Maigret setup
+  import_tasks: maigret.yml
+
+- name: Run - Sublist3r setup
+  import_tasks: sublist3r.yml
+
+- name: Run - TheHarvester setup
+  import_tasks: theharvester.yml
+
+- name: Run - Carbon14 setup
+  import_tasks: carbon14.yml
 
