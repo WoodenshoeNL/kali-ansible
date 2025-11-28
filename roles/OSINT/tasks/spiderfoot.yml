@@ -1,4 +1,16 @@
 
+- name: spiderfoot - Install system dependencies for lxml
+  apt:
+    name:
+      - libxml2-dev
+      - libxslt1-dev
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - spiderfoot
+    - OSINT
+
 - name: spiderfoot - Ensure Programs directory exists
   become: yes
   become_user: "{{ login_user }}"

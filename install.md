@@ -84,12 +84,6 @@ https://github.com/SnaffCon/Snaffler
  
 ## OSINT
 
-sherlock
-```
-pipx install sherlock-project
-```
-github.com/sherlock-project
-
 
 SocialScan
 ```
@@ -111,18 +105,6 @@ deactivate
 github.com/p1ngul1n0/blackbird
 
 
-
-Maigret
-```
-cd ~/Downloads/Programs
-git clone https://github.com/soxoj/maigret
-cd maigret
-python3 -m venv maigretEnvironment
-source maigretEnvironment/bin/activate
-sudo pip3 install .
-deactivat
-```
-github.com/soxoj/maigret
 
 
 WhatsMyName-Python
@@ -213,45 +195,6 @@ deactivate
 https://github.com/s0md3v/Photon
 
 
-Sublist3r
-```
-cd ~/Downloads/Programs
-git clone https://github.com/aboul3la/Sublist3r.git
-cd Sublist3r
-python3 -m venv Sublist3rEnvironment
-source Sublist3rEnvironment/bin/activate
-sudo pip install -r requirements.txt
-deactivate
-```
-https://github.com/aboul3la/Sublist3r
-
-
-
-TheHarvester
-```
-cd ~/Downloads/Programs
-git clone https://github.com/laramies/theHarvester.git
-cd theHarvester
-python3 -m venv theHarvesterEnvironment
-source theHarvesterEnvironment/bin/activate
-sudo pip install -r requirements.txt
-deactivate
-```
-https://github.com/laramies/theHarvester
-
-
-
-Carbon14
-```
-cd ~/Downloads/Programs
-git clone https://github.com/Lazza/Carbon14
-cd Carbon14
-python3 -m venv Carbon14Environment
-source Carbon14Environment/bin/activate
-sudo pip install -r requirements.txt
-deactivate
-```
-https://github.com/Lazza/Carbon14
 
 
 
@@ -277,30 +220,6 @@ sudo apt update && sudo apt install mediainfo-gui -y
 https://mediaarea.net/en/MediaInfo
 
 
-Spiderfoot
-```
-cd ~/Downloads/Programs
-git clone https://github.com/smicallef/spiderfoot.git
-cd spiderfoot
-python3 -m venv spiderfootEnvironment
-source spiderfootEnvironment/bin/activate
-sudo pip install -r requirements.txt
-deactivate
-```
-https://github.com/smicallef/spiderfoot.git
-
-
-Recon-ng
-```
-cd ~/Downloads/Programs
-git clone https://github.com/lanmaster53/recon-ng.git
-cd recon-ng
-python3 -m venv recon-ngEnvironment
-source recon-ngEnvironment/bin/activate
-sudo pip install -r REQUIREMENTS
-deactivate
-```
-https://github.com/lanmaster53/recon-ng.git
 
 
 Mr. Holmes
@@ -328,6 +247,3 @@ sudo apt update && sudo apt install sn0int
 https://github.com/kpcyrd/sn0int
 
 
-
-sudo apt install -y jq
-sudo apt install -y ripgrep

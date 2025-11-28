@@ -2,6 +2,25 @@
                            OSINT Tools Reference
 ================================================================================
 
+jq
+--
+  Usage: jq '<filter>' <file.json> | cat file.json | jq '<filter>'
+  Description: Lightweight command-line JSON processor for parsing and transforming JSON data.
+  OPSEC: SAFE - Local tool, processes data offline.
+
+ripgrep (rg)
+------------
+  Usage: rg <pattern> <path>
+  Description: Blazingly fast recursive grep tool, respects .gitignore by default.
+  OPSEC: SAFE - Local tool, searches files offline.
+
+Exiftool
+--------
+  Usage: exiftool <file> | exiftool -all= <file> (strip metadata)
+  Description: Read, write and edit meta information in image, audio and video files.
+  OPSEC: SAFE - Local tool, processes files offline.
+  Website: https://exiftool.org/
+
 Sherlock
 --------
   Usage: sherlock <username>

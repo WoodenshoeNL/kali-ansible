@@ -8,6 +8,21 @@
   tags:
     - OSINT
 
+- name: OSINT - Install jq, ripgrep and exiftool
+  apt:
+    name:
+      - jq
+      - ripgrep
+      - libimage-exiftool-perl
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - jq
+    - ripgrep
+    - exiftool
+    - OSINT
+
 - name: Run - Sherlock setup
   import_tasks: sherlock.yml
 
