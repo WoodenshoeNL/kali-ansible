@@ -1,4 +1,16 @@
 
+- name: wfuzz - install build dependencies
+  apt:
+    name:
+      - libcurl4-openssl-dev
+      - libssl-dev
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - wfuzz
+    - web
+
 - name: wfuzz - create project directory for {{ login_user }} user
   file:
     path: "{{ login_home }}/wfuzz"
@@ -20,12 +32,12 @@
     - wfuzz
     - web
 
-- name: wfuzz - install wfuzz inside the virtualenv (runs as {{ login_user }})
+- name: wfuzz - install wfuzz from GitHub (runs as {{ login_user }})
   pip:
-    name: wfuzz
+    name: git+https://github.com/xmendez/wfuzz.git
     virtualenv: "{{ login_home }}/wfuzz/venv"
     virtualenv_python: python3
-    state: latest
+    state: present
   become: yes
   become_user: "{{ login_user }}"
   tags:
@@ -41,4 +53,3 @@
   tags:
     - wfuzz
     - web
-
