@@ -1,0 +1,11 @@
+
+- name: changedetection - install/upgrade changedetection.io via pipx
+  become: yes
+  become_user: "{{ login_user }}"
+  community.general.pipx:
+    name: changedetection.io
+    state: latest       # upgrades if an older version is present
+  tags:
+    - changedetection
+    - OSINT
+

@@ -1,0 +1,44 @@
+
+- name: blackbird - Ensure Programs directory exists
+  become: yes
+  become_user: "{{ login_user }}"
+  file:
+    path: "{{ login_home }}/Programs"
+    state: directory
+    mode: "0755"
+  tags:
+    - blackbird
+    - OSINT
+
+- name: blackbird - Clone Blackbird repository
+  become: yes
+  become_user: "{{ login_user }}"
+  git:
+    repo: https://github.com/p1ngul1n0/blackbird.git
+    dest: "{{ login_home }}/Programs/blackbird"
+    update: yes
+  tags:
+    - blackbird
+    - OSINT
+
+- name: blackbird - Create virtual environment
+  become: yes
+  become_user: "{{ login_user }}"
+  command:
+    cmd: python3 -m venv venv
+    chdir: "{{ login_home }}/Programs/blackbird"
+    creates: "{{ login_home }}/Programs/blackbird/venv"
+  tags:
+    - blackbird
+    - OSINT
+
+- name: blackbird - Install requirements in venv
+  become: yes
+  become_user: "{{ login_user }}"
+  pip:
+    requirements: "{{ login_home }}/Programs/blackbird/requirements.txt"
+    virtualenv: "{{ login_home }}/Programs/blackbird/venv"
+  tags:
+    - blackbird
+    - OSINT
+

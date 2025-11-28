@@ -1,0 +1,44 @@
+
+- name: whatsmyname - Ensure Programs directory exists
+  become: yes
+  become_user: "{{ login_user }}"
+  file:
+    path: "{{ login_home }}/Programs"
+    state: directory
+    mode: "0755"
+  tags:
+    - whatsmyname
+    - OSINT
+
+- name: whatsmyname - Clone WhatsMyName-Python repository
+  become: yes
+  become_user: "{{ login_user }}"
+  git:
+    repo: https://github.com/C3n7ral051nt4g3ncy/WhatsMyName-Python.git
+    dest: "{{ login_home }}/Programs/WhatsMyName-Python"
+    update: yes
+  tags:
+    - whatsmyname
+    - OSINT
+
+- name: whatsmyname - Create virtual environment
+  become: yes
+  become_user: "{{ login_user }}"
+  command:
+    cmd: python3 -m venv venv
+    chdir: "{{ login_home }}/Programs/WhatsMyName-Python"
+    creates: "{{ login_home }}/Programs/WhatsMyName-Python/venv"
+  tags:
+    - whatsmyname
+    - OSINT
+
+- name: whatsmyname - Install requirements in venv
+  become: yes
+  become_user: "{{ login_user }}"
+  pip:
+    requirements: "{{ login_home }}/Programs/WhatsMyName-Python/requirements.txt"
+    virtualenv: "{{ login_home }}/Programs/WhatsMyName-Python/venv"
+  tags:
+    - whatsmyname
+    - OSINT
+

@@ -206,12 +206,6 @@ pipx install changedetection.io
 github.com/dgtlmoon/changedetection.io
 
 
-Exiftool
-```
-sudo apt update && sudo apt install libimage-exiftool-perl -y
-```
-https://exiftool.org/
-
 
 MediaInfo
 ```

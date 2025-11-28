@@ -73,5 +73,28 @@ Spiderfoot
   OPSEC: VARIES - Many passive modules, but some query targets directly. Review module settings.
   GitHub: https://github.com/smicallef/spiderfoot
 
+Change Detection (changedetection.io)
+--------------------------------------
+  Usage: changedetection.io
+  Description: Self-hosted website change detection, monitoring and notification service.
+  OPSEC: NOT SAFE - Makes direct requests to monitored URLs, reveals your IP.
+  GitHub: https://github.com/dgtlmoon/changedetection.io
+
+Blackbird
+---------
+  Location: ~/Programs/blackbird
+  Usage: cd ~/Programs/blackbird && source venv/bin/activate && python blackbird.py -u <username>
+  Description: OSINT tool to search for accounts by username across social networks.
+  OPSEC: NOT SAFE - Makes direct requests to social media sites, reveals your IP.
+  GitHub: https://github.com/p1ngul1n0/blackbird
+
+WhatsMyName-Python
+------------------
+  Location: ~/Programs/WhatsMyName-Python
+  Usage: cd ~/Programs/WhatsMyName-Python && source venv/bin/activate && python whatsmyname.py -u <username>
+  Description: Username enumeration tool based on WhatsMyName project data.
+  OPSEC: NOT SAFE - Makes direct requests to websites, reveals your IP.
+  GitHub: https://github.com/C3n7ral051nt4g3ncy/WhatsMyName-Python
+
 ================================================================================
 

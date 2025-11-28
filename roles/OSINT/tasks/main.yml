@@ -44,3 +44,12 @@
 - name: Run - Spiderfoot setup
   import_tasks: spiderfoot.yml
 
+- name: Run - Change Detection setup
+  import_tasks: changedetection.yml
+
+- name: Run - Blackbird setup
+  import_tasks: blackbird.yml
+
+- name: Run - WhatsMyName-Python setup
+  import_tasks: whatsmyname.yml
+
