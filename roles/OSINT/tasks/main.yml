@@ -1,0 +1,4 @@
+
+- name: Run - Sherlock setup
+  import_tasks: sherlock.yml
+

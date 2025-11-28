@@ -1,0 +1,11 @@
+
+- name: sherlock - install/upgrade sherlock-project via pipx
+  become: yes
+  become_user: "{{ login_user }}"
+  community.general.pipx:
+    name: sherlock-project
+    state: latest       # upgrades if an older version is present
+  tags:
+    - sherlock
+    - OSINT
+
