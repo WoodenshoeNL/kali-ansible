@@ -1,9 +1,10 @@
 
-- name: theharvester - install/upgrade theHarvester via pipx
+- name: theharvester - install/upgrade theHarvester via pipx from git
   become: yes
   become_user: "{{ login_user }}"
   community.general.pipx:
     name: theHarvester
+    source: git+https://github.com/laramies/theHarvester.git
     state: latest       # upgrades if an older version is present
   tags:
     - theharvester
