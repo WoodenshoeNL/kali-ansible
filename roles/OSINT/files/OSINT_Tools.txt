@@ -46,5 +46,13 @@ Recon-ng
   OPSEC: VARIES - Depends on modules used; some passive, some active. Check module docs.
   GitHub: https://github.com/lanmaster53/recon-ng
 
+Spiderfoot
+----------
+  Location: ~/Programs/spiderfoot
+  Usage: cd ~/Programs/spiderfoot && source venv/bin/activate && python sf.py -l 127.0.0.1:5001
+  Description: Automated OSINT collection with web interface; integrates 200+ data sources.
+  OPSEC: VARIES - Many passive modules, but some query targets directly. Review module settings.
+  GitHub: https://github.com/smicallef/spiderfoot
+
 ================================================================================
 

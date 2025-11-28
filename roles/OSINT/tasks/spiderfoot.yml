@@ -1,0 +1,44 @@
+
+- name: spiderfoot - Ensure Programs directory exists
+  become: yes
+  become_user: "{{ login_user }}"
+  file:
+    path: "{{ login_home }}/Programs"
+    state: directory
+    mode: "0755"
+  tags:
+    - spiderfoot
+    - OSINT
+
+- name: spiderfoot - Clone spiderfoot repository
+  become: yes
+  become_user: "{{ login_user }}"
+  git:
+    repo: https://github.com/smicallef/spiderfoot.git
+    dest: "{{ login_home }}/Programs/spiderfoot"
+    update: yes
+  tags:
+    - spiderfoot
+    - OSINT
+
+- name: spiderfoot - Create virtual environment
+  become: yes
+  become_user: "{{ login_user }}"
+  command:
+    cmd: python3 -m venv venv
+    chdir: "{{ login_home }}/Programs/spiderfoot"
+    creates: "{{ login_home }}/Programs/spiderfoot/venv"
+  tags:
+    - spiderfoot
+    - OSINT
+
+- name: spiderfoot - Install requirements in venv
+  become: yes
+  become_user: "{{ login_user }}"
+  pip:
+    requirements: "{{ login_home }}/Programs/spiderfoot/requirements.txt"
+    virtualenv: "{{ login_home }}/Programs/spiderfoot/venv"
+  tags:
+    - spiderfoot
+    - OSINT
+

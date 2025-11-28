@@ -26,3 +26,6 @@
 - name: Run - Recon-ng setup
   import_tasks: recon-ng.yml
 
+- name: Run - Spiderfoot setup
+  import_tasks: spiderfoot.yml
+
