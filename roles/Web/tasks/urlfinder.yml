@@ -15,8 +15,10 @@
   environment:
     GOPATH: "{{ login_home }}/go"
     PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
+    TMPDIR: "{{ login_home }}/.cache/go-tmp"
   ansible.builtin.shell: |
     set -euo pipefail
+    mkdir -p "$TMPDIR"
     go install github.com/projectdiscovery/urlfinder/cmd/urlfinder@latest
   args:
     creates: "{{ login_home }}/go/bin/urlfinder"
