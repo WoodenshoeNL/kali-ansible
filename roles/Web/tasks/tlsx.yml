@@ -1,0 +1,39 @@
+
+- name: tlsx - create GOPATH for "{{ login_user }}" user
+  ansible.builtin.file:
+    path: "{{ login_home }}/go"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: '0755'
+  tags:
+    - tlsx
+    - web
+
+- name: tlsx - install via go install (runs as "{{ login_user }}")
+  become_user: "{{ login_user }}"
+  environment:
+    GOPATH: "{{ login_home }}/go"
+    PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest
+  args:
+    creates: "{{ login_home }}/go/bin/tlsx"
+  tags:
+    - tlsx
+    - web
+
+- name: tlsx - copy binary to /usr/local/bin
+  become: true
+  ansible.builtin.copy:
+    src: "{{ login_home }}/go/bin/tlsx"
+    dest: /usr/local/bin/tlsx
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: true
+  tags:
+    - tlsx
+    - web
+

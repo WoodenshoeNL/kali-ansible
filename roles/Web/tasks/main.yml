@@ -4,3 +4,24 @@
 
 - name: Run - GoWitness setup
   import_tasks: GoWitness.yml
+
+- name: Run - Nuclei setup
+  import_tasks: nuclei.yml
+
+- name: Run - TLSX setup
+  import_tasks: tlsx.yml
+
+- name: Run - HTTPX setup
+  import_tasks: httpx.yml
+
+- name: Run - DNSX setup
+  import_tasks: dnsx.yml
+
+- name: Run - URLFinder setup
+  import_tasks: urlfinder.yml
+
+- name: Run - Katana setup
+  import_tasks: katana.yml
+
+- name: Run - Subfinder setup
+  import_tasks: subfinder.yml

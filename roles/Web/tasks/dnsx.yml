@@ -1,0 +1,39 @@
+
+- name: dnsx - create GOPATH for "{{ login_user }}" user
+  ansible.builtin.file:
+    path: "{{ login_home }}/go"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: '0755'
+  tags:
+    - dnsx
+    - web
+
+- name: dnsx - install via go install (runs as "{{ login_user }}")
+  become_user: "{{ login_user }}"
+  environment:
+    GOPATH: "{{ login_home }}/go"
+    PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest
+  args:
+    creates: "{{ login_home }}/go/bin/dnsx"
+  tags:
+    - dnsx
+    - web
+
+- name: dnsx - copy binary to /usr/local/bin
+  become: true
+  ansible.builtin.copy:
+    src: "{{ login_home }}/go/bin/dnsx"
+    dest: /usr/local/bin/dnsx
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: true
+  tags:
+    - dnsx
+    - web
+

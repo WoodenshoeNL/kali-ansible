@@ -1,0 +1,39 @@
+
+- name: httpx - create GOPATH for "{{ login_user }}" user
+  ansible.builtin.file:
+    path: "{{ login_home }}/go"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: '0755'
+  tags:
+    - httpx
+    - web
+
+- name: httpx - install via go install (runs as "{{ login_user }}")
+  become_user: "{{ login_user }}"
+  environment:
+    GOPATH: "{{ login_home }}/go"
+    PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+  args:
+    creates: "{{ login_home }}/go/bin/httpx"
+  tags:
+    - httpx
+    - web
+
+- name: httpx - copy binary to /usr/local/bin
+  become: true
+  ansible.builtin.copy:
+    src: "{{ login_home }}/go/bin/httpx"
+    dest: /usr/local/bin/httpx
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: true
+  tags:
+    - httpx
+    - web
+
