@@ -5,12 +5,13 @@
 # keep xfce4-screensaver but set every lock bit to false
 #######################################################################
 - name: XFCE | turn off xfce4-screensaver locking via xfconf
-  become_user: "{{ ansible_user_id }}"          # run as the desktop user
+  become_user: "{{ login_user }}"               # run as the desktop user
   shell: |
-    xfconf-query -c xfce4-screensaver -p /lock/enabled              -n -t bool -s false
-    xfconf-query -c xfce4-screensaver -p /lock/sleep-activation     -n -t bool -s false
-    xfconf-query -c xfce4-screensaver -p /saver/idle-activation-enabled -n -t bool -s false
+    dbus-launch xfconf-query -c xfce4-screensaver -p /lock/enabled              -n -t bool -s false
+    dbus-launch xfconf-query -c xfce4-screensaver -p /lock/sleep-activation     -n -t bool -s false
+    dbus-launch xfconf-query -c xfce4-screensaver -p /saver/idle-activation-enabled -n -t bool -s false
   changed_when: true
+  failed_when: false                            # non-fatal if D-Bus unavailable
   when: vmware_env in ["workstation", "laptop"]
   tags:
     - screenlock
