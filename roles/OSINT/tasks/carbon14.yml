@@ -1,11 +1,43 @@
 
-- name: carbon14 - install/upgrade Carbon14 via pipx from git
+- name: carbon14 - Ensure Programs directory exists
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: carbon14
-    source: git+https://github.com/Lazza/Carbon14.git
-    state: latest       # upgrades if an older version is present
+  file:
+    path: "{{ login_home }}/Programs"
+    state: directory
+    mode: "0755"
+  tags:
+    - carbon14
+    - OSINT
+
+- name: carbon14 - Clone Carbon14 repository
+  become: yes
+  become_user: "{{ login_user }}"
+  git:
+    repo: https://github.com/Lazza/Carbon14.git
+    dest: "{{ login_home }}/Programs/Carbon14"
+    update: yes
+  tags:
+    - carbon14
+    - OSINT
+
+- name: carbon14 - Create virtual environment
+  become: yes
+  become_user: "{{ login_user }}"
+  command:
+    cmd: python3 -m venv venv
+    chdir: "{{ login_home }}/Programs/Carbon14"
+    creates: "{{ login_home }}/Programs/Carbon14/venv"
+  tags:
+    - carbon14
+    - OSINT
+
+- name: carbon14 - Install requirements in venv
+  become: yes
+  become_user: "{{ login_user }}"
+  pip:
+    requirements: "{{ login_home }}/Programs/Carbon14/requirements.txt"
+    virtualenv: "{{ login_home }}/Programs/Carbon14/venv"
   tags:
     - carbon14
     - OSINT
