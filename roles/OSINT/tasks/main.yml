@@ -23,3 +23,6 @@
 - name: Run - Carbon14 setup
   import_tasks: carbon14.yml
 
+- name: Run - Recon-ng setup
+  import_tasks: recon-ng.yml
+

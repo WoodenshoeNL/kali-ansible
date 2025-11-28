@@ -1,0 +1,44 @@
+
+- name: recon-ng - Ensure Programs directory exists
+  become: yes
+  become_user: "{{ login_user }}"
+  file:
+    path: "{{ login_home }}/Programs"
+    state: directory
+    mode: "0755"
+  tags:
+    - recon-ng
+    - OSINT
+
+- name: recon-ng - Clone recon-ng repository
+  become: yes
+  become_user: "{{ login_user }}"
+  git:
+    repo: https://github.com/lanmaster53/recon-ng.git
+    dest: "{{ login_home }}/Programs/recon-ng"
+    update: yes
+  tags:
+    - recon-ng
+    - OSINT
+
+- name: recon-ng - Create virtual environment
+  become: yes
+  become_user: "{{ login_user }}"
+  command:
+    cmd: python3 -m venv venv
+    chdir: "{{ login_home }}/Programs/recon-ng"
+    creates: "{{ login_home }}/Programs/recon-ng/venv"
+  tags:
+    - recon-ng
+    - OSINT
+
+- name: recon-ng - Install requirements in venv
+  become: yes
+  become_user: "{{ login_user }}"
+  pip:
+    requirements: "{{ login_home }}/Programs/recon-ng/REQUIREMENTS"
+    virtualenv: "{{ login_home }}/Programs/recon-ng/venv"
+  tags:
+    - recon-ng
+    - OSINT
+

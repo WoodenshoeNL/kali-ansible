@@ -4,26 +4,30 @@
 
 Sherlock
 --------
-  Command: sherlock
+  Usage: sherlock <username>
   Description: Hunt down social media accounts by username across social networks.
+  OPSEC: NOT SAFE - Makes direct requests to social media sites, reveals your IP.
   GitHub: https://github.com/sherlock-project/sherlock
 
 Maigret
 -------
-  Command: maigret
+  Usage: maigret <username>
   Description: Collect a dossier on a person by username from thousands of sites.
+  OPSEC: NOT SAFE - Makes direct requests to thousands of sites, reveals your IP.
   GitHub: https://github.com/soxoj/maigret
 
 Sublist3r
 ---------
-  Command: sublist3r
+  Usage: sublist3r -d <domain>
   Description: Fast subdomain enumeration tool using OSINT sources.
+  OPSEC: PARTIALLY SAFE - Uses search engines (passive), but DNS queries may reveal interest.
   GitHub: https://github.com/aboul3la/Sublist3r
 
 TheHarvester
 ------------
-  Command: theHarvester
+  Usage: theHarvester -d <domain> -b all
   Description: E-mails, subdomains and names harvester from public sources.
+  OPSEC: PARTIALLY SAFE - Most sources are passive (search engines), some modules connect directly.
   GitHub: https://github.com/laramies/theHarvester
 
 Carbon14
@@ -31,7 +35,16 @@ Carbon14
   Location: ~/Programs/Carbon14
   Usage: cd ~/Programs/Carbon14 && source venv/bin/activate && python carbon14.py <URL>
   Description: Estimate the date of a web page by analyzing metadata and resources.
+  OPSEC: NOT SAFE - Makes direct requests to target URL, reveals your IP.
   GitHub: https://github.com/Lazza/Carbon14
+
+Recon-ng
+--------
+  Location: ~/Programs/recon-ng
+  Usage: cd ~/Programs/recon-ng && source venv/bin/activate && python recon-ng
+  Description: Full-featured web reconnaissance framework with modular design.
+  OPSEC: VARIES - Depends on modules used; some passive, some active. Check module docs.
+  GitHub: https://github.com/lanmaster53/recon-ng
 
 ================================================================================
 
