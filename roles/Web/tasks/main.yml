@@ -28,3 +28,6 @@
 
 - name: Run - FFUF setup
   import_tasks: ffuf.yml
+
+- name: Run - Wfuzz setup
+  import_tasks: wfuzz.yml

@@ -1,0 +1,44 @@
+
+- name: wfuzz - create project directory for {{ login_user }} user
+  file:
+    path: "{{ login_home }}/wfuzz"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  tags:
+    - wfuzz
+    - web
+
+- name: wfuzz - create Python virtualenv (runs as {{ login_user }})
+  command: python3 -m venv "{{ login_home }}"/wfuzz/venv
+  args:
+    creates: "{{ login_home }}/wfuzz/venv/bin/activate"
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - wfuzz
+    - web
+
+- name: wfuzz - install wfuzz inside the virtualenv (runs as {{ login_user }})
+  pip:
+    name: wfuzz
+    virtualenv: "{{ login_home }}/wfuzz/venv"
+    virtualenv_python: python3
+    state: latest
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - wfuzz
+    - web
+
+- name: wfuzz - create global wrapper in /usr/local/bin
+  file:
+    src: "{{ login_home }}/wfuzz/venv/bin/wfuzz"
+    dest: /usr/local/bin/wfuzz
+    state: link
+    force: yes
+  tags:
+    - wfuzz
+    - web
+
