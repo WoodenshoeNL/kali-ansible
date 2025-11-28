@@ -25,3 +25,6 @@
 
 - name: Run - Subfinder setup
   import_tasks: subfinder.yml
+
+- name: Run - FFUF setup
+  import_tasks: ffuf.yml
