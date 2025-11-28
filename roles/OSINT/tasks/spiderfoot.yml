@@ -44,12 +44,22 @@
     - spiderfoot
     - OSINT
 
-- name: spiderfoot - Install requirements in venv
+- name: spiderfoot - Install compatible lxml version (Python 3.13 fix)
   become: yes
   become_user: "{{ login_user }}"
   pip:
-    requirements: "{{ login_home }}/Programs/spiderfoot/requirements.txt"
+    name: "lxml>=5.0"
     virtualenv: "{{ login_home }}/Programs/spiderfoot/venv"
+  tags:
+    - spiderfoot
+    - OSINT
+
+- name: spiderfoot - Install requirements in venv
+  become: yes
+  become_user: "{{ login_user }}"
+  command:
+    cmd: "{{ login_home }}/Programs/spiderfoot/venv/bin/pip install -r requirements.txt"
+    chdir: "{{ login_home }}/Programs/spiderfoot"
   tags:
     - spiderfoot
     - OSINT
