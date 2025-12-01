@@ -23,5 +23,13 @@ Evil-WinRM
   OPSEC: NOT SAFE - WinRM sessions logged, PowerShell execution logged.
   GitHub: https://github.com/Hackplayers/evil-winrm
 
+mitm6
+-----
+  Usage: mitm6 -d <domain> [-i <interface>]
+  Description: Exploits default Windows config to take over DNS via DHCPv6.
+               Works with ntlmrelayx for WPAD spoofing and credential relaying.
+  OPSEC: NOT SAFE - Active network attack, DHCPv6/DNS spoofing detectable by IDS.
+  GitHub: https://github.com/dirkjanm/mitm6
+
 ================================================================================
 

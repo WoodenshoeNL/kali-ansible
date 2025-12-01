@@ -17,4 +17,5 @@
 - name: Run evil-winrm-py setup
   import_tasks: evil-winrm-py.yml
 
-
+- name: Run mitm6 setup
+  import_tasks: mitm6.yml

@@ -1,0 +1,11 @@
+
+- name: mitm6 - install/upgrade mitm6 via pipx
+  become: yes
+  become_user: "{{ login_user }}"
+  community.general.pipx:
+    name: mitm6
+    state: latest
+  tags:
+    - mitm6
+    - network
+
