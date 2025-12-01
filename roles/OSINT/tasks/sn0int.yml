@@ -3,7 +3,7 @@
   apt:
     name:
       - curl
-      - sq
+      - gnupg
     state: present
     update_cache: yes
     cache_valid_time: 3600
@@ -14,7 +14,7 @@
 - name: sn0int - add kpcyrd signing key (dearmored)
   command: >
     bash -c 'curl -sSf https://apt.vulns.sexy/kpcyrd.pgp |
-             sq dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg'
+             gpg --dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg'
   args:
     creates: /usr/share/keyrings/apt-vulns-sexy.gpg
   tags:
