@@ -10,21 +10,13 @@
     - meowEye
     - web
 
-- name: meowEye - install requirements via pip
-  become: true
-  ansible.builtin.pip:
-    requirements: /opt/meowEye/requirements.txt
-    state: present
-  tags:
-    - meowEye
-    - web
-
 - name: meowEye - ensure chromium browser is installed
   become: true
   apt:
     name:
       - chromium
       - chromium-driver
+      - python3-venv
     state: present
     update_cache: yes
     cache_valid_time: 3600
@@ -32,22 +24,34 @@
     - meowEye
     - web
 
-- name: meowEye - create symlink to /usr/local/bin
+- name: meowEye - create virtual environment
   become: true
-  ansible.builtin.file:
-    src: /opt/meowEye/meowEye.py
+  ansible.builtin.command:
+    cmd: python3 -m venv /opt/meowEye/venv
+    creates: /opt/meowEye/venv/bin/python
+  tags:
+    - meowEye
+    - web
+
+- name: meowEye - install requirements in venv
+  become: true
+  ansible.builtin.pip:
+    requirements: /opt/meowEye/requirements.txt
+    virtualenv: /opt/meowEye/venv
+    state: present
+  tags:
+    - meowEye
+    - web
+
+- name: meowEye - create wrapper script
+  become: true
+  ansible.builtin.copy:
     dest: /usr/local/bin/meowEye
-    state: link
-  tags:
-    - meowEye
-    - web
-
-- name: meowEye - make script executable
-  become: true
-  ansible.builtin.file:
-    path: /opt/meowEye/meowEye.py
     mode: '0755'
+    content: |
+      #!/bin/bash
+      cd /opt/meowEye
+      /opt/meowEye/venv/bin/python /opt/meowEye/meowEye.py "$@"
   tags:
     - meowEye
     - web
-
