@@ -2,8 +2,10 @@
   become: yes
   ansible.builtin.apt:
     name:
+      - build-essential
       - libxml2-dev
       - libxslt1-dev
+      - zlib1g-dev
       - python3-dev
     state: present
   tags:
