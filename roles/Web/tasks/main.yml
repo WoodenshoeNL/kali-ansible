@@ -40,3 +40,6 @@
 
 - name: Run - Wfuzz setup
   import_tasks: wfuzz.yml
+
+- name: Run - MeowEye setup
+  import_tasks: meowEye.yml

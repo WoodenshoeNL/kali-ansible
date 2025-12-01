@@ -79,5 +79,13 @@ Wfuzz
   OPSEC: NOT SAFE - High volume of requests, easily detected by WAF/IDS.
   GitHub: https://github.com/xmendez/wfuzz
 
+MeowEye
+-------
+  Usage: python /opt/meowEye/meowEye.py --mode [live|delay] --attack [ref|lfiLinux|lfiWin|ssti] --url <target_url>
+  Description: Real-time scanner for web vulnerabilities using browser-based 
+               traffic interception. Detects reflective params, LFI, and SSTI.
+  OPSEC: NOT SAFE - Active browser-based scanning, generates requests and logs.
+  GitHub: https://github.com/eslam3kl/meowEye
+
 ================================================================================
 
