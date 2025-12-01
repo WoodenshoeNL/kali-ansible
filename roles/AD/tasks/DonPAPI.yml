@@ -39,3 +39,14 @@
   tags:
     - DonPAPI
     - AD
+
+- name: DonPAPI - inject setuptools for pkg_resources support
+  become: yes
+  become_user: "{{ login_user }}"
+  ansible.builtin.command:
+    cmd: pipx inject donpapi setuptools
+  register: inject_result
+  changed_when: "'injected package' in inject_result.stdout"
+  tags:
+    - DonPAPI
+    - AD
