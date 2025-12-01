@@ -1,4 +1,13 @@
 
+- name: Network - Copy Network_Tools.txt to home directory
+  become: false
+  copy:
+    src: Network_Tools.txt
+    dest: "{{ login_home }}/Network_Tools.txt"
+    mode: "0644"
+  tags:
+    - network
+
 - name: Run Enum4linux-ng setup
   import_tasks: Enum4linux-ng.yml
 

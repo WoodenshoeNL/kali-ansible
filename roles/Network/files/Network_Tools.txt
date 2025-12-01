@@ -1,0 +1,27 @@
+================================================================================
+                         Network Security Tools Reference
+================================================================================
+
+enum4linux-ng
+-------------
+  Usage: enum4linux-ng -A <target>
+  Description: Next-gen tool for enumerating Windows/Samba systems via SMB.
+  OPSEC: NOT SAFE - Active SMB enumeration, generates significant logs on target.
+  GitHub: https://github.com/cddmp/enum4linux-ng
+
+SSH-Audit
+---------
+  Usage: ssh-audit <target>
+  Description: SSH server and client configuration auditing tool.
+  OPSEC: PARTIALLY SAFE - Single SSH connection, may be logged but low profile.
+  GitHub: https://github.com/jtesta/ssh-audit
+
+Evil-WinRM
+----------
+  Usage: evil-winrm -i <target> -u <user> -p <pass>
+  Description: Ultimate WinRM shell for hacking/pentesting Windows systems.
+  OPSEC: NOT SAFE - WinRM sessions logged, PowerShell execution logged.
+  GitHub: https://github.com/Hackplayers/evil-winrm
+
+================================================================================
+

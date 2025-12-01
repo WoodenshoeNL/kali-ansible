@@ -1,4 +1,13 @@
 
+- name: Web - Copy Web_Tools.txt to home directory
+  become: false
+  copy:
+    src: Web_Tools.txt
+    dest: "{{ login_home }}/Web_Tools.txt"
+    mode: "0644"
+  tags:
+    - web
+
 - name: Run Feroxbuster setup
   import_tasks: feroxbuster.yml
 

@@ -96,5 +96,26 @@ WhatsMyName-Python
   OPSEC: NOT SAFE - Makes direct requests to websites, reveals your IP.
   GitHub: https://github.com/C3n7ral051nt4g3ncy/WhatsMyName-Python
 
+Holehe
+------
+  Usage: holehe <email>
+  Description: Check if an email is used on different sites (Twitter, Instagram, Imgur, etc.).
+  OPSEC: NOT SAFE - Makes direct requests to websites to check email registration.
+  GitHub: https://github.com/megadose/holehe
+
+sn0int
+------
+  Usage: sn0int
+  Description: Semi-automatic OSINT framework and package manager for gathering intelligence.
+  OPSEC: VARIES - Depends on modules used; has passive and active collection capabilities.
+  GitHub: https://github.com/kpcyrd/sn0int
+
+Amass
+-----
+  Usage: amass enum -d <domain>
+  Description: In-depth attack surface mapping and asset discovery using OSINT techniques.
+  OPSEC: PARTIALLY SAFE - Passive mode uses search engines; active mode queries DNS directly.
+  GitHub: https://github.com/owasp-amass/amass
+
 ================================================================================
 

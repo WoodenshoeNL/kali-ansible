@@ -1,4 +1,13 @@
 
+- name: Cloud - Copy Cloud_Tools.txt to home directory
+  become: false
+  copy:
+    src: Cloud_Tools.txt
+    dest: "{{ login_home }}/Cloud_Tools.txt"
+    mode: "0644"
+  tags:
+    - cloud
+
 - name: Run Azure CLI setup
   import_tasks: azcli.yml
 

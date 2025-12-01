@@ -1,4 +1,13 @@
 
+- name: AD - Copy AD_Tools.txt to home directory
+  become: false
+  copy:
+    src: AD_Tools.txt
+    dest: "{{ login_home }}/AD_Tools.txt"
+    mode: "0644"
+  tags:
+    - AD
+
 - name: Run windapsearch setup
   import_tasks: windapsearch.yml
 

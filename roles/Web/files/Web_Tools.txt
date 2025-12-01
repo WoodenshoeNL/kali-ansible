@@ -1,0 +1,83 @@
+================================================================================
+                        Web Application Tools Reference
+================================================================================
+
+Feroxbuster
+-----------
+  Usage: feroxbuster -u <url> -w <wordlist>
+  Description: Fast, recursive content discovery tool written in Rust.
+  OPSEC: NOT SAFE - High volume of requests, easily detected by WAF/IDS.
+  GitHub: https://github.com/epi052/feroxbuster
+
+GoWitness
+---------
+  Usage: gowitness single <url> | gowitness file -f <urls.txt>
+  Description: Website screenshot tool using Chrome headless.
+  OPSEC: NOT SAFE - Direct requests to targets with identifiable user-agent.
+  GitHub: https://github.com/sensepost/gowitness
+
+Nuclei
+------
+  Usage: nuclei -u <url> -t <templates>
+  Description: Fast vulnerability scanner based on customizable YAML templates.
+  OPSEC: NOT SAFE - Active scanning, generates significant traffic and logs.
+  GitHub: https://github.com/projectdiscovery/nuclei
+
+TLSX
+----
+  Usage: tlsx -u <host:port> | echo <host> | tlsx
+  Description: Fast TLS/SSL scanner for certificate and configuration analysis.
+  OPSEC: PARTIALLY SAFE - Single TLS handshake per target, low profile.
+  GitHub: https://github.com/projectdiscovery/tlsx
+
+HTTPX
+-----
+  Usage: httpx -u <url> | cat urls.txt | httpx
+  Description: Fast HTTP toolkit for probing and technology detection.
+  OPSEC: NOT SAFE - HTTP requests logged by target servers.
+  GitHub: https://github.com/projectdiscovery/httpx
+
+DNSX
+----
+  Usage: dnsx -d <domain> | echo <domain> | dnsx -a -resp
+  Description: Fast DNS toolkit for multiple record queries and resolution.
+  OPSEC: PARTIALLY SAFE - DNS queries, may be logged by DNS servers.
+  GitHub: https://github.com/projectdiscovery/dnsx
+
+URLFinder
+---------
+  Usage: urlfinder -u <url>
+  Description: Tool for finding URLs in web pages and JavaScript files.
+  OPSEC: NOT SAFE - Fetches web resources, requests logged by target.
+  GitHub: https://github.com/projectdiscovery/urlfinder
+
+Katana
+------
+  Usage: katana -u <url>
+  Description: Next-gen crawling and spidering framework.
+  OPSEC: NOT SAFE - Active crawling generates significant traffic and logs.
+  GitHub: https://github.com/projectdiscovery/katana
+
+Subfinder
+---------
+  Usage: subfinder -d <domain>
+  Description: Subdomain discovery tool using passive OSINT sources.
+  OPSEC: PARTIALLY SAFE - Uses third-party APIs, no direct target contact.
+  GitHub: https://github.com/projectdiscovery/subfinder
+
+FFUF
+----
+  Usage: ffuf -u <url>/FUZZ -w <wordlist>
+  Description: Fast web fuzzer for content discovery and parameter fuzzing.
+  OPSEC: NOT SAFE - High volume of requests, easily detected by WAF/IDS.
+  GitHub: https://github.com/ffuf/ffuf
+
+Wfuzz
+-----
+  Usage: wfuzz -c -z file,<wordlist> <url>/FUZZ
+  Description: Flexible web application fuzzer for brute forcing.
+  OPSEC: NOT SAFE - High volume of requests, easily detected by WAF/IDS.
+  GitHub: https://github.com/xmendez/wfuzz
+
+================================================================================
+

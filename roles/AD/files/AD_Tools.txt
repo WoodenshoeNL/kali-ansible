@@ -1,0 +1,92 @@
+================================================================================
+                       Active Directory Tools Reference
+================================================================================
+
+windapsearch
+------------
+  Usage: windapsearch -d <domain> -u <user> -p <pass> --dc <dc-ip> -m <module>
+  Description: Python script to enumerate users, groups and computers from AD via LDAP.
+  OPSEC: NOT SAFE - Direct LDAP queries to domain controller, logged by DC.
+  GitHub: https://github.com/ropnop/windapsearch
+
+SCCMHunter
+----------
+  Location: ~/SCCMHunter
+  Usage: cd ~/SCCMHunter && source venv/bin/activate && python sccmhunter.py
+  Description: Post-ex tool for SCCM/MECM reconnaissance and lateral movement.
+  OPSEC: NOT SAFE - Active enumeration of SCCM infrastructure, generates logs.
+  GitHub: https://github.com/garrettfoster13/sccmhunter
+
+BloodHound CE
+-------------
+  Usage: docker-compose up -d (in ~/bloodhoundCE)
+  Description: Attack path mapping tool for Active Directory environments.
+  OPSEC: SAFE - Analysis tool, processes collected data offline.
+  GitHub: https://github.com/SpecterOps/BloodHound
+
+Certipy
+-------
+  Usage: certipy find -u <user> -p <pass> -dc-ip <dc-ip>
+  Description: Tool for AD CS (Certificate Services) enumeration and abuse.
+  OPSEC: NOT SAFE - Active enumeration of certificate services, generates logs.
+  GitHub: https://github.com/ly4k/Certipy
+
+dploot
+------
+  Usage: dploot <module> -d <domain> -u <user> -p <pass> -t <target>
+  Description: DPAPI looting tool - remotely extract credentials protected by DPAPI.
+  OPSEC: NOT SAFE - Remote credential extraction, highly detectable.
+  GitHub: https://github.com/zblurx/dploot
+
+kerbrute
+--------
+  Usage: kerbrute userenum -d <domain> --dc <dc-ip> <userlist>
+  Description: Tool for Kerberos pre-auth bruteforcing and user enumeration.
+  OPSEC: NOT SAFE - Kerberos requests logged, account lockout risk.
+  GitHub: https://github.com/ropnop/kerbrute
+
+ldapx
+-----
+  Usage: ldapx -h <host> -u <user> -p <pass>
+  Description: Interactive LDAP shell for Active Directory exploration.
+  OPSEC: NOT SAFE - Direct LDAP queries to domain controller.
+  GitHub: https://github.com/Macmod/ldapx
+
+bloodhound-python
+-----------------
+  Usage: bloodhound-python -d <domain> -u <user> -p <pass> -c All
+  Description: Python-based BloodHound ingestor for AD data collection.
+  OPSEC: NOT SAFE - Active enumeration via LDAP/SMB, generates significant logs.
+  GitHub: https://github.com/dirkjanm/BloodHound.py
+
+BloodyAD
+--------
+  Usage: bloodyAD -d <domain> -u <user> -p <pass> --host <dc> <command>
+  Description: AD privilege escalation framework for exploiting AD misconfigurations.
+  OPSEC: NOT SAFE - Active exploitation, highly detectable.
+  GitHub: https://github.com/CravateRouge/bloodyAD
+
+ntdsdotsqlite
+-------------
+  Usage: ntdsdotsqlite <ntds.dit> <system.hive> -o output.db
+  Description: Extract data from NTDS.dit to SQLite for offline analysis.
+  OPSEC: SAFE - Offline analysis of already extracted NTDS database.
+  GitHub: https://github.com/almandin/ntdsdotsqlite
+
+gMSADumper
+----------
+  Location: ~/gmsadumper
+  Usage: gMSADumper -d <domain> -u <user> -p <pass>
+  Description: Dump gMSA (Group Managed Service Account) passwords from AD.
+  OPSEC: NOT SAFE - Requires privileged access, actions logged.
+  GitHub: https://github.com/micahvandeusen/gMSADumper
+
+godap
+-----
+  Usage: godap -h <host> -u <user> -p <pass>
+  Description: Fast, cross-platform LDAP browser with TUI interface.
+  OPSEC: NOT SAFE - Direct LDAP queries to domain controller.
+  GitHub: https://github.com/Macmod/godap
+
+================================================================================
+

@@ -1,0 +1,66 @@
+================================================================================
+                          Cloud Security Tools Reference
+================================================================================
+
+Azure CLI (az)
+--------------
+  Usage: az login | az ad user list | az vm list
+  Description: Microsoft's command-line interface for managing Azure resources.
+  OPSEC: NOT SAFE - All actions logged in Azure AD audit logs.
+  Docs: https://docs.microsoft.com/en-us/cli/azure/
+
+ROADrecon
+---------
+  Usage: roadrecon auth -u <user> -p <pass> | roadrecon gather | roadrecon gui
+  Description: Azure AD reconnaissance tool - enumerate users, groups, apps, etc.
+  OPSEC: NOT SAFE - Uses Graph API, all queries logged in Azure AD.
+  GitHub: https://github.com/dirkjanm/ROADtools
+
+ROADtx
+------
+  Usage: roadtx auth -u <user> -p <pass> | roadtx <command>
+  Description: Azure AD authentication and token manipulation toolkit.
+  OPSEC: NOT SAFE - Authentication events logged, token abuse detectable.
+  GitHub: https://github.com/dirkjanm/ROADtools
+
+ScoutSuite
+----------
+  Location: ~/Programs/ScoutSuite
+  Usage: cd ~/Programs/ScoutSuite && source venv/bin/activate && scout azure --cli
+  Description: Multi-cloud security auditing tool (AWS, Azure, GCP, etc.).
+  OPSEC: NOT SAFE - API calls logged by cloud provider, read-only but visible.
+  GitHub: https://github.com/nccgroup/ScoutSuite
+
+AzureHound
+----------
+  Usage: azurehound -u <user> -p <pass> list --tenant <tenant> -o output.json
+  Description: BloodHound data collector for Azure AD environments.
+  OPSEC: NOT SAFE - Graph API enumeration logged in Azure AD.
+  GitHub: https://github.com/BloodHoundAD/AzureHound
+
+BlackCat
+--------
+  Location: ~/Programs/BlackCat
+  Usage: cd ~/Programs/BlackCat && source venv/bin/activate && python blackcat.py
+  Description: Azure AD enumeration and attack tool.
+  OPSEC: NOT SAFE - Active enumeration of Azure AD, generates logs.
+  GitHub: https://github.com/yakovypg/BlackCat
+
+SeamlessPass
+------------
+  Location: ~/Programs/SeamlessPass
+  Usage: cd ~/Programs/SeamlessPass && source venv/bin/activate && python seamlesspass.py
+  Description: Tool for abusing Azure AD Seamless SSO for password spraying.
+  OPSEC: NOT SAFE - Authentication attempts logged, lockout risk.
+  GitHub: https://github.com/Tw1sm/SeamlessPass
+
+EntraFalcon
+-----------
+  Location: ~/Programs/EntraFalcon
+  Usage: cd ~/Programs/EntraFalcon && source venv/bin/activate && python entrafalcon.py
+  Description: Microsoft Entra ID (Azure AD) security assessment tool.
+  OPSEC: NOT SAFE - API queries logged in Entra ID audit logs.
+  GitHub: https://github.com/yourname/EntraFalcon
+
+================================================================================
+
