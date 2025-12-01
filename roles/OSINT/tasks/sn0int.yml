@@ -11,12 +11,11 @@
     - sn0int
     - OSINT
 
-- name: sn0int - add kpcyrd signing key (dearmored)
-  command: >
-    bash -c 'curl -sSf https://apt.vulns.sexy/kpcyrd.pgp |
-             gpg --dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg'
-  args:
-    creates: /usr/share/keyrings/apt-vulns-sexy.gpg
+- name: sn0int - download kpcyrd signing key
+  get_url:
+    url: https://apt.vulns.sexy/kpcyrd.pgp
+    dest: /usr/share/keyrings/apt-vulns-sexy.gpg
+    mode: '0644'
   tags:
     - sn0int
     - OSINT
