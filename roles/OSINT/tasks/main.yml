@@ -55,3 +55,9 @@
 
 - name: Run - Holehe setup
   import_tasks: holehe.yml
+
+- name: Run - sn0int setup
+  import_tasks: sn0int.yml
+
+- name: Run - Amass setup
+  import_tasks: amass.yml

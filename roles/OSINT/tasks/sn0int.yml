@@ -1,0 +1,42 @@
+
+- name: sn0int - ensure prerequisite packages are present
+  apt:
+    name:
+      - curl
+      - sq
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - sn0int
+    - OSINT
+
+- name: sn0int - add kpcyrd signing key (dearmored)
+  command: >
+    bash -c 'curl -sSf https://apt.vulns.sexy/kpcyrd.pgp |
+             sq dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg'
+  args:
+    creates: /usr/share/keyrings/apt-vulns-sexy.gpg
+  tags:
+    - sn0int
+    - OSINT
+
+- name: sn0int - add apt repository
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/apt-vulns-sexy.gpg] http://apt.vulns.sexy stable main"
+    filename: apt-vulns-sexy
+    state: present
+  tags:
+    - sn0int
+    - OSINT
+
+- name: sn0int - install package
+  apt:
+    name: sn0int
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - sn0int
+    - OSINT
+

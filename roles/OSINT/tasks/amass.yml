@@ -1,0 +1,41 @@
+
+- name: amass - create GOPATH for "{{ login_user }}" user
+  ansible.builtin.file:
+    path: "{{ login_home }}/go"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: '0755'
+  tags:
+    - amass
+    - OSINT
+
+- name: amass - install via go install (runs as "{{ login_user }}")
+  become_user: "{{ login_user }}"
+  environment:
+    GOPATH: "{{ login_home }}/go"
+    PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
+    TMPDIR: "{{ login_home }}/.cache/go-tmp"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    mkdir -p "$TMPDIR"
+    go install github.com/owasp-amass/amass/v4/...@master
+  args:
+    creates: "{{ login_home }}/go/bin/amass"
+  tags:
+    - amass
+    - OSINT
+
+- name: amass - copy binary to /usr/local/bin
+  become: true
+  ansible.builtin.copy:
+    src: "{{ login_home }}/go/bin/amass"
+    dest: /usr/local/bin/amass
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: true
+  tags:
+    - amass
+    - OSINT
+
