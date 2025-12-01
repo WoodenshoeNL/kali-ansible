@@ -17,14 +17,25 @@
     - DonPAPI
     - AD
 
-- name: DonPAPI - install/upgrade DonPAPI via pipx with system-site-packages
+- name: DonPAPI - remove broken pipx installation if exists
   become: yes
   become_user: "{{ login_user }}"
   ansible.builtin.command:
-    cmd: pipx install donpapi --system-site-packages --force
+    cmd: pipx uninstall donpapi
+  register: pipx_uninstall
+  changed_when: pipx_uninstall.rc == 0
+  failed_when: false
+  tags:
+    - DonPAPI
+    - AD
+
+- name: DonPAPI - install DonPAPI via pipx (binary-only for lxml)
+  become: yes
+  become_user: "{{ login_user }}"
+  ansible.builtin.command:
+    cmd: pipx install donpapi --pip-args="--only-binary lxml"
   register: pipx_result
-  changed_when: "'installed package' in pipx_result.stdout or 'upgraded' in pipx_result.stdout"
-  failed_when: pipx_result.rc != 0 and 'already' not in pipx_result.stderr
+  changed_when: "'installed package' in pipx_result.stdout"
   tags:
     - DonPAPI
     - AD
