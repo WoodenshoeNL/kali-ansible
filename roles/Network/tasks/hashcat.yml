@@ -1,0 +1,21 @@
+
+- name: hashcat - install hashcat package
+  ansible.builtin.apt:
+    name: hashcat
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - install hashcat-utils package
+  ansible.builtin.apt:
+    name: hashcat-utils
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - hashcat
+    - network
+

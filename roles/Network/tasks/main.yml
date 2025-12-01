@@ -19,3 +19,9 @@
 
 - name: Run mitm6 setup
   import_tasks: mitm6.yml
+
+- name: Run hashcat setup
+  import_tasks: hashcat.yml
+
+- name: Run john setup
+  import_tasks: john.yml

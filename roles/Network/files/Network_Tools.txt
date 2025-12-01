@@ -31,5 +31,36 @@ mitm6
   OPSEC: NOT SAFE - Active network attack, DHCPv6/DNS spoofing detectable by IDS.
   GitHub: https://github.com/dirkjanm/mitm6
 
+Hashcat
+-------
+  Usage: hashcat -m <mode> -a <attack> <hashfile> [wordlist|mask]
+  Description: World's fastest and most advanced password recovery utility.
+               Supports 350+ hash types, GPU acceleration, rule-based attacks,
+               mask attacks, and hybrid attacks.
+  Common modes:
+    - hashcat -m 0 hash.txt wordlist.txt          # MD5
+    - hashcat -m 1000 hash.txt wordlist.txt       # NTLM
+    - hashcat -m 5600 hash.txt wordlist.txt       # NetNTLMv2
+    - hashcat -m 13100 hash.txt wordlist.txt      # Kerberoast TGS-REP
+    - hashcat -m 18200 hash.txt wordlist.txt      # AS-REP roast
+  OPSEC: SAFE - Offline attack, runs locally on captured hashes.
+  GitHub: https://github.com/hashcat/hashcat
+
+John the Ripper
+---------------
+  Usage: john [options] <hashfile>
+  Description: Open-source password security auditing and password recovery tool.
+               Includes numerous *2john utilities for extracting hashes.
+  Common usage:
+    - john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+    - john --show hash.txt                        # Show cracked passwords
+    - john --rules --wordlist=wordlist.txt hash.txt
+  Included *2john tools (extract hashes from files):
+    - zip2john, rar2john, pdf2john, office2john
+    - ssh2john, gpg2john, keepass2john, bitlocker2john
+    - 7z2john, dmg2john, vncpasswd2john, and many more
+  OPSEC: SAFE - Offline attack, runs locally on captured hashes.
+  GitHub: https://github.com/openwall/john
+
 ================================================================================
 

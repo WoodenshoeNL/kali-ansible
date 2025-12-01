@@ -1,0 +1,21 @@
+
+- name: john - install john package
+  ansible.builtin.apt:
+    name: john
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - john
+    - network
+
+- name: john - install john-data package
+  ansible.builtin.apt:
+    name: john-data
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - john
+    - network
+

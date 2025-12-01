@@ -49,32 +49,19 @@ python3 LdapRelayScan.py -h
 ```
 
 
-## mitm6
-
-```
-https://github.com/dirkjanm/mitm6
-```
 
 
 ## Extra
 
 
-install evil-winrm-py
-```
-pipx install evil-winrm-py
-```
-
 
 https://github.com/prowler-cloud/prowler
 
 
-https://github.com/eslam3kl/meowEye
 
 
 
 https://github.com/dafthack/DomainPasswordSpray
-
-https://github.com/ropnop/windapsearch
 
 https://github.com/BloodHoundAD/BloodHound/tree/master/Collectors
 
