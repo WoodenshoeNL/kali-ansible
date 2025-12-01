@@ -1,13 +1,11 @@
 
-- name: changedetection - install/upgrade changedetection.io via pipx
+- name: holehe - install/upgrade holehe via pipx
   become: yes
   become_user: "{{ login_user }}"
   community.general.pipx:
-    name: changedetection.io
+    name: holehe
     state: latest       # upgrades if an older version is present
   tags:
-    - changedetection
+    - holehe
     - OSINT
-
-
 

@@ -70,7 +70,6 @@ https://github.com/prowler-cloud/prowler
 
 https://github.com/eslam3kl/meowEye
 
-https://github.com/projectdiscovery/nuclei
 
 
 https://github.com/dafthack/DomainPasswordSpray
@@ -91,34 +90,6 @@ pipx install socialscan
 ```
 github.com/iojw/socialscan
 
-
-Blackbird
-```
-cd ~/Downloads/Programs
-git clone https://github.com/p1ngul1n0/blackbird
-cd blackbird
-python3 -m venv blackbirdEnvironment
-source blackbirdEnvironment/bin/activate
-sudo pip install -r requirements.txt
-deactivate
-```
-github.com/p1ngul1n0/blackbird
-
-
-
-
-WhatsMyName-Python
-```
-cd ~/Downloads/Programs
-git clone https://github.com/C3n7ral051nt4g3ncy/WhatsMyName-
-Python.git
-cd WhatsMyName-Python
-python3 -m venv wmnpythonEnvironment
-source wmnpythonEnvironment/bin/activate
-sudo pip3 install -r requirements.txt
-deactivate
-```
-github.com/C3n7ral051nt4g3ncy
 
 
 Holehe
@@ -196,14 +167,6 @@ https://github.com/s0md3v/Photon
 
 
 
-
-
-
-Change Detection
-```
-pipx install changedetection.io
-```
-github.com/dgtlmoon/changedetection.io
 
 
 

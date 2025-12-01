@@ -53,3 +53,5 @@
 - name: Run - WhatsMyName-Python setup
   import_tasks: whatsmyname.yml
 
+- name: Run - Holehe setup
+  import_tasks: holehe.yml
