@@ -1,14 +1,14 @@
-- name: DonPAPI - install Python 3.11 and lxml build dependencies
+- name: DonPAPI - install lxml build dependencies
   become: yes
   ansible.builtin.apt:
     name:
-      - python3.11
-      - python3.11-venv
       - build-essential
       - libxml2-dev
       - libxslt1-dev
       - zlib1g-dev
       - python3-dev
+      - cython3
+      - pkg-config
     state: present
   tags:
     - DonPAPI
@@ -23,13 +23,26 @@
     - DonPAPI
     - AD
 
+- name: DonPAPI - upgrade pip in pipx shared environment
+  become: yes
+  become_user: "{{ login_user }}"
+  ansible.builtin.pip:
+    name:
+      - pip
+      - wheel
+      - Cython
+    state: latest
+    extra_args: --user
+  tags:
+    - DonPAPI
+    - AD
+
 - name: DonPAPI - install/upgrade DonPAPI via pipx
   become: yes
   become_user: "{{ login_user }}"
   community.general.pipx:
     name: donpapi
     state: latest
-    python: /usr/bin/python3.11   # Use Python 3.11 to avoid 3.13 compatibility issues with lxml
   tags:
     - DonPAPI
     - AD
