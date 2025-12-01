@@ -1,14 +1,8 @@
-- name: DonPAPI - install lxml build dependencies
+- name: DonPAPI - install python3-lxml system package
   become: yes
   ansible.builtin.apt:
     name:
-      - build-essential
-      - libxml2-dev
-      - libxslt1-dev
-      - zlib1g-dev
-      - python3-dev
-      - cython3
-      - pkg-config
+      - python3-lxml
     state: present
   tags:
     - DonPAPI
@@ -23,12 +17,14 @@
     - DonPAPI
     - AD
 
-- name: DonPAPI - install/upgrade DonPAPI via pipx
+- name: DonPAPI - install/upgrade DonPAPI via pipx with system-site-packages
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: donpapi
-    state: latest
+  ansible.builtin.command:
+    cmd: pipx install donpapi --system-site-packages --force
+  register: pipx_result
+  changed_when: "'installed package' in pipx_result.stdout or 'upgraded' in pipx_result.stdout"
+  failed_when: pipx_result.rc != 0 and 'already' not in pipx_result.stderr
   tags:
     - DonPAPI
     - AD
