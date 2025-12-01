@@ -34,13 +34,10 @@ Add tools:
 - wfuzz
 - gobuster
 - evil-winrm
-- nuclei
 - SSHscan
 - TestSSL
 - windapsearch.py
-- John the ripper (newer version)
-- hashcat
-- vim
+
 
 
 
