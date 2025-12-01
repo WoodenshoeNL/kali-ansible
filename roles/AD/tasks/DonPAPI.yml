@@ -1,8 +1,20 @@
+- name: DonPAPI - install lxml build dependencies
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - libxml2-dev
+      - libxslt1-dev
+      - python3-dev
+    state: present
+  tags:
+    - DonPAPI
+    - AD
+
 - name: DonPAPI - ensure pipx PATH for {{ login_user }}
   become: yes
   become_user: "{{ login_user }}"
   ansible.builtin.command: python3 -m pipx ensurepath --force
-  changed_when: false   # running it twice is harmless; we suppress “changed”
+  changed_when: false   # running it twice is harmless; we suppress "changed"
   tags:
     - DonPAPI
     - AD
