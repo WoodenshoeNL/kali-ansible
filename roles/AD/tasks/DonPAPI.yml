@@ -1,7 +1,9 @@
-- name: DonPAPI - install lxml build dependencies
+- name: DonPAPI - install Python 3.12 and lxml build dependencies
   become: yes
   ansible.builtin.apt:
     name:
+      - python3.12
+      - python3.12-venv
       - build-essential
       - libxml2-dev
       - libxslt1-dev
@@ -26,7 +28,8 @@
   become_user: "{{ login_user }}"
   community.general.pipx:
     name: donpapi
-    state: latest       # upgrades if an older version is present
+    state: latest
+    python: /usr/bin/python3.12   # Use Python 3.12 to avoid 3.13 compatibility issues with lxml
   tags:
     - DonPAPI
     - AD
