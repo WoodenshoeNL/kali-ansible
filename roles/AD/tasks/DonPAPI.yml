@@ -23,20 +23,6 @@
     - DonPAPI
     - AD
 
-- name: DonPAPI - upgrade pip in pipx shared environment
-  become: yes
-  become_user: "{{ login_user }}"
-  ansible.builtin.pip:
-    name:
-      - pip
-      - wheel
-      - Cython
-    state: latest
-    extra_args: --user
-  tags:
-    - DonPAPI
-    - AD
-
 - name: DonPAPI - install/upgrade DonPAPI via pipx
   become: yes
   become_user: "{{ login_user }}"
