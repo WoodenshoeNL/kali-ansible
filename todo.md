@@ -1,7 +1,6 @@
 
 
 To fix:
-- DonPAPI
 - ADCollector.exe
 - BloodhoundCE
 

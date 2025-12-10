@@ -31,6 +31,8 @@
       - unzip
       - libssl-dev
       - pkg-config
+      - gcc
+      - libpcre2-dev
       - vim
     state: present
     update_cache: yes
