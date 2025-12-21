@@ -71,5 +71,5 @@
 - name: Run rust setup
   import_tasks: rust.yml
 
-- name: Run Fix mouse pointer
-  import_tasks: fix-mouse-pointer.yml
+#- name: Run Fix mouse pointer
+#  import_tasks: fix-mouse-pointer.yml
