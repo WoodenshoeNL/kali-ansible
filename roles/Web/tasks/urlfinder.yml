@@ -21,6 +21,7 @@
     mkdir -p "$TMPDIR"
     go install github.com/projectdiscovery/urlfinder/cmd/urlfinder@latest
   args:
+    executable: /bin/bash
     creates: "{{ login_home }}/go/bin/urlfinder"
   tags:
     - urlfinder

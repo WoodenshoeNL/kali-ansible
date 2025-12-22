@@ -6,6 +6,27 @@
     state: present
     update_cache: yes
     cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
+  tags:
+    - feroxbuster
+    - web
+
+- name: feroxbuster - Download binary
+  get_url:
+    url: https://github.com/epi052/feroxbuster/releases/latest/download/x86_64-linux-feroxbuster.zip
+    dest: /tmp/feroxbuster.zip
+  when: vmware_env == "ubuntu"
+  tags:
+    - feroxbuster
+    - web
+
+- name: feroxbuster - Extract and install
+  unarchive:
+    src: /tmp/feroxbuster.zip
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+  when: vmware_env == "ubuntu"
   tags:
     - feroxbuster
     - web

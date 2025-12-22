@@ -21,6 +21,7 @@
     mkdir -p "$TMPDIR"
     go install github.com/projectdiscovery/katana/cmd/katana@latest
   args:
+    executable: /bin/bash
     creates: "{{ login_home }}/go/bin/katana"
   tags:
     - katana

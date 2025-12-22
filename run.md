@@ -46,3 +46,10 @@ Install with specific tag:
 sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=workstation login_user=kali login_home=/home/kali" --tags core
 ```
 
+## Ubuntu
+
+Run for Ansible:
+```
+sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu login_user=michel login_home=/home/michel"
+```
+

@@ -21,6 +21,7 @@
     mkdir -p "$TMPDIR"
     go install github.com/projectdiscovery/tlsx/cmd/tlsx@latest
   args:
+    executable: /bin/bash
     creates: "{{ login_home }}/go/bin/tlsx"
   tags:
     - tlsx
