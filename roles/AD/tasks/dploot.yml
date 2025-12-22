@@ -1,10 +1,30 @@
 
-- name: dploot - install packaged release
+- name: dploot - install packaged release (Kali)
   ansible.builtin.apt:
     name: python3-dploot
     state: present
     update_cache: yes
     cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
+  tags:
+    - dploot
+    - AD
+
+- name: dploot - install via pipx (Ubuntu/Debian)
+  block:
+    - name: Ensure pipx is installed
+      ansible.builtin.apt:
+        name: pipx
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install dploot via pipx
+      community.general.pipx:
+        name: dploot
+        state: present
+      become: no  # pipx installs to user space
+  when: vmware_env == "ubuntu"
   tags:
     - dploot
     - AD
