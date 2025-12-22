@@ -6,6 +6,47 @@
     state: present
     update_cache: yes
     cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
+  tags:
+    - azurehound
+    - cloud
+
+- name: azurehound - Get latest release version
+  uri:
+    url: https://api.github.com/repos/BloodHoundAD/AzureHound/releases/latest
+    return_content: yes
+    follow_redirects: all
+  register: azurehound_release
+  when: vmware_env == "ubuntu"
+  tags:
+    - azurehound
+    - cloud
+
+- name: azurehound - Download and install binary
+  get_url:
+    url: "{{ azurehound_release.json.assets | selectattr('name', 'search', 'linux_amd64\\.zip$') | map(attribute='browser_download_url') | first }}"
+    dest: /tmp/azurehound.zip
+  when: vmware_env == "ubuntu"
+  tags:
+    - azurehound
+    - cloud
+
+- name: azurehound - Extract binary
+  unarchive:
+    src: /tmp/azurehound.zip
+    dest: /usr/local/bin/
+    remote_src: yes
+    mode: '0755'
+  when: vmware_env == "ubuntu"
+  tags:
+    - azurehound
+    - cloud
+
+- name: azurehound - Cleanup
+  file:
+    path: /tmp/azurehound.zip
+    state: absent
+  when: vmware_env == "ubuntu"
   tags:
     - azurehound
     - cloud
