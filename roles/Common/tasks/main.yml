@@ -76,3 +76,6 @@
 
 - name: Run DuckDB setup
   import_tasks: duckdb.yml
+
+- name: Run Mullvad VPN setup
+  import_tasks: mullvad.yml
