@@ -1,0 +1,52 @@
+
+- name: Install Maltego CE from Kali repos
+  ansible.builtin.apt:
+    name: maltego
+    state: present
+    update_cache: yes
+  when: vmware_env != "ubuntu"
+  tags:
+    - maltego
+    - osint
+
+- name: Download Maltego CE for Ubuntu
+  ansible.builtin.get_url:
+    url: "https://downloads.maltego.com/maltego-v4/linux/Maltego.v4.7.0.deb"
+    dest: "/tmp/maltego.deb"
+    mode: '0644'
+  when: vmware_env == "ubuntu"
+  tags:
+    - maltego
+    - osint
+
+- name: Install Maltego CE dependencies (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - default-jre
+      - libxcb-cursor0
+    state: present
+    update_cache: yes
+  when: vmware_env == "ubuntu"
+  tags:
+    - maltego
+    - osint
+
+- name: Install Maltego CE from .deb (Ubuntu)
+  ansible.builtin.apt:
+    deb: "/tmp/maltego.deb"
+    state: present
+  when: vmware_env == "ubuntu"
+  tags:
+    - maltego
+    - osint
+
+- name: Clean up Maltego .deb installer
+  ansible.builtin.file:
+    path: "/tmp/maltego.deb"
+    state: absent
+  when: vmware_env == "ubuntu"
+  tags:
+    - maltego
+    - osint
+
+

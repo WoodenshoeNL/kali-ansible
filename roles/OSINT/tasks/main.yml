@@ -61,3 +61,7 @@
 
 - name: Run - Amass setup
   import_tasks: amass.yml
+
+- name: Run - Maltego setup
+  import_tasks: maltego.yml
+
