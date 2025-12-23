@@ -1,0 +1,26 @@
+- name: Ensure unzip is installed
+  apt:
+    name: unzip
+    state: present
+  tags:
+    - duckdb
+    - common
+
+- name: DuckDB - Get latest release version
+  uri:
+    url: https://api.github.com/repos/duckdb/duckdb/releases/latest
+    return_content: yes
+  register: duckdb_release
+  tags:
+    - duckdb
+    - common
+
+- name: DuckDB - Download and extract CLI
+  unarchive:
+    src: "https://github.com/duckdb/duckdb/releases/download/{{ duckdb_release.json.tag_name }}/duckdb_cli-linux-amd64.zip"
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0755'
+  tags:
+    - duckdb
+    - common

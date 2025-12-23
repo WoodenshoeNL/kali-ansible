@@ -1,9 +1,14 @@
-
 - name: Rust - Check if cargo is installed
-  shell: command -v cargo
+  shell: |
+    source $HOME/.cargo/env 2>/dev/null || true
+    command -v cargo
+  args:
+    executable: /bin/bash
   register: cargo_exists
   failed_when: false
   changed_when: false
+  become: true
+  become_user: "{{ login_user }}"
   tags:
     - rust
     - common
@@ -14,13 +19,19 @@
     dest: /tmp/rustup-init.sh
     mode: '0755'
   when: cargo_exists.rc != 0
+  become: true
+  become_user: "{{ login_user }}"
   tags:
     - rust
     - common
 
 - name: Rust - Install rust
   shell: /tmp/rustup-init.sh -y
+  args:
+    executable: /bin/bash
   when: cargo_exists.rc != 0
+  become: true
+  become_user: "{{ login_user }}"
   tags:
     - rust
     - common
@@ -30,6 +41,29 @@
     path: /tmp/rustup-init.sh
     state: absent
   when: cargo_exists.rc != 0
+  become: true
+  become_user: "{{ login_user }}"
+  tags:
+    - rust
+    - common
+
+- name: Rust - Verify installation
+  shell: |
+    source $HOME/.cargo/env
+    cargo --version
+  args:
+    executable: /bin/bash
+  register: cargo_version
+  changed_when: false
+  become: true
+  become_user: "{{ login_user }}"
+  tags:
+    - rust
+    - common
+
+- name: Rust - Display version
+  debug:
+    msg: "{{ cargo_version.stdout }}"
   tags:
     - rust
     - common

@@ -73,3 +73,6 @@
 
 #- name: Run Fix mouse pointer
 #  import_tasks: fix-mouse-pointer.yml
+
+- name: Run DuckDB setup
+  import_tasks: duckdb.yml
