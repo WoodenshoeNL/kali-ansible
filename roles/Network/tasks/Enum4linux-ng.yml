@@ -1,10 +1,37 @@
-
-- name: enum4linux-ng - install package
+- name: enum4linux-ng - install package (Kali)
   ansible.builtin.apt:
     name: enum4linux-ng
     state: present
     update_cache: yes
     cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
+  tags:
+    - enum4linux-ng
+    - network
+
+- name: enum4linux-ng - install dependencies (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - git
+      - smbclient
+      - python3-pip
+      - pipx
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: vmware_env == "ubuntu"
+  tags:
+    - enum4linux-ng
+    - network
+
+- name: enum4linux-ng - install via pipx from git (Ubuntu)
+  community.general.pipx:
+    name: enum4linux-ng
+    source: git+https://github.com/cddmp/enum4linux-ng.git
+    state: present
+  become: yes
+  become_user: "{{ login_user }}"
+  when: vmware_env == "ubuntu"
   tags:
     - enum4linux-ng
     - network

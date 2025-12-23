@@ -1,10 +1,39 @@
-
-- name: BloodyAD - install packaged release
+- name: BloodyAD - install from apt (Kali)
   ansible.builtin.apt:
     name: bloodyad
     state: present
     update_cache: yes
     cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
+  tags:
+    - BloodyAD
+    - AD
+
+- name: BloodyAD - install pipx (Ubuntu)
+  ansible.builtin.apt:
+    name: pipx
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: vmware_env == "ubuntu"
+  tags:
+    - BloodyAD
+    - AD
+
+- name: BloodyAD - install via pipx (Ubuntu)
+  ansible.builtin.command:
+    cmd: pipx install bloodyad
+    creates: "{{ ansible_env.HOME }}/.local/bin/bloodyad"
+  when: vmware_env == "ubuntu"
+  tags:
+    - BloodyAD
+    - AD
+
+- name: BloodyAD - ensure pipx bin in PATH
+  ansible.builtin.command:
+    cmd: pipx ensurepath
+  changed_when: false
+  when: vmware_env == "ubuntu"
   tags:
     - BloodyAD
     - AD

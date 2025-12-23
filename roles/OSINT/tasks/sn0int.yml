@@ -1,4 +1,7 @@
+# sn0int OSINT tool installation
+# Kali Linux and Ubuntu compatible
 
+# === Common prerequisite packages ===
 - name: sn0int - ensure prerequisite packages are present
   apt:
     name:
@@ -11,24 +14,65 @@
     - sn0int
     - OSINT
 
-- name: sn0int - download kpcyrd signing key
+# === Kali Linux installation ===
+- name: sn0int - download kpcyrd signing key (Kali)
   get_url:
     url: https://apt.vulns.sexy/kpcyrd.pgp
     dest: /usr/share/keyrings/apt-vulns-sexy.gpg
     mode: '0644'
+  when: vmware_env != "ubuntu"
   tags:
     - sn0int
     - OSINT
 
-- name: sn0int - add apt repository
+- name: sn0int - add apt repository (Kali)
   apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/apt-vulns-sexy.gpg] http://apt.vulns.sexy stable main"
     filename: apt-vulns-sexy
     state: present
+  when: vmware_env != "ubuntu"
   tags:
     - sn0int
     - OSINT
 
+# === Ubuntu installation ===
+- name: sn0int - remove stale apt.vulns.sexy keyring (Ubuntu)
+  file:
+    path: /usr/share/keyrings/apt-vulns-sexy.gpg
+    state: absent
+  when: vmware_env == "ubuntu"
+  tags:
+    - sn0int
+    - OSINT
+
+- name: sn0int - remove ALL stale vulns repo configs (Ubuntu)
+  shell: rm -f /etc/apt/sources.list.d/*vulns*
+  when: vmware_env == "ubuntu"
+  changed_when: false
+  tags:
+    - sn0int
+    - OSINT
+
+- name: sn0int - download and dearmor signing key (Ubuntu)
+  shell: |
+    curl -fsSL https://apt.vulns.sexy/kpcyrd.pgp | gpg --dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg
+    chmod 644 /usr/share/keyrings/apt-vulns-sexy.gpg
+  when: vmware_env == "ubuntu"
+  tags:
+    - sn0int
+    - OSINT
+
+- name: sn0int - add apt repository (Ubuntu)
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/apt-vulns-sexy.gpg] https://apt.vulns.sexy stable main"
+    filename: apt-vulns-sexy
+    state: present
+  when: vmware_env == "ubuntu"
+  tags:
+    - sn0int
+    - OSINT
+
+# === Common installation ===
 - name: sn0int - install package
   apt:
     name: sn0int
@@ -38,4 +82,3 @@
   tags:
     - sn0int
     - OSINT
-

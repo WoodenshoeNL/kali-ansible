@@ -1,4 +1,3 @@
-
 - name: hashcat - install hashcat package
   ansible.builtin.apt:
     name: hashcat
@@ -9,13 +8,64 @@
     - hashcat
     - network
 
-- name: hashcat - install hashcat-utils package
+- name: hashcat - install hashcat-utils package (Kali)
   ansible.builtin.apt:
     name: hashcat-utils
     state: latest
-    update_cache: yes
-    cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
   tags:
     - hashcat
     - network
 
+- name: hashcat - install build dependencies (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - git
+      - make
+      - gcc
+    state: present
+  when: vmware_env == "ubuntu"
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - clone hashcat-utils repo (Ubuntu)
+  ansible.builtin.git:
+    repo: https://github.com/hashcat/hashcat-utils.git
+    dest: /opt/hashcat-utils
+    version: master
+  when: vmware_env == "ubuntu"
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - build hashcat-utils (Ubuntu)
+  ansible.builtin.shell:
+    cmd: make
+    chdir: /opt/hashcat-utils
+    creates: /opt/hashcat-utils/bin/cap2hccapx.bin
+  when: vmware_env == "ubuntu"
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - find built binaries (Ubuntu)
+  ansible.builtin.find:
+    paths: /opt/hashcat-utils/bin
+    patterns: "*.bin"
+  register: hashcat_utils_binaries
+  when: vmware_env == "ubuntu"
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - symlink hashcat-utils binaries (Ubuntu)
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "/usr/local/bin/{{ item.path | basename | regex_replace('\\.bin$', '') }}"
+    state: link
+  loop: "{{ hashcat_utils_binaries.files }}"
+  when: vmware_env == "ubuntu"
+  tags:
+    - hashcat
+    - network
