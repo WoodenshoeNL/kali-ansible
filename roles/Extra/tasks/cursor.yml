@@ -1,0 +1,47 @@
+# tasks/cursor.yml
+---
+- name: Cursor - Get latest Cursor version from API
+  ansible.builtin.uri:
+    url: "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable"
+    return_content: true
+    headers:
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+  register: cursor_api_response
+  when: vmware_env == "cursor"
+  tags:
+    - cursor
+
+- name: Cursor - Extract version from API response
+  ansible.builtin.set_fact:
+    cursor_version: "{{ cursor_api_response.json.version }}"
+  when: vmware_env == "cursor"
+  tags:
+    - cursor
+
+- name: Cursor - Download Cursor .deb package
+  ansible.builtin.get_url:
+    url: "https://api2.cursor.sh/updates/download/golden/linux-x64-deb/cursor/{{ cursor_version }}"
+    dest: "/tmp/cursor.deb"
+    mode: '0644'
+    headers:
+      User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+  register: cursor_download
+  when: vmware_env == "cursor"
+  tags:
+    - cursor
+
+- name: Cursor - Install Cursor .deb package
+  ansible.builtin.apt:
+    deb: /tmp/cursor.deb
+    state: present
+  when: vmware_env == "cursor"
+  tags:
+    - cursor
+
+- name: Cursor - Clean up .deb file
+  ansible.builtin.file:
+    path: /tmp/cursor.deb
+    state: absent
+  when: vmware_env == "cursor"
+  tags:
+    - cursor

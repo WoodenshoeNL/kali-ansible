@@ -6,7 +6,7 @@
 # ------------------------------------------------------------------------------
 # Variables - Override in group_vars/host_vars or when calling the role
 # ------------------------------------------------------------------------------
-- name: Set n8n default variables
+- name: n8n - Set n8n default variables
   ansible.builtin.set_fact:
     n8n_host: "{{ n8n_host | default('0.0.0.0') }}"
     n8n_port: "{{ n8n_port | default('5678') }}"
@@ -23,7 +23,7 @@
 # ------------------------------------------------------------------------------
 # Node.js Installation
 # ------------------------------------------------------------------------------
-- name: Install n8n dependencies
+- name: n8n - Install n8n dependencies
   ansible.builtin.apt:
     name:
       - curl
@@ -34,7 +34,7 @@
   tags:
     - n8n
 
-- name: Check if NodeSource repo is configured
+- name: n8n - Check if NodeSource repo is configured
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/nodesource.list
   register: nodesource_repo
@@ -42,7 +42,7 @@
   tags:
     - n8n
 
-- name: Add NodeSource GPG key
+- name: n8n - Add NodeSource GPG key
   ansible.builtin.shell: |
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
   args:
@@ -53,7 +53,7 @@
   tags:
     - n8n
 
-- name: Add NodeSource repository
+- name: n8n - Add NodeSource repository
   ansible.builtin.apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main"
     filename: nodesource
@@ -64,7 +64,7 @@
   tags:
     - n8n
 
-- name: Install Node.js
+- name: n8n - Install Node.js
   ansible.builtin.apt:
     name: nodejs
     state: present
@@ -76,7 +76,7 @@
 # ------------------------------------------------------------------------------
 # n8n Installation
 # ------------------------------------------------------------------------------
-- name: Install n8n globally via npm
+- name: n8n - Install n8n globally via npm
   community.general.npm:
     name: n8n
     global: yes
@@ -88,7 +88,7 @@
 # ------------------------------------------------------------------------------
 # User and Directory Setup
 # ------------------------------------------------------------------------------
-- name: Create n8n user
+- name: n8n - Create n8n user
   ansible.builtin.user:
     name: n8n
     shell: /bin/bash
@@ -99,7 +99,7 @@
   tags:
     - n8n
 
-- name: Create n8n data directory
+- name: n8n - Create n8n data directory
   ansible.builtin.file:
     path: /home/n8n/.n8n
     state: directory
@@ -113,7 +113,7 @@
 # ------------------------------------------------------------------------------
 # Encryption Key
 # ------------------------------------------------------------------------------
-- name: Check if encryption key already exists
+- name: n8n - Check if encryption key already exists
   ansible.builtin.stat:
     path: /home/n8n/.n8n/.env
   register: n8n_env_file
@@ -121,7 +121,7 @@
   tags:
     - n8n
 
-- name: Read existing encryption key
+- name: n8n - Read existing encryption key
   ansible.builtin.shell: grep '^N8N_ENCRYPTION_KEY=' /home/n8n/.n8n/.env | cut -d'=' -f2
   register: existing_key
   changed_when: false
@@ -132,7 +132,7 @@
   tags:
     - n8n
 
-- name: Generate n8n encryption key
+- name: n8n - Generate n8n encryption key
   ansible.builtin.command: openssl rand -hex 32
   register: n8n_generated_key
   changed_when: false
@@ -142,7 +142,7 @@
   tags:
     - n8n
 
-- name: Set encryption key fact
+- name: n8n - Set encryption key fact
   ansible.builtin.set_fact:
     n8n_encryption_key_final: "{{ n8n_encryption_key | default(existing_key.stdout if (n8n_env_file.stat.exists and existing_key.stdout != '') else n8n_generated_key.stdout) }}"
   when: vmware_env == "n8n"
@@ -152,7 +152,7 @@
 # ------------------------------------------------------------------------------
 # Environment Configuration
 # ------------------------------------------------------------------------------
-- name: Create n8n environment file
+- name: n8n - Create n8n environment file
   ansible.builtin.copy:
     dest: /home/n8n/.n8n/.env
     owner: n8n
@@ -192,7 +192,7 @@
 # ------------------------------------------------------------------------------
 # Systemd Service
 # ------------------------------------------------------------------------------
-- name: Create n8n systemd service
+- name: n8n - Create n8n systemd service
   ansible.builtin.copy:
     dest: /etc/systemd/system/n8n.service
     owner: root
@@ -229,7 +229,7 @@
 # ------------------------------------------------------------------------------
 # Service Management
 # ------------------------------------------------------------------------------
-- name: Reload systemd daemon
+- name: n8n - Reload systemd daemon
   ansible.builtin.systemd:
     daemon_reload: yes
   when: n8n_service_changed.changed
@@ -237,7 +237,7 @@
   tags:
     - n8n
 
-- name: Enable and start n8n service
+- name: n8n - Enable and start n8n service
   ansible.builtin.systemd:
     name: n8n
     enabled: yes
@@ -246,7 +246,7 @@
   tags:
     - n8n
 
-- name: Restart n8n if configuration changed
+- name: n8n - Restart n8n if configuration changed
   ansible.builtin.systemd:
     name: n8n
     state: restarted
@@ -259,7 +259,7 @@
 # ------------------------------------------------------------------------------
 # Firewall
 # ------------------------------------------------------------------------------
-- name: Allow n8n port through UFW
+- name: n8n - Allow n8n port through UFW
   community.general.ufw:
     rule: allow
     port: "{{ n8n_port }}"
@@ -273,7 +273,7 @@
 # ------------------------------------------------------------------------------
 # Output
 # ------------------------------------------------------------------------------
-- name: Display n8n access information
+- name: n8n - Display n8n access information
   ansible.builtin.debug:
     msg:
       - "n8n installed successfully!"

@@ -2,3 +2,12 @@
 - name: Run Mullvad VPN setup
   import_tasks: mullvad.yml
 
+- name: Run n8n setup
+  import_tasks: n8n.yml
+
+- name: Run Cursor setup
+  import_tasks: cursor.yml
+
+- name: Run Antigravity setup
+  import_tasks: antigravity.yml
+
