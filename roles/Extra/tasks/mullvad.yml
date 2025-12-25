@@ -6,20 +6,20 @@
       - gnupg
     state: present
     update_cache: yes
+  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
-    - common
 
 - name: Download Mullvad GPG key
   ansible.builtin.get_url:
     url: https://repository.mullvad.net/deb/mullvad-keyring.asc
     dest: /tmp/mullvad-keyring.asc
     mode: '0644'
+  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
-    - common
 
 - name: Dearmor and install Mullvad GPG key
   ansible.builtin.shell: |
@@ -27,36 +27,36 @@
   args:
     executable: /bin/bash
     creates: /usr/share/keyrings/mullvad-keyring.gpg
+  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
-    - common
 
 - name: Add Mullvad repository
   ansible.builtin.apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/mullvad-keyring.gpg] https://repository.mullvad.net/deb/stable {{ ansible_distribution_release }} main"
     filename: mullvad
     state: present
+  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
-    - common
 
 - name: Install Mullvad VPN package
   ansible.builtin.apt:
     name: mullvad-vpn
     state: present
     update_cache: yes
+  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
-    - common
 
 - name: Clean up temporary files
   ansible.builtin.file:
     path: /tmp/mullvad-keyring.asc
     state: absent
+  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
-    - common

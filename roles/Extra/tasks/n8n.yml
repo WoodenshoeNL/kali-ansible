@@ -1,0 +1,284 @@
+---
+# roles/extra/tasks/n8n.yml
+# Self-contained n8n installation task
+# Called from: roles/extra/tasks/main.yml via "- import_tasks: n8n.yml"
+
+# ------------------------------------------------------------------------------
+# Variables - Override in group_vars/host_vars or when calling the role
+# ------------------------------------------------------------------------------
+- name: Set n8n default variables
+  ansible.builtin.set_fact:
+    n8n_host: "{{ n8n_host | default('0.0.0.0') }}"
+    n8n_port: "{{ n8n_port | default('5678') }}"
+    n8n_webhook_url: "{{ n8n_webhook_url | default('http://' + ansible_default_ipv4.address + ':' + (n8n_port | default('5678') | string) + '/') }}"
+    n8n_secure_cookie: "{{ n8n_secure_cookie | default('false') }}"
+    n8n_configure_ufw: "{{ n8n_configure_ufw | default(true) }}"
+    n8n_basic_auth_active: "{{ n8n_basic_auth_active | default(false) }}"
+    n8n_basic_auth_user: "{{ n8n_basic_auth_user | default('admin') }}"
+    n8n_basic_auth_password: "{{ n8n_basic_auth_password | default('changeme') }}"
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# Node.js Installation
+# ------------------------------------------------------------------------------
+- name: Install n8n dependencies
+  ansible.builtin.apt:
+    name:
+      - curl
+      - build-essential
+    state: present
+    update_cache: yes
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Check if NodeSource repo is configured
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/nodesource.list
+  register: nodesource_repo
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Add NodeSource GPG key
+  ansible.builtin.shell: |
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
+  args:
+    creates: /usr/share/keyrings/nodesource.gpg
+  when: >
+    not nodesource_repo.stat.exists
+    and vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Add NodeSource repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main"
+    filename: nodesource
+    state: present
+  when: >
+    not nodesource_repo.stat.exists
+    and vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Install Node.js
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+    update_cache: yes
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# n8n Installation
+# ------------------------------------------------------------------------------
+- name: Install n8n globally via npm
+  community.general.npm:
+    name: n8n
+    global: yes
+    state: present
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# User and Directory Setup
+# ------------------------------------------------------------------------------
+- name: Create n8n user
+  ansible.builtin.user:
+    name: n8n
+    shell: /bin/bash
+    system: no
+    create_home: yes
+    home: /home/n8n
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Create n8n data directory
+  ansible.builtin.file:
+    path: /home/n8n/.n8n
+    state: directory
+    owner: n8n
+    group: n8n
+    mode: '0755'
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# Encryption Key
+# ------------------------------------------------------------------------------
+- name: Check if encryption key already exists
+  ansible.builtin.stat:
+    path: /home/n8n/.n8n/.env
+  register: n8n_env_file
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Read existing encryption key
+  ansible.builtin.shell: grep '^N8N_ENCRYPTION_KEY=' /home/n8n/.n8n/.env | cut -d'=' -f2
+  register: existing_key
+  changed_when: false
+  failed_when: false
+  when: >
+    n8n_env_file.stat.exists
+    and vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Generate n8n encryption key
+  ansible.builtin.command: openssl rand -hex 32
+  register: n8n_generated_key
+  changed_when: false
+  when: >
+    n8n_encryption_key is not defined
+    and (not n8n_env_file.stat.exists or existing_key.stdout == '')
+  tags:
+    - n8n
+
+- name: Set encryption key fact
+  ansible.builtin.set_fact:
+    n8n_encryption_key_final: "{{ n8n_encryption_key | default(existing_key.stdout if (n8n_env_file.stat.exists and existing_key.stdout != '') else n8n_generated_key.stdout) }}"
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# Environment Configuration
+# ------------------------------------------------------------------------------
+- name: Create n8n environment file
+  ansible.builtin.copy:
+    dest: /home/n8n/.n8n/.env
+    owner: n8n
+    group: n8n
+    mode: '0600'
+    content: |
+      # n8n Environment Configuration
+      # Managed by Ansible - do not edit manually
+
+      # Host configuration
+      N8N_HOST={{ n8n_host }}
+      N8N_PORT={{ n8n_port }}
+
+      # Webhook URL
+      WEBHOOK_URL={{ n8n_webhook_url }}
+
+      # Encryption key for credentials
+      N8N_ENCRYPTION_KEY={{ n8n_encryption_key_final }}
+
+      # Data location
+      N8N_USER_FOLDER=/home/n8n/.n8n
+
+      # Cookie security (set to true if using HTTPS)
+      N8N_SECURE_COOKIE={{ n8n_secure_cookie }}
+      {% if n8n_basic_auth_active | bool %}
+
+      # Basic Auth
+      N8N_BASIC_AUTH_ACTIVE=true
+      N8N_BASIC_AUTH_USER={{ n8n_basic_auth_user }}
+      N8N_BASIC_AUTH_PASSWORD={{ n8n_basic_auth_password }}
+      {% endif %}
+  register: n8n_env_changed
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# Systemd Service
+# ------------------------------------------------------------------------------
+- name: Create n8n systemd service
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/n8n.service
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [Unit]
+      Description=n8n workflow automation
+      After=network.target
+
+      [Service]
+      Type=simple
+      User=n8n
+      Group=n8n
+      EnvironmentFile=/home/n8n/.n8n/.env
+      ExecStart=/usr/bin/n8n start
+      Restart=always
+      RestartSec=10
+
+      # Hardening
+      NoNewPrivileges=true
+      PrivateTmp=true
+      ProtectSystem=strict
+      ProtectHome=read-only
+      ReadWritePaths=/home/n8n/.n8n
+
+      [Install]
+      WantedBy=multi-user.target
+  register: n8n_service_changed
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# Service Management
+# ------------------------------------------------------------------------------
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  when: n8n_service_changed.changed
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Enable and start n8n service
+  ansible.builtin.systemd:
+    name: n8n
+    enabled: yes
+    state: started
+  when: vmware_env == "n8n"
+  tags:
+    - n8n
+
+- name: Restart n8n if configuration changed
+  ansible.builtin.systemd:
+    name: n8n
+    state: restarted
+  when: >
+    n8n_env_changed.changed or n8n_service_changed.changed
+    and vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# Firewall
+# ------------------------------------------------------------------------------
+- name: Allow n8n port through UFW
+  community.general.ufw:
+    rule: allow
+    port: "{{ n8n_port }}"
+    proto: tcp
+  when: >
+    n8n_configure_ufw | bool
+    and vmware_env == "n8n"
+  tags:
+    - n8n
+
+# ------------------------------------------------------------------------------
+# Output
+# ------------------------------------------------------------------------------
+- name: Display n8n access information
+  ansible.builtin.debug:
+    msg:
+      - "n8n installed successfully!"
+      - "Access URL: http://{{ ansible_default_ipv4.address }}:{{ n8n_port }}"
+      - "Encryption key stored in: /home/n8n/.n8n/.env"
+  when: vmware_env == "n8n"
+  tags:
+    - n8n

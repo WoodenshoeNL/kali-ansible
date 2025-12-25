@@ -1,0 +1,4 @@
+
+- name: Run Mullvad VPN setup
+  import_tasks: mullvad.yml
+
