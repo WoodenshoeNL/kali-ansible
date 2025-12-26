@@ -11,3 +11,6 @@
 - name: Run Antigravity setup
   import_tasks: antigravity.yml
 
+- name: Run Claude Code setup
+  import_tasks: claude-code.yml
+
