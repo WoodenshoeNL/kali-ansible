@@ -1,11 +1,49 @@
-
 - name: obsidian - install package
   ansible.builtin.apt:
     name: obsidian
-    state: latest      # always pull the newest version available
+    state: latest
     update_cache: yes
     cache_valid_time: 3600
   when: vmware_env in ["workstation", "laptop"]
+  tags:
+    - obsidian
+    - common
+
+- name: obsidian - Get latest release version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest
+    return_content: yes
+    headers:
+      Accept: application/vnd.github.v3+json
+  register: obsidian_release
+  when: vmware_env == "ubuntu"
+  tags:
+    - obsidian
+    - common
+
+- name: obsidian - Set version fact
+  ansible.builtin.set_fact:
+    obsidian_version: "{{ obsidian_release.json.tag_name | regex_replace('^v', '') }}"
+  when: vmware_env == "ubuntu"
+  tags:
+    - obsidian
+    - common
+
+- name: obsidian - Download deb package
+  ansible.builtin.get_url:
+    url: "https://github.com/obsidianmd/obsidian-releases/releases/download/v{{ obsidian_version }}/obsidian_{{ obsidian_version }}_amd64.deb"
+    dest: "/tmp/obsidian_{{ obsidian_version }}_amd64.deb"
+    mode: '0644'
+  when: vmware_env == "ubuntu"
+  tags:
+    - obsidian
+    - common
+
+- name: obsidian - Install deb package
+  ansible.builtin.apt:
+    deb: "/tmp/obsidian_{{ obsidian_version }}_amd64.deb"
+    state: present
+  when: vmware_env == "ubuntu"
   tags:
     - obsidian
     - common

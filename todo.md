@@ -48,3 +48,5 @@ Download tools to vmdisk:
 
 Fix read right seclist/rockyou
 
+
+whois tool
