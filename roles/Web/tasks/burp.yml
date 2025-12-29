@@ -1,0 +1,37 @@
+- name: burpsuite - Download installer
+  get_url:
+    url: https://portswigger-cdn.net/burp/releases/download?product=community&version=2024.11.1&type=Linux
+    dest: /tmp/burpsuite_installer.sh
+    mode: '0755'
+  when: vmware_env == "ubuntu"
+  tags:
+    - burpsuite
+    - web
+
+- name: burpsuite - Run installer (silent)
+  command: /tmp/burpsuite_installer.sh -q
+  args:
+    creates: /opt/BurpSuiteCommunity/BurpSuiteCommunity
+  when: vmware_env == "ubuntu"
+  tags:
+    - burpsuite
+    - web
+
+- name: burpsuite - Create symlink
+  file:
+    src: /opt/BurpSuiteCommunity/BurpSuiteCommunity
+    dest: /usr/local/bin/burpsuite
+    state: link
+  when: vmware_env == "ubuntu"
+  tags:
+    - burpsuite
+    - web
+
+- name: burpsuite - Cleanup installer
+  file:
+    path: /tmp/burpsuite_installer.sh
+    state: absent
+  when: vmware_env == "ubuntu"
+  tags:
+    - burpsuite
+    - web

@@ -43,3 +43,6 @@
 
 - name: Run - MeowEye setup
   import_tasks: meowEye.yml
+
+- name: Run - Burp Suite setup
+  import_tasks: burp.yml
