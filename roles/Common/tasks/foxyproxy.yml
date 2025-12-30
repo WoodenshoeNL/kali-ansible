@@ -1,0 +1,39 @@
+- name: foxyproxy - Ensure Firefox extensions directory exists (Kali)
+  file:
+    path: /usr/lib/firefox-esr/distribution/extensions
+    state: directory
+    mode: '0755'
+  when: vmware_env in ['workstation', 'laptop']
+  tags:
+    - foxyproxy
+    - web
+
+- name: foxyproxy - Ensure Firefox extensions directory exists (Ubuntu)
+  file:
+    path: /usr/lib/firefox/distribution/extensions
+    state: directory
+    mode: '0755'
+  when: vmware_env == "ubuntu"
+  tags:
+    - foxyproxy
+    - web
+
+- name: foxyproxy - Download and install extension (Kali)
+  get_url:
+    url: https://addons.mozilla.org/firefox/downloads/file/4472757/foxyproxy_standard-9.2.xpi
+    dest: /usr/lib/firefox-esr/distribution/extensions/foxyproxy@eric.h.jung.xpi
+    mode: '0644'
+  when: vmware_env in ['workstation', 'laptop']
+  tags:
+    - foxyproxy
+    - web
+
+- name: foxyproxy - Download and install extension (Ubuntu)
+  get_url:
+    url: https://addons.mozilla.org/firefox/downloads/file/4472757/foxyproxy_standard-9.2.xpi
+    dest: /usr/lib/firefox/distribution/extensions/foxyproxy@eric.h.jung.xpi
+    mode: '0644'
+  when: vmware_env == "ubuntu"
+  tags:
+    - foxyproxy
+    - web

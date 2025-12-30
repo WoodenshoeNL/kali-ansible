@@ -6,6 +6,7 @@ Writes/overwrites <profile>/user.js with a hardened set of prefs and optionally
 cleans up cached telemetry pings. Based on Silent-Firefox project.
 
 Tested on Firefox ESR on Linux (Kali), macOS and Windows.
+Supports both traditional and Snap Firefox installations on Linux.
 """
 
 import argparse
@@ -215,25 +216,44 @@ BANNER = textwrap.dedent("""\
 # FUNCTIONS
 # ============================================================================
 
-def platform_profiles() -> list[Path]:
+def get_linux_firefox_bases() -> list[Path]:
     """
-    Return a list of profile directories discovered via profiles.ini.
+    Return a list of possible Firefox base directories on Linux.
+    Handles both traditional and Snap installations.
     """
-    if sys.platform.startswith("win"):
-        base = Path(os.getenv("APPDATA", "")) / "Mozilla" / "Firefox"
-    elif sys.platform == "darwin":
-        base = Path.home() / "Library" / "Application Support" / "Firefox"
-    else:  # Linux, BSD, etc.
-        base = Path.home() / ".mozilla" / "firefox"
+    bases = []
+    home = Path.home()
 
+    # Traditional Firefox location
+    traditional = home / ".mozilla" / "firefox"
+    if traditional.exists():
+        bases.append(traditional)
+
+    # Snap Firefox location (Ubuntu default)
+    snap = home / "snap" / "firefox" / "common" / ".mozilla" / "firefox"
+    if snap.exists():
+        bases.append(snap)
+
+    # Flatpak Firefox location
+    flatpak = home / ".var" / "app" / "org.mozilla.firefox" / ".mozilla" / "firefox"
+    if flatpak.exists():
+        bases.append(flatpak)
+
+    return bases
+
+
+def parse_profiles_ini(base: Path) -> list[Path]:
+    """
+    Parse profiles.ini from a Firefox base directory and return profile paths.
+    """
     ini = base / "profiles.ini"
     if not ini.exists():
-        print(f"Could not find profiles.ini at {ini} – is Firefox installed?", file=sys.stderr)
         return []
 
     cp = configparser.ConfigParser()
     cp.read(ini)
     profs = []
+
     for section in cp.sections():
         if cp.has_option(section, "Path"):
             path = cp.get(section, "Path")
@@ -242,7 +262,62 @@ def platform_profiles() -> list[Path]:
                 profs.append(base / path)
             else:
                 profs.append(Path(path))
+
     return profs
+
+
+def platform_profiles() -> list[Path]:
+    """
+    Return a list of profile directories discovered via profiles.ini.
+    Supports Windows, macOS, and Linux (including Snap/Flatpak).
+    """
+    if sys.platform.startswith("win"):
+        base = Path(os.getenv("APPDATA", "")) / "Mozilla" / "Firefox"
+        ini = base / "profiles.ini"
+        if not ini.exists():
+            print(f"Could not find profiles.ini at {ini} – is Firefox installed?", file=sys.stderr)
+            return []
+        return parse_profiles_ini(base)
+
+    elif sys.platform == "darwin":
+        base = Path.home() / "Library" / "Application Support" / "Firefox"
+        ini = base / "profiles.ini"
+        if not ini.exists():
+            print(f"Could not find profiles.ini at {ini} – is Firefox installed?", file=sys.stderr)
+            return []
+        return parse_profiles_ini(base)
+
+    else:  # Linux, BSD, etc.
+        bases = get_linux_firefox_bases()
+
+        if not bases:
+            # Check common locations and report which ones were tried
+            tried_locations = [
+                Path.home() / ".mozilla" / "firefox",
+                Path.home() / "snap" / "firefox" / "common" / ".mozilla" / "firefox",
+                Path.home() / ".var" / "app" / "org.mozilla.firefox" / ".mozilla" / "firefox",
+            ]
+            print("Could not find Firefox profiles in any of these locations:", file=sys.stderr)
+            for loc in tried_locations:
+                print(f"  - {loc}", file=sys.stderr)
+            print("\nIs Firefox installed? If using Snap, try running Firefox once first.", file=sys.stderr)
+            return []
+
+        # Collect profiles from all found base directories
+        all_profiles = []
+        for base in bases:
+            profiles = parse_profiles_ini(base)
+            if profiles:
+                print(f"[*] Found Firefox installation: {base}")
+                all_profiles.extend(profiles)
+
+        if not all_profiles:
+            print("Found Firefox directories but no profiles.ini files:", file=sys.stderr)
+            for base in bases:
+                print(f"  - {base}", file=sys.stderr)
+            print("\nTry running Firefox once to create a profile.", file=sys.stderr)
+
+        return all_profiles
 
 
 def write_userjs(profile: Path, prefs: dict, dry: bool = False, no_backup: bool = False):
@@ -321,6 +396,13 @@ if __name__ == "__main__":
               %(prog)s --profile /path/to/profile
               %(prog)s --no-backup --skip-cleanup
               %(prog)s --dry-run           # Preview changes without writing
+
+            Supported Firefox installations:
+              - Traditional: ~/.mozilla/firefox/
+              - Snap (Ubuntu): ~/snap/firefox/common/.mozilla/firefox/
+              - Flatpak: ~/.var/app/org.mozilla.firefox/.mozilla/firefox/
+              - Windows: %%APPDATA%%/Mozilla/Firefox/
+              - macOS: ~/Library/Application Support/Firefox/
         """)
     )
     parser.add_argument(

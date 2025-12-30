@@ -76,3 +76,7 @@
 
 - name: Run DuckDB setup
   import_tasks: duckdb.yml
+
+- name: Run foxyproxy setup
+  import_tasks: foxyproxy.yml
+
