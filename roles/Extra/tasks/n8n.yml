@@ -48,8 +48,8 @@
   args:
     creates: /usr/share/keyrings/nodesource.gpg
   when: >
-    not nodesource_repo.stat.exists
-    and vmware_env == "n8n"
+    vmware_env == "n8n"
+    and not nodesource_repo.stat.exists
   tags:
     - n8n
 
@@ -59,8 +59,8 @@
     filename: nodesource
     state: present
   when: >
-    not nodesource_repo.stat.exists
-    and vmware_env == "n8n"
+    vmware_env == "n8n"
+    and not nodesource_repo.stat.exists
   tags:
     - n8n
 
@@ -127,8 +127,8 @@
   changed_when: false
   failed_when: false
   when: >
-    n8n_env_file.stat.exists
-    and vmware_env == "n8n"
+    vmware_env == "n8n"
+    and n8n_env_file.stat.exists
   tags:
     - n8n
 
@@ -137,7 +137,8 @@
   register: n8n_generated_key
   changed_when: false
   when: >
-    n8n_encryption_key is not defined
+    vmware_env == "n8n"
+    and n8n_encryption_key is not defined
     and (not n8n_env_file.stat.exists or existing_key.stdout == '')
   tags:
     - n8n
@@ -251,8 +252,8 @@
     name: n8n
     state: restarted
   when: >
-    n8n_env_changed.changed or n8n_service_changed.changed
-    and vmware_env == "n8n"
+    vmware_env == "n8n"
+    and n8n_env_changed.changed or n8n_service_changed.changed
   tags:
     - n8n
 
@@ -265,8 +266,8 @@
     port: "{{ n8n_port }}"
     proto: tcp
   when: >
-    n8n_configure_ufw | bool
-    and vmware_env == "n8n"
+    vmware_env == "n8n"
+    and n8n_configure_ufw | bool
   tags:
     - n8n
 
@@ -279,8 +280,6 @@
       - "n8n installed successfully!"
       - "Access URL: http://{{ ansible_default_ipv4.address }}:{{ n8n_port }}"
       - "Encryption key stored in: /home/n8n/.n8n/.env"
-  when: >
-    n8n_configure_ufw | bool
-    and vmware_env == "n8n"
+  when: vmware_env == "n8n"
   tags:
     - n8n
