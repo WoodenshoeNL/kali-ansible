@@ -3,7 +3,7 @@
   file:
     path: /share/VMShare
     state: directory
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "ubuntu"]
   tags:
     - vmware
     - common
@@ -17,7 +17,7 @@
     state: present # ensure mounted - use 'present' instead of 'mounted' for idempotency
     dump: 0
     passno: 0                                   # record in fstab
-  when: vmware_env == "workstation"
+  when: vmware_env in ["workstation", "ubuntu"]
   tags:
     - vmware
     - common
