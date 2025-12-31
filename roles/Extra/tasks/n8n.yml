@@ -279,6 +279,8 @@
       - "n8n installed successfully!"
       - "Access URL: http://{{ ansible_default_ipv4.address }}:{{ n8n_port }}"
       - "Encryption key stored in: /home/n8n/.n8n/.env"
-  when: vmware_env == "n8n"
+  when: >
+    n8n_configure_ufw | bool
+    and vmware_env == "n8n"
   tags:
     - n8n
