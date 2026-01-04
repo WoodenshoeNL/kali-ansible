@@ -20,8 +20,8 @@
     - "{{ login_home }}/.local/share/claude"
     - "{{ login_home }}/.claude"
   when: 
-    - claude_code_check.rc != 0
     - vmware_env == "claude_code"
+    - claude_code_check.rc != 0
   tags:
     - claude_code
 
@@ -31,8 +31,8 @@
     return_content: yes
   register: claude_version
   when: 
-    - claude_code_check.rc != 0
     - vmware_env == "claude_code"
+    - claude_code_check.rc != 0
   tags:
     - claude_code
 
@@ -44,8 +44,8 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
   when: 
-    - claude_code_check.rc != 0
     - vmware_env == "claude_code"
+    - claude_code_check.rc != 0
   tags:
     - claude_code
 
@@ -57,8 +57,8 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
   when: 
-    - claude_code_check.rc != 0
     - vmware_env == "claude_code"
+    - claude_code_check.rc != 0
   tags:
     - claude_code
 

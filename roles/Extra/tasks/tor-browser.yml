@@ -1,0 +1,41 @@
+- name: torbrowser - Add Tor Project GPG key
+  apt_key:
+    url: https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc
+    state: present
+  when: vmware_env == "ubuntu"
+  tags:
+    - torbrowser
+    - privacy
+
+- name: torbrowser - Add Tor Project repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main"
+    state: present
+    filename: tor
+  when: vmware_env == "ubuntu"
+  tags:
+    - torbrowser
+    - privacy
+
+- name: torbrowser - Install torbrowser-launcher
+  apt:
+    name:
+      - torbrowser-launcher
+    state: present
+    update_cache: yes
+  when: vmware_env == "ubuntu"
+  tags:
+    - torbrowser
+    - privacy
+
+- name: torbrowser - Install from Kali repos
+  apt:
+    name:
+      - torbrowser-launcher
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
+  tags:
+    - torbrowser
+    - privacy
