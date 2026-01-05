@@ -1,4 +1,25 @@
 
+
+- name: Common - Cleanup legacy Microsoft/Azure CLI repo configurations
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  loop:
+    - microsoft-prod.list
+    - azcli.list
+    - azure-cli.list
+  tags:
+    - common
+    - core
+
+- name: Common - Cleanup conflicting Microsoft keyring
+  ansible.builtin.file:
+    path: /usr/share/keyrings/microsoft.asc.gpg
+    state: absent
+  tags:
+    - common
+    - core
+
 - name: Update indexes and perform full upgrade
   ansible.builtin.apt:
     update_cache: yes
