@@ -18,6 +18,14 @@
   tags:
     - cursor
 
+- name: Cursor - Remove existing Cursor package
+  ansible.builtin.apt:
+    name: cursor
+    state: absent
+  when: vmware_env == "cursor"
+  tags:
+    - cursor
+
 - name: Cursor - Download Cursor .deb package
   ansible.builtin.get_url:
     url: "https://api2.cursor.sh/updates/download/golden/linux-x64-deb/cursor/{{ cursor_version }}"
