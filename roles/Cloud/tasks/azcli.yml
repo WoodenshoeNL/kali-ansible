@@ -1,3 +1,14 @@
+- name: Azure CLI - Cleanup alternative repo files
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  loop:
+    - azcli.list
+    - microsoft-prod.list
+  tags:
+    - azcli
+    - cloud
+
 - name: Azure CLI - Choose the Azure CLI repo suite
   set_fact:
     # Kali Rolling uses Debian 12 (bookworm) packages
