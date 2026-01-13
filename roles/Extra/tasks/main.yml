@@ -16,3 +16,6 @@
 
 - name: Run Tor Browser setup
   import_tasks: tor-browser.yml
+
+- name: Run Terraform setup
+  import_tasks: terraform.yml

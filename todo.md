@@ -50,3 +50,7 @@ Fix read right seclist/rockyou
 
 
 whois tool
+
+
+
+https://github.com/trufflesecurity/trufflehog
