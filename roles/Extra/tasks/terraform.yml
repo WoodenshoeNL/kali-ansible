@@ -1,0 +1,31 @@
+
+- name: terraform - Add HashiCorp GPG key
+  ansible.builtin.get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /usr/share/keyrings/hashicorp-archive-keyring.asc
+    mode: '0644'
+  when: vmware_env == "ubuntu_terraform"
+  tags:
+    - terraform
+    - extra
+
+- name: terraform - Add HashiCorp repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    state: present
+    filename: hashicorp
+  when: vmware_env == "ubuntu_terraform"
+  tags:
+    - terraform
+    - extra
+
+- name: terraform - Install terraform package
+  ansible.builtin.apt:
+    name: terraform
+    state: present
+    update_cache: yes
+  when: vmware_env == "ubuntu_terraform"
+  tags:
+    - terraform
+    - extra
+
