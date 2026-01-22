@@ -25,3 +25,6 @@
 
 - name: Run john setup
   import_tasks: john.yml
+
+- name: Run nmap setup
+  import_tasks: nmap.yml
