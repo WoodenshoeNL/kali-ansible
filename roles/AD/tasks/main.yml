@@ -46,3 +46,6 @@
 
 - name: Run godap setup
   import_tasks: godap.yml
+
+- name: Run rusthound-ce setup
+  import_tasks: rusthound-ce.yml

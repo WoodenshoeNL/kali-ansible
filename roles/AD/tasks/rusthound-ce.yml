@@ -1,0 +1,225 @@
+
+- name: rusthound-ce - Check if already installed
+  ansible.builtin.command: which rusthound-ce
+  register: rusthound_ce_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Install rusthound-ce package (Kali)
+  ansible.builtin.apt:
+    name: rusthound-ce
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: 
+    - vmware_env != "ubuntu"
+    - rusthound_ce_check.rc != 0
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Get latest release version (Ubuntu)
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/g0h4n/RustHound-CE/releases/latest
+    return_content: yes
+    follow_redirects: all
+  register: rusthound_ce_release
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Find Linux binary or archive asset and set facts (Ubuntu)
+  ansible.builtin.set_fact:
+    rusthound_ce_assets: "{{ rusthound_ce_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|.*linux.*\\.(zip|tar\\.gz))') | list }}"
+    rusthound_ce_has_binary: "{{ (rusthound_ce_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|.*linux.*\\.(zip|tar\\.gz))') | list | length) > 0 }}"
+    rusthound_ce_asset_url: "{{ (rusthound_ce_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|.*linux.*\\.(zip|tar\\.gz))') | list | map(attribute='browser_download_url') | first) | default('') }}"
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Download and install binary (Ubuntu)
+  ansible.builtin.get_url:
+    url: "{{ rusthound_ce_asset_url }}"
+    dest: /tmp/rusthound-ce.zip
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+    - rusthound_ce_has_binary | default(false) | bool
+    - rusthound_ce_asset_url is defined
+    - rusthound_ce_asset_url != ""
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Extract binary (Ubuntu)
+  ansible.builtin.unarchive:
+    src: /tmp/rusthound-ce.zip
+    dest: /tmp/rusthound-ce-extract
+    remote_src: yes
+    creates: /tmp/rusthound-ce-extract
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+    - rusthound_ce_has_binary | default(false) | bool
+    - rusthound_ce_asset_url is defined
+    - rusthound_ce_asset_url != ""
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Find extracted binary (Ubuntu)
+  ansible.builtin.find:
+    paths: /tmp/rusthound-ce-extract
+    patterns: "rusthound*"
+    file_type: file
+    executable: yes
+  register: rusthound_ce_binary
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+    - rusthound_ce_has_binary | default(false) | bool
+    - rusthound_ce_asset_url is defined
+    - rusthound_ce_asset_url != ""
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Copy binary to /usr/local/bin (Ubuntu)
+  ansible.builtin.copy:
+    src: "{{ rusthound_ce_binary.files[0].path }}"
+    dest: /usr/local/bin/rusthound-ce
+    mode: "0755"
+    owner: root
+    group: root
+    remote_src: yes
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+    - rusthound_ce_binary.files is defined
+    - rusthound_ce_binary.files | length > 0
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Cleanup (Ubuntu)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/rusthound-ce.zip
+    - /tmp/rusthound-ce-extract
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_has_binary | default(false) | bool
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Install build dependencies for cargo build (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - git
+      - build-essential
+      - pkg-config
+      - libssl-dev
+      - libkrb5-dev
+      - libclang-dev
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+    - not (rusthound_ce_has_binary | default(false) | bool)
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Clone repository for building from source (Ubuntu)
+  ansible.builtin.git:
+    repo: https://github.com/g0h4n/RustHound-CE.git
+    dest: "{{ login_home }}/rusthound-ce-build"
+    version: main
+    update: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+    - not (rusthound_ce_has_binary | default(false) | bool)
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Build from source using cargo (Ubuntu)
+  ansible.builtin.shell: |
+    source {{ login_home }}/.cargo/env
+    cd {{ login_home }}/rusthound-ce-build
+    cargo build --release
+  args:
+    executable: /bin/bash
+    creates: "{{ login_home }}/rusthound-ce-build/target/release/rusthound-ce"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    HOME: "{{ login_home }}"
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+    - not (rusthound_ce_has_binary | default(false) | bool)
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Copy built binary to /usr/local/bin (Ubuntu)
+  ansible.builtin.copy:
+    src: "{{ login_home }}/rusthound-ce-build/target/release/rusthound-ce"
+    dest: /usr/local/bin/rusthound-ce
+    mode: "0755"
+    owner: root
+    group: root
+    remote_src: yes
+  when: 
+    - vmware_env == "ubuntu"
+    - rusthound_ce_check.rc != 0
+    - not (rusthound_ce_has_binary | default(false) | bool)
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Cleanup build directory (Ubuntu)
+  ansible.builtin.file:
+    path: "{{ login_home }}/rusthound-ce-build"
+    state: absent
+  when: 
+    - vmware_env == "ubuntu"
+    - not (rusthound_ce_has_binary | default(false) | bool)
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Verify installation
+  ansible.builtin.command: rusthound-ce --help
+  register: rusthound_ce_help
+  changed_when: false
+  failed_when: false
+  tags:
+    - rusthound-ce
+    - AD
+
+- name: rusthound-ce - Show help output
+  ansible.builtin.debug:
+    msg: "{{ rusthound_ce_help.stdout_lines[0:5] | join('\n') }}"
+  when: rusthound_ce_help.stdout is defined
+  tags:
+    - rusthound-ce
+    - AD
