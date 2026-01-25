@@ -34,18 +34,19 @@
     - netexec
     - network
 
-- name: netexec - Find Linux binary or archive asset (Ubuntu)
+- name: netexec - Check for Linux binary or archive asset and set facts (Ubuntu)
   ansible.builtin.set_fact:
-    netexec_asset_url: "{{ netexec_release.json.assets | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|linux.*x64|.*linux.*\\.(zip|tar\\.gz))') | map(attribute='browser_download_url') | first }}"
+    netexec_assets: "{{ netexec_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|linux.*x64|.*linux.*\\.(zip|tar\\.gz))') | list }}"
+    netexec_has_binary: "{{ (netexec_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|linux.*x64|.*linux.*\\.(zip|tar\\.gz))') | list | length) > 0 }}"
+    netexec_asset_url: "{{ (netexec_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|linux.*x64|.*linux.*\\.(zip|tar\\.gz))') | list | map(attribute='browser_download_url') | first) | default('') }}"
   when: 
     - vmware_env == "ubuntu"
     - netexec_check.rc != 0
-    - netexec_release.json.assets is defined
   tags:
     - netexec
     - network
 
-- name: netexec - Download binary or archive (Ubuntu)
+- name: netexec - Download binary or archive from GitHub release (Ubuntu)
   ansible.builtin.get_url:
     url: "{{ netexec_asset_url }}"
     dest: /tmp/netexec_download
@@ -54,6 +55,7 @@
   when: 
     - vmware_env == "ubuntu"
     - netexec_check.rc != 0
+    - netexec_has_binary | default(false) | bool
     - netexec_asset_url is defined
     - netexec_asset_url != ""
   tags:
@@ -69,7 +71,9 @@
   when: 
     - vmware_env == "ubuntu"
     - netexec_check.rc != 0
+    - netexec_has_binary | default(false) | bool
     - netexec_asset_url is defined
+    - netexec_asset_url != ""
   tags:
     - netexec
     - network
@@ -83,6 +87,9 @@
   when: 
     - vmware_env == "ubuntu"
     - netexec_check.rc != 0
+    - netexec_has_binary | default(false) | bool
+    - netexec_asset_url is defined
+    - netexec_asset_url != ""
   tags:
     - netexec
     - network
@@ -115,19 +122,69 @@
   when: 
     - vmware_env == "ubuntu"
     - netexec_check.rc != 0
+    - netexec_has_binary | default(false) | bool
+    - netexec_asset_url is defined
+    - netexec_asset_url != ""
     - netexec_extracted_binary.files is not defined or netexec_extracted_binary.files | length == 0
   tags:
     - netexec
     - network
 
-- name: netexec - Cleanup temporary files (Ubuntu)
+- name: netexec - Cleanup temporary files from GitHub release (Ubuntu)
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
     - /tmp/netexec_download
     - /tmp/netexec_extract
-  when: vmware_env == "ubuntu"
+  when: 
+    - vmware_env == "ubuntu"
+    - netexec_has_binary | default(false) | bool
+  tags:
+    - netexec
+    - network
+
+- name: netexec - Install dependencies for pipx (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - pipx
+      - git
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: 
+    - vmware_env == "ubuntu"
+    - netexec_check.rc != 0
+    - not (netexec_has_binary | default(false) | bool)
+  tags:
+    - netexec
+    - network
+
+- name: netexec - Install via pipx from git (Ubuntu fallback)
+  community.general.pipx:
+    name: netexec
+    source: git+https://github.com/Pennyw0rth/NetExec.git
+    state: present
+  become: yes
+  become_user: "{{ login_user }}"
+  when: 
+    - vmware_env == "ubuntu"
+    - netexec_check.rc != 0
+    - not (netexec_has_binary | default(false) | bool)
+  tags:
+    - netexec
+    - network
+
+- name: netexec - Create symlink to pipx binary in /usr/local/bin (Ubuntu)
+  ansible.builtin.file:
+    src: "{{ login_home }}/.local/bin/netexec"
+    dest: /usr/local/bin/netexec
+    state: link
+    force: yes
+  when: 
+    - vmware_env == "ubuntu"
+    - netexec_check.rc != 0
+    - not (netexec_has_binary | default(false) | bool)
   tags:
     - netexec
     - network
@@ -136,13 +193,14 @@
   ansible.builtin.command: netexec --version
   register: netexec_version
   changed_when: false
+  failed_when: false
   tags:
     - netexec
     - network
 
 - name: netexec - Show installed version
   ansible.builtin.debug:
-    msg: "{{ netexec_version.stdout }}"
+    msg: "{{ netexec_version.stdout_lines[-1] | default(netexec_version.stdout) }}"
   when: netexec_version.stdout is defined
   tags:
     - netexec
