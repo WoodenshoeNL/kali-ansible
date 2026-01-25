@@ -1,0 +1,82 @@
+
+- name: seclists - Check if /opt/SecLists exists
+  ansible.builtin.stat:
+    path: /opt/SecLists
+  register: seclists_opt_check
+  tags:
+    - seclists
+    - common
+
+- name: seclists - Create /opt/SecLists directory
+  ansible.builtin.file:
+    path: /opt/SecLists
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: not seclists_opt_check.stat.exists
+  tags:
+    - seclists
+    - common
+
+- name: seclists - Clone SecLists repository
+  ansible.builtin.git:
+    repo: https://github.com/danielmiessler/SecLists.git
+    dest: /opt/SecLists
+    version: master
+    update: yes
+    depth: 1
+  tags:
+    - seclists
+    - common
+
+- name: seclists - Check if rockyou.txt already exists
+  ansible.builtin.stat:
+    path: /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt
+  register: rockyou_check_before
+  tags:
+    - seclists
+    - common
+
+- name: seclists - Check if rockyou.txt.tar.gz exists
+  ansible.builtin.stat:
+    path: /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt.tar.gz
+  register: rockyou_targz_check
+  tags:
+    - seclists
+    - common
+
+- name: seclists - Extract rockyou.txt if needed
+  ansible.builtin.unarchive:
+    src: /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt.tar.gz
+    dest: /opt/SecLists/Passwords/Leaked-Databases
+    remote_src: yes
+    creates: /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt
+  when: 
+    - not rockyou_check_before.stat.exists
+    - rockyou_targz_check.stat.exists
+  register: rockyou_extract
+  tags:
+    - seclists
+    - common
+
+- name: seclists - Verify rockyou.txt exists
+  ansible.builtin.stat:
+    path: /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt
+  register: rockyou_check_after
+  tags:
+    - seclists
+    - common
+
+- name: seclists - Show verification result
+  ansible.builtin.debug:
+    msg: |
+      rockyou.txt: {{ 'found' if rockyou_check_after.stat.exists else 'not found' }} at /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt
+      {% if rockyou_targz_check.stat.exists %}
+      rockyou.txt.tar.gz: found
+      {% else %}
+      rockyou.txt.tar.gz: not found (extraction skipped)
+      {% endif %}
+  tags:
+    - seclists
+    - common

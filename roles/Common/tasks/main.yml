@@ -101,3 +101,6 @@
 - name: Run foxyproxy setup
   import_tasks: foxyproxy.yml
 
+- name: Run seclists setup
+  import_tasks: seclists.yml
+
