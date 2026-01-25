@@ -1,9 +1,221 @@
-- name: hashcat - install hashcat package
+- name: hashcat - Check if hashcat is installed
+  ansible.builtin.command: which hashcat
+  register: hashcat_installed
+  changed_when: false
+  failed_when: false
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Get current version
+  ansible.builtin.command: hashcat --version
+  register: hashcat_version_check
+  changed_when: false
+  failed_when: false
+  when: hashcat_installed.rc == 0
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Parse version and check if update needed
+  ansible.builtin.set_fact:
+    hashcat_current_version: "{{ hashcat_version_check.stdout | regex_search('v([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first | default('0.0.0') }}"
+  when: hashcat_version_check is defined
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Compare version with 7.1.2 using dpkg
+  ansible.builtin.shell: |
+    if [ -z "{{ hashcat_current_version | default('0.0.0') }}" ] || [ "{{ hashcat_current_version | default('0.0.0') }}" = "0.0.0" ]; then
+      echo "needs_update"
+    elif dpkg --compare-versions "{{ hashcat_current_version }}" lt "7.1.2"; then
+      echo "needs_update"
+    else
+      echo "ok"
+    fi
+  register: hashcat_version_comparison
+  changed_when: false
+  failed_when: false
+  when: hashcat_version_check is defined
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Set needs update based on comparison
+  ansible.builtin.set_fact:
+    hashcat_needs_update: "{{ hashcat_version_comparison.stdout == 'needs_update' }}"
+  when: hashcat_version_comparison is defined
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Set needs update to true if not installed
+  ansible.builtin.set_fact:
+    hashcat_needs_update: true
+  when: hashcat_installed.rc != 0
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - install/upgrade hashcat package
   ansible.builtin.apt:
     name: hashcat
     state: latest
     update_cache: yes
     cache_valid_time: 3600
+  when: hashcat_needs_update | default(true)
+  register: hashcat_apt_install
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Check version after apt install/upgrade
+  ansible.builtin.command: hashcat --version
+  register: hashcat_version_after_apt
+  changed_when: false
+  failed_when: false
+  when: hashcat_needs_update | default(true)
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Parse version after apt install
+  ansible.builtin.set_fact:
+    hashcat_version_after_apt_parsed: "{{ hashcat_version_after_apt.stdout | default('') | regex_search('v([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first | default('0.0.0') }}"
+    hashcat_still_needs_update: false
+  when: 
+    - hashcat_needs_update | default(true)
+    - hashcat_version_after_apt is defined
+    - hashcat_version_after_apt.stdout is defined
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Compare version after apt install with 7.1.2
+  ansible.builtin.shell: |
+    if dpkg --compare-versions "{{ hashcat_version_after_apt_parsed | default('0.0.0') }}" lt "7.1.2"; then
+      echo "needs_update"
+    else
+      echo "ok"
+    fi
+  register: hashcat_version_after_apt_comparison
+  changed_when: false
+  failed_when: false
+  when: 
+    - hashcat_needs_update | default(true)
+    - hashcat_version_after_apt_parsed is defined
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Update still needs update flag based on comparison
+  ansible.builtin.set_fact:
+    hashcat_still_needs_update: "{{ hashcat_version_after_apt_comparison.stdout | default('ok') == 'needs_update' }}"
+  when: 
+    - hashcat_needs_update | default(true)
+    - hashcat_version_after_apt_comparison is defined
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Get latest release from GitHub (if apt version too old)
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/hashcat/hashcat/releases/latest
+    return_content: yes
+    follow_redirects: all
+  register: hashcat_github_release
+  when: 
+    - hashcat_still_needs_update | default(false)
+    - vmware_env == "ubuntu"
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Find Linux binary asset from GitHub (Ubuntu)
+  ansible.builtin.set_fact:
+    hashcat_github_asset: "{{ (hashcat_github_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|.*linux.*\\.(zip|tar\\.gz))') | list | map(attribute='browser_download_url') | first) | default('') }}"
+  when: 
+    - hashcat_still_needs_update | default(false)
+    - vmware_env == "ubuntu"
+    - hashcat_github_release.json.assets is defined
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Download and install from GitHub release (Ubuntu fallback)
+  ansible.builtin.get_url:
+    url: "{{ hashcat_github_asset }}"
+    dest: /tmp/hashcat_download
+    mode: "0644"
+    force: no
+  when: 
+    - hashcat_still_needs_update | default(false)
+    - vmware_env == "ubuntu"
+    - hashcat_github_asset is defined
+    - hashcat_github_asset != ""
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Extract GitHub release binary (Ubuntu)
+  ansible.builtin.unarchive:
+    src: /tmp/hashcat_download
+    dest: /tmp/hashcat_extract
+    remote_src: yes
+    creates: /tmp/hashcat_extract
+  when: 
+    - hashcat_still_needs_update | default(false)
+    - vmware_env == "ubuntu"
+    - hashcat_github_asset is defined
+    - hashcat_github_asset != ""
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Find extracted hashcat binary (Ubuntu)
+  ansible.builtin.find:
+    paths: /tmp/hashcat_extract
+    patterns: "hashcat"
+    file_type: file
+    executable: yes
+  register: hashcat_extracted_binary
+  when: 
+    - hashcat_still_needs_update | default(false)
+    - vmware_env == "ubuntu"
+    - hashcat_github_asset is defined
+    - hashcat_github_asset != ""
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Copy GitHub binary to /usr/local/bin (Ubuntu)
+  ansible.builtin.copy:
+    src: "{{ hashcat_extracted_binary.files[0].path }}"
+    dest: /usr/local/bin/hashcat
+    mode: "0755"
+    owner: root
+    group: root
+    remote_src: yes
+  when: 
+    - hashcat_still_needs_update | default(false)
+    - vmware_env == "ubuntu"
+    - hashcat_extracted_binary.files is defined
+    - hashcat_extracted_binary.files | length > 0
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Cleanup GitHub download files (Ubuntu)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/hashcat_download
+    - /tmp/hashcat_extract
+  when: 
+    - hashcat_still_needs_update | default(false)
+    - vmware_env == "ubuntu"
   tags:
     - hashcat
     - network
@@ -66,6 +278,22 @@
     state: link
   loop: "{{ hashcat_utils_binaries.files }}"
   when: vmware_env == "ubuntu"
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Verify version after installation/update
+  ansible.builtin.command: hashcat --version
+  register: hashcat_final_version
+  changed_when: false
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Show installed version
+  ansible.builtin.debug:
+    msg: "{{ hashcat_final_version.stdout }}"
+  when: hashcat_final_version.stdout is defined
   tags:
     - hashcat
     - network

@@ -1,0 +1,67 @@
+
+- name: evil-winrm - Check if already installed
+  ansible.builtin.command: which evil-winrm
+  register: evil_winrm_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - evil-winrm
+    - network
+
+- name: evil-winrm - Install evil-winrm package (Kali)
+  ansible.builtin.apt:
+    name: evil-winrm
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: 
+    - vmware_env != "ubuntu"
+    - evil_winrm_check.rc != 0
+  tags:
+    - evil-winrm
+    - network
+
+- name: evil-winrm - Ensure Ruby and gem are available (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - ruby
+      - ruby-dev
+      - build-essential
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: 
+    - vmware_env == "ubuntu"
+    - evil_winrm_check.rc != 0
+  tags:
+    - evil-winrm
+    - network
+
+- name: evil-winrm - Install via gem (Ubuntu)
+  ansible.builtin.gem:
+    name: evil-winrm
+    state: latest
+    user_install: no
+  when: 
+    - vmware_env == "ubuntu"
+    - evil_winrm_check.rc != 0
+  tags:
+    - evil-winrm
+    - network
+
+- name: evil-winrm - Verify installation
+  ansible.builtin.command: evil-winrm --version
+  register: evil_winrm_version
+  changed_when: false
+  failed_when: false
+  tags:
+    - evil-winrm
+    - network
+
+- name: evil-winrm - Show installed version
+  ansible.builtin.debug:
+    msg: "{{ evil_winrm_version.stdout }}"
+  when: evil_winrm_version.stdout is defined
+  tags:
+    - evil-winrm
+    - network

@@ -1,19 +1,114 @@
 
-- name: impacket - ensure pipx PATH for "{{ login_user }}"
-  become: yes
-  become_user: "{{ login_user }}"
-  ansible.builtin.command: python3 -m pipx ensurepath --force
-  changed_when: false   # running it twice is harmless; we suppress “changed”
+- name: impacket - Check if already installed
+  ansible.builtin.command: which impacket-GetTGT
+  register: impacket_check
+  changed_when: false
+  failed_when: false
   tags:
     - impacket
     - common
 
-- name: impacket - install/upgrade impacket via pipx
-  become: yes
-  become_user: "{{ login_user }}"
-  community.general.pipx:
+- name: impacket - Ensure Python 3 and pip are available
+  ansible.builtin.apt:
+    name:
+      - python3
+      - python3-pip
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: impacket_check.rc != 0
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Install via pip with --break-system-packages flag
+  ansible.builtin.pip:
     name: impacket
-    state: latest       # upgrades if an older version is present
+    state: latest
+    executable: pip3
+    extra_args: --break-system-packages --ignore-installed
+  when: impacket_check.rc != 0
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Find impacket scripts location
+  ansible.builtin.command: python3 -m pip show impacket
+  register: impacket_info
+  changed_when: false
+  failed_when: false
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Get Python scripts directory
+  ansible.builtin.command: python3 -c "import site; print(site.getusersitepackages() if hasattr(site, 'getusersitepackages') else site.getsitepackages()[0])"
+  register: python_site_packages
+  changed_when: false
+  failed_when: false
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Find impacket tools in common locations
+  ansible.builtin.find:
+    paths:
+      - /usr/local/bin
+      - /usr/bin
+      - "{{ ansible_env.HOME }}/.local/bin"
+    patterns: "impacket-*"
+    file_type: file
+  register: impacket_tools
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Verify getTGT.py is available
+  ansible.builtin.command: impacket-GetTGT --help
+  register: impacket_getTGT
+  changed_when: false
+  failed_when: false
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Verify getST.py is available
+  ansible.builtin.command: impacket-GetST --help
+  register: impacket_getST
+  changed_when: false
+  failed_when: false
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Verify wmiexec.py is available
+  ansible.builtin.command: impacket-wmiexec --help
+  register: impacket_wmiexec
+  changed_when: false
+  failed_when: false
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Verify secretsdump.py is available
+  ansible.builtin.command: impacket-secretsdump --help
+  register: impacket_secretsdump
+  changed_when: false
+  failed_when: false
+  tags:
+    - impacket
+    - common
+
+- name: impacket - Show verification results
+  ansible.builtin.debug:
+    msg: |
+      getTGT.py: {{ 'Found' if impacket_getTGT.rc == 0 else 'Not found' }}
+      getST.py: {{ 'Found' if impacket_getST.rc == 0 else 'Not found' }}
+      wmiexec.py: {{ 'Found' if impacket_wmiexec.rc == 0 else 'Not found' }}
+      secretsdump.py: {{ 'Found' if impacket_secretsdump.rc == 0 else 'Not found' }}
+      {% if impacket_tools.files is defined and impacket_tools.files | length > 0 %}
+      Tools found in: {{ impacket_tools.files | map(attribute='path') | list | join(', ') }}
+      {% endif %}
   tags:
     - impacket
     - common
