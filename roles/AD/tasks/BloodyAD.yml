@@ -1,39 +1,68 @@
-- name: BloodyAD - install from apt (Kali)
+
+- name: BloodyAD - Check if already installed
+  ansible.builtin.command: which bloodyAD
+  register: bloodyad_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - BloodyAD
+    - AD
+
+- name: BloodyAD - Install from apt (Kali)
   ansible.builtin.apt:
     name: bloodyad
     state: present
     update_cache: yes
     cache_valid_time: 3600
-  when: vmware_env != "ubuntu"
+  when: 
+    - vmware_env != "ubuntu"
+    - bloodyad_check.rc != 0
   tags:
     - BloodyAD
     - AD
 
-- name: BloodyAD - install pipx (Ubuntu)
+- name: BloodyAD - Ensure Python 3 is available (Ubuntu)
   ansible.builtin.apt:
-    name: pipx
+    name:
+      - python3
+      - python3-pip
     state: present
     update_cache: yes
     cache_valid_time: 3600
-  when: vmware_env == "ubuntu"
+  when: 
+    - vmware_env == "ubuntu"
+    - bloodyad_check.rc != 0
   tags:
     - BloodyAD
     - AD
 
-- name: BloodyAD - install via pipx (Ubuntu)
-  ansible.builtin.command:
-    cmd: pipx install bloodyad
-    creates: "{{ ansible_env.HOME }}/.local/bin/bloodyad"
-  when: vmware_env == "ubuntu"
+- name: BloodyAD - Install via pip with --break-system-packages flag (Ubuntu)
+  ansible.builtin.pip:
+    name: bloodyAD
+    state: latest
+    executable: pip3
+    extra_args: --break-system-packages --ignore-installed
+  when: 
+    - vmware_env == "ubuntu"
+    - bloodyad_check.rc != 0
   tags:
     - BloodyAD
     - AD
 
-- name: BloodyAD - ensure pipx bin in PATH
-  ansible.builtin.command:
-    cmd: pipx ensurepath
+
+- name: BloodyAD - Verify installation
+  ansible.builtin.command: bloodyAD --help
+  register: bloodyad_help
   changed_when: false
-  when: vmware_env == "ubuntu"
+  failed_when: false
+  tags:
+    - BloodyAD
+    - AD
+
+- name: BloodyAD - Show help output
+  ansible.builtin.debug:
+    msg: "{{ bloodyad_help.stdout_lines[0:5] | join('\n') }}"
+  when: bloodyad_help.stdout is defined
   tags:
     - BloodyAD
     - AD
