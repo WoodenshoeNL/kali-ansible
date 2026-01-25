@@ -28,3 +28,6 @@
 
 - name: Run nmap setup
   import_tasks: nmap.yml
+
+- name: Run netexec setup
+  import_tasks: netexec.yml
