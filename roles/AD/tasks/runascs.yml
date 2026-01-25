@@ -1,0 +1,163 @@
+
+- name: runascs - Check if already installed
+  ansible.builtin.command: which runascs
+  register: runascs_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Install runascs package (Kali)
+  ansible.builtin.apt:
+    name: runascs
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: 
+    - vmware_env != "ubuntu"
+    - runascs_check.rc != 0
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Get latest release version (Ubuntu)
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/antonioCoco/RunasCs/releases/latest
+    return_content: yes
+    follow_redirects: all
+  register: runascs_release
+  when: 
+    - vmware_env == "ubuntu"
+    - runascs_check.rc != 0
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Find Linux binary asset and set facts (Ubuntu)
+  ansible.builtin.set_fact:
+    runascs_assets: "{{ runascs_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|.*linux.*\\.(zip|tar\\.gz))') | list }}"
+    runascs_has_binary: "{{ (runascs_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|.*linux.*\\.(zip|tar\\.gz))') | list | length) > 0 }}"
+    runascs_asset_url: "{{ (runascs_release.json.assets | default([]) | selectattr('name', 'search', '(linux.*amd64|linux.*x86_64|.*linux.*\\.(zip|tar\\.gz))') | list | map(attribute='browser_download_url') | first) | default('') }}"
+  when: 
+    - vmware_env == "ubuntu"
+    - runascs_check.rc != 0
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Download binary or archive (Ubuntu)
+  ansible.builtin.get_url:
+    url: "{{ runascs_asset_url }}"
+    dest: /tmp/runascs_download
+    mode: "0644"
+    force: no
+  when: 
+    - vmware_env == "ubuntu"
+    - runascs_check.rc != 0
+    - runascs_has_binary | default(false) | bool
+    - runascs_asset_url is defined
+    - runascs_asset_url != ""
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Extract archive if needed (Ubuntu)
+  ansible.builtin.unarchive:
+    src: /tmp/runascs_download
+    dest: /tmp/runascs_extract
+    remote_src: yes
+    creates: /tmp/runascs_extract
+  when: 
+    - vmware_env == "ubuntu"
+    - runascs_check.rc != 0
+    - runascs_has_binary | default(false) | bool
+    - runascs_asset_url is defined
+    - runascs_asset_url != ""
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Find extracted binary (Ubuntu)
+  ansible.builtin.find:
+    paths: /tmp/runascs_extract
+    patterns: "runascs*"
+    file_type: file
+    executable: yes
+  register: runascs_extracted_binary
+  when: 
+    - vmware_env == "ubuntu"
+    - runascs_check.rc != 0
+    - runascs_has_binary | default(false) | bool
+    - runascs_asset_url is defined
+    - runascs_asset_url != ""
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Copy extracted binary to /usr/local/bin (Ubuntu)
+  ansible.builtin.copy:
+    src: "{{ runascs_extracted_binary.files[0].path }}"
+    dest: /usr/local/bin/runascs
+    mode: "0755"
+    owner: root
+    group: root
+    remote_src: yes
+  when: 
+    - vmware_env == "ubuntu"
+    - runascs_check.rc != 0
+    - runascs_extracted_binary.files is defined
+    - runascs_extracted_binary.files | length > 0
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Copy direct binary to /usr/local/bin (Ubuntu)
+  ansible.builtin.copy:
+    src: /tmp/runascs_download
+    dest: /usr/local/bin/runascs
+    mode: "0755"
+    owner: root
+    group: root
+    remote_src: yes
+  when: 
+    - vmware_env == "ubuntu"
+    - runascs_check.rc != 0
+    - runascs_has_binary | default(false) | bool
+    - runascs_asset_url is defined
+    - runascs_asset_url != ""
+    - runascs_extracted_binary.files is not defined or runascs_extracted_binary.files | length == 0
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Cleanup temporary files (Ubuntu)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/runascs_download
+    - /tmp/runascs_extract
+  when: 
+    - vmware_env == "ubuntu"
+    - runascs_has_binary | default(false) | bool
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Verify installation
+  ansible.builtin.command: runascs --version
+  register: runascs_version
+  changed_when: false
+  failed_when: false
+  tags:
+    - runascs
+    - AD
+
+- name: runascs - Show installed version
+  ansible.builtin.debug:
+    msg: "{{ runascs_version.stdout }}"
+  when: runascs_version.stdout is defined
+  tags:
+    - runascs
+    - AD

@@ -49,3 +49,6 @@
 
 - name: Run rusthound-ce setup
   import_tasks: rusthound-ce.yml
+
+- name: Run runascs setup
+  import_tasks: runascs.yml
