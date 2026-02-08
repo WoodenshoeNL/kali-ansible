@@ -26,6 +26,7 @@
     version: master
     update: yes
     depth: 1
+    force: yes
   tags:
     - seclists
     - common

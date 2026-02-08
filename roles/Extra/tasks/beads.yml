@@ -24,3 +24,10 @@
   when: beads_check.rc != 0
   tags:
     - beads
+
+- name: Install beads-mcp for Cursor
+  ansible.builtin.pip:
+    name: beads-mcp
+    state: present
+  tags:
+    - beads
