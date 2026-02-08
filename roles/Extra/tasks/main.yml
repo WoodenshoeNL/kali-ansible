@@ -19,3 +19,6 @@
 
 - name: Run Terraform setup
   import_tasks: terraform.yml
+
+- name: Run Beads setup
+  import_tasks: beads.yml

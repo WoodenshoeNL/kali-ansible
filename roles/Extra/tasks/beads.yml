@@ -1,0 +1,26 @@
+---
+# Beads - distributed, git-backed graph issue tracker for AI agents
+# https://github.com/steveyegge/beads
+
+- name: Beads - Ensure curl is installed
+  ansible.builtin.apt:
+    name: curl
+    state: present
+    update_cache: true
+  tags:
+    - beads
+
+- name: Beads - Check if bd is already installed
+  ansible.builtin.command: which bd
+  register: beads_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - beads
+
+- name: Beads - Install via official install script
+  ansible.builtin.shell: |
+    curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+  when: beads_check.rc != 0
+  tags:
+    - beads
