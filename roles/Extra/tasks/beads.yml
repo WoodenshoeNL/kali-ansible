@@ -26,9 +26,10 @@
     - beads
 
 - name: Install beads-mcp for Cursor
-  ansible.builtin.pip:
+  community.general.pipx:
     name: beads-mcp
     state: present
-    extra_args: --break-system-packages
+  become: yes
+  become_user: "{{ login_user }}"
   tags:
     - beads
