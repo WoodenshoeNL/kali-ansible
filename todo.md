@@ -51,6 +51,13 @@ Fix read right seclist/rockyou
 
 whois tool
 
-
+sudo apt install python3-yaml python3-jinja2
 
 https://github.com/trufflesecurity/trufflehog
+
+
+
+ubuntu:
+
+nmap
+certipy
