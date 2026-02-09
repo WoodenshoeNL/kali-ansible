@@ -29,5 +29,6 @@
   ansible.builtin.pip:
     name: beads-mcp
     state: present
+    extra_args: --break-system-packages
   tags:
     - beads
