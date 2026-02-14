@@ -11,9 +11,9 @@
     - tmux
     - common
 
-- name: Tmux - Copy .tmux.conf
+- name: Tmux - Deploy .tmux.conf (template)
   become: false
-  copy:
+  template:
     src: .tmux.conf
     dest: "{{ login_home }}/.tmux.conf"
     mode: "0644"
@@ -51,8 +51,14 @@
     dest: "{{ login_home }}/Tmux_README_First_RUN.txt"
     mode: "0644"
     content: |
-      tmux source {{ login_home }}/.tmux.conf
-      prefix > shift + i
+      First time:
+      1. Start tmux:  tmux
+         (your .tmux.conf is loaded automatically)
+      2. Inside tmux, install TPM plugins:  prefix + Shift+I
+         (prefix is Ctrl+b by default)
+
+      To reload config later (only when tmux is already running):
+        tmux source-file {{ login_home }}/.tmux.conf
   tags:
     - tmux
     - common

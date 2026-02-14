@@ -25,9 +25,18 @@
     - chrome
     - common
 
+- name: google-chrome - remove existing repo file to prevent duplicate entries
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/google-chrome.list
+    state: absent
+  when: vmware_env in ["workstation", "laptop", "ubuntu"]
+  tags:
+    - chrome
+    - common
+
 - name: google-chrome - add Google Chrome apt repository
   apt_repository:
-    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-signing-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main"
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-signing-keyring.gpg] https://dl.google.com/linux/chrome/deb/ stable main"
     filename: google-chrome
     state: present
   when: vmware_env in ["workstation", "laptop", "ubuntu"]
