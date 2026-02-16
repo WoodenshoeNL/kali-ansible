@@ -64,14 +64,6 @@
     - azcli
     - cloud
 
-- name: Azure CLI - Ensure repo signing key (EB3E94ADBE1229CF) in keyring
-  shell: |
-    gpg --no-default-keyring --keyring /usr/share/keyrings/microsoft.gpg --keyserver keyserver.ubuntu.com --recv-keys EB3E94ADBE1229CF
-  when: not _microsoft_key.failed
-  tags:
-    - azcli
-    - cloud
-
 - name: Azure CLI - Configure Azure CLI apt repository
   apt_repository:
     repo: >-
