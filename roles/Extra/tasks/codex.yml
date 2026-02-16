@@ -15,7 +15,7 @@
       - gnupg
     state: present
     update_cache: yes
-  when: vmware_env == "codex"
+  when: vmware_env in ["codex", "ubuntu"]
   tags:
     - codex
 
@@ -26,7 +26,7 @@
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/nodesource.list
   register: codex_nodesource_repo
-  when: vmware_env == "codex"
+  when: vmware_env in ["codex", "ubuntu"]
   tags:
     - codex
 
@@ -36,7 +36,7 @@
   args:
     creates: /usr/share/keyrings/nodesource.gpg
   when: >
-    vmware_env == "codex"
+    vmware_env in ["codex", "ubuntu"]
     and not codex_nodesource_repo.stat.exists
   tags:
     - codex
@@ -47,7 +47,7 @@
     filename: nodesource
     state: present
   when: >
-    vmware_env == "codex"
+    vmware_env in ["codex", "ubuntu"]
     and not codex_nodesource_repo.stat.exists
   tags:
     - codex
@@ -57,7 +57,7 @@
     name: nodejs
     state: present
     update_cache: yes
-  when: vmware_env == "codex"
+  when: vmware_env in ["codex", "ubuntu"]
   tags:
     - codex
 
@@ -69,7 +69,7 @@
     name: "@openai/codex"
     global: yes
     state: present
-  when: vmware_env == "codex"
+  when: vmware_env in ["codex", "ubuntu"]
   tags:
     - codex
 
@@ -80,13 +80,13 @@
   ansible.builtin.command: codex --version
   register: codex_version
   changed_when: false
-  when: vmware_env == "codex"
+  when: vmware_env in ["codex", "ubuntu"]
   tags:
     - codex
 
 - name: Codex - Display installed version
   ansible.builtin.debug:
     msg: "Codex CLI installed successfully: {{ codex_version.stdout }}"
-  when: vmware_env == "codex"
+  when: vmware_env in ["codex", "ubuntu"]
   tags:
     - codex
