@@ -29,7 +29,7 @@
   ansible.builtin.shell: |
     if [ -z "{{ hashcat_current_version | default('0.0.0') }}" ] || [ "{{ hashcat_current_version | default('0.0.0') }}" = "0.0.0" ]; then
       echo "needs_update"
-    elif dpkg --compare-versions "{{ hashcat_current_version }}" lt "7.1.2"; then
+    elif dpkg --compare-versions "{{ hashcat_current_version | default('0.0.0') }}" lt "7.1.2"; then
       echo "needs_update"
     else
       echo "ok"
