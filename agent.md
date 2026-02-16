@@ -37,7 +37,7 @@ This document helps AI agents and contributors add new tasks to the kali-ansible
 | **Tags** | Append `--tags <tag>` e.g. `--tags core`, `--tags nmap`, `--tags AD`. |
 
 **Variables always passed via `-e`**:
-- `vmware_env` — `workstation` \| `laptop` \| `ubuntu` \| `esx` \| `cursor` \| `n8n` \| `claude_code` \| `ubuntu_terraform` etc.
+- `vmware_env` — `workstation` \| `laptop` \| `ubuntu` \| `esx` \| `cursor` \| `n8n` \| `claude_code` \| `codex` \| `ubuntu_terraform` etc.
 - `login_user` — Unix user (e.g. `kali`, `michel`).
 - `login_home` — Home directory (e.g. `/home/kali`, `/home/michel`).
 
@@ -72,7 +72,7 @@ roles/
 
 ### 3.4 Extra role
 
-- No `*_Tools.txt`. Only `import_tasks` for mullvad, n8n, cursor, antigravity, claude-code, tor-browser, terraform. Some tasks run only when `vmware_env` matches (e.g. `cursor`, `n8n`).
+- No `*_Tools.txt`. Only `import_tasks` for mullvad, n8n, cursor, antigravity, claude-code, codex, tor-browser, terraform. Some tasks run only when `vmware_env` matches (e.g. `cursor`, `n8n`).
 
 ---
 

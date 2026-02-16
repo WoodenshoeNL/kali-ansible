@@ -14,6 +14,9 @@
 - name: Run Claude Code setup
   import_tasks: claude-code.yml
 
+- name: Run Codex CLI setup
+  import_tasks: codex.yml
+
 - name: Run Tor Browser setup
   import_tasks: tor-browser.yml
 

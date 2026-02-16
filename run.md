@@ -53,3 +53,10 @@ Run for Ansible:
 sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu login_user=michel login_home=/home/michel"
 ```
 
+## Codex CLI (OpenAI)
+
+Install OpenAI Codex CLI (AI coding assistant in terminal):
+```
+sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=codex login_user=kali login_home=/home/kali"
+```
+

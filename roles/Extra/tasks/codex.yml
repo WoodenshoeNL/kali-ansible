@@ -1,0 +1,92 @@
+---
+# roles/Extra/tasks/codex.yml
+# OpenAI Codex CLI - AI coding assistant in the terminal
+# Install via: -e "vmware_env=codex login_user=USER login_home=/home/USER"
+# Requires: Node.js v18+ (installed via NodeSource)
+
+# ------------------------------------------------------------------------------
+# Dependencies
+# ------------------------------------------------------------------------------
+- name: Codex - Install dependencies
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+      - gnupg
+    state: present
+    update_cache: yes
+  when: vmware_env == "codex"
+  tags:
+    - codex
+
+# ------------------------------------------------------------------------------
+# Node.js via NodeSource (v20.x - LTS)
+# ------------------------------------------------------------------------------
+- name: Codex - Check if NodeSource repo is configured
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/nodesource.list
+  register: codex_nodesource_repo
+  when: vmware_env == "codex"
+  tags:
+    - codex
+
+- name: Codex - Add NodeSource GPG key
+  ansible.builtin.shell: |
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
+  args:
+    creates: /usr/share/keyrings/nodesource.gpg
+  when: >
+    vmware_env == "codex"
+    and not codex_nodesource_repo.stat.exists
+  tags:
+    - codex
+
+- name: Codex - Add NodeSource repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main"
+    filename: nodesource
+    state: present
+  when: >
+    vmware_env == "codex"
+    and not codex_nodesource_repo.stat.exists
+  tags:
+    - codex
+
+- name: Codex - Install Node.js
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+    update_cache: yes
+  when: vmware_env == "codex"
+  tags:
+    - codex
+
+# ------------------------------------------------------------------------------
+# Codex CLI via npm
+# ------------------------------------------------------------------------------
+- name: Codex - Install Codex CLI globally via npm
+  community.general.npm:
+    name: "@openai/codex"
+    global: yes
+    state: present
+  when: vmware_env == "codex"
+  tags:
+    - codex
+
+# ------------------------------------------------------------------------------
+# Verify
+# ------------------------------------------------------------------------------
+- name: Codex - Verify installation
+  ansible.builtin.command: codex --version
+  register: codex_version
+  changed_when: false
+  when: vmware_env == "codex"
+  tags:
+    - codex
+
+- name: Codex - Display installed version
+  ansible.builtin.debug:
+    msg: "Codex CLI installed successfully: {{ codex_version.stdout }}"
+  when: vmware_env == "codex"
+  tags:
+    - codex
