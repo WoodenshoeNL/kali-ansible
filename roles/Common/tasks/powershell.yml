@@ -40,7 +40,7 @@
 
 - name: powershell - Install Microsoft signing key
   ansible.builtin.shell: |
-    gpg --dearmor -o /usr/share/keyrings/microsoft-powershell.gpg /tmp/microsoft-powershell.asc
+    gpg --batch --yes --dearmor -o /usr/share/keyrings/microsoft-powershell.gpg /tmp/microsoft-powershell.asc
   when: ansible_os_family == 'Debian'
   tags:
     - powershell
