@@ -4,7 +4,7 @@
   changed_when: false
   failed_when: false
   become_user: "{{ login_user }}"
-  when: vmware_env == "claude_code"
+  when: vmware_env in ["claude_code", "ubuntu"]
   tags:
     - claude_code
 
@@ -20,7 +20,7 @@
     - "{{ login_home }}/.local/share/claude"
     - "{{ login_home }}/.claude"
   when: 
-    - vmware_env == "claude_code"
+    - vmware_env in ["claude_code", "ubuntu"]
     - claude_code_check.rc != 0
   tags:
     - claude_code
@@ -31,7 +31,7 @@
     return_content: yes
   register: claude_version
   when: 
-    - vmware_env == "claude_code"
+    - vmware_env in ["claude_code", "ubuntu"]
     - claude_code_check.rc != 0
   tags:
     - claude_code
@@ -44,7 +44,7 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
   when: 
-    - vmware_env == "claude_code"
+    - vmware_env in ["claude_code", "ubuntu"]
     - claude_code_check.rc != 0
   tags:
     - claude_code
@@ -57,7 +57,7 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
   when: 
-    - vmware_env == "claude_code"
+    - vmware_env in ["claude_code", "ubuntu"]
     - claude_code_check.rc != 0
   tags:
     - claude_code
@@ -69,6 +69,6 @@
     regexp: '.*\.local/bin.*PATH'
     state: present
   become_user: "{{ login_user }}"
-  when: vmware_env == "claude_code"
+  when: vmware_env in ["claude_code", "ubuntu"]
   tags:
     - claude_code

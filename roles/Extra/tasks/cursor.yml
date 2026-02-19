@@ -7,14 +7,14 @@
     headers:
       User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
   register: cursor_api_response
-  when: vmware_env == "cursor"
+  when: vmware_env in ["cursor", "ubuntu"]
   tags:
     - cursor
 
 - name: Cursor - Extract version from API response
   ansible.builtin.set_fact:
     cursor_version: "{{ cursor_api_response.json.version }}"
-  when: vmware_env == "cursor"
+  when: vmware_env in ["cursor", "ubuntu"]
   tags:
     - cursor
 
@@ -22,7 +22,7 @@
   ansible.builtin.apt:
     name: cursor
     state: absent
-  when: vmware_env == "cursor"
+  when: vmware_env in ["cursor", "ubuntu"]
   tags:
     - cursor
 
@@ -34,7 +34,7 @@
     headers:
       User-Agent: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
   register: cursor_download
-  when: vmware_env == "cursor"
+  when: vmware_env in ["cursor", "ubuntu"]
   tags:
     - cursor
 
@@ -42,7 +42,7 @@
   ansible.builtin.apt:
     deb: /tmp/cursor.deb
     state: present
-  when: vmware_env == "cursor"
+  when: vmware_env in ["cursor", "ubuntu"]
   tags:
     - cursor
 
@@ -50,6 +50,6 @@
   ansible.builtin.file:
     path: /tmp/cursor.deb
     state: absent
-  when: vmware_env == "cursor"
+  when: vmware_env in ["cursor", "ubuntu"]
   tags:
     - cursor
