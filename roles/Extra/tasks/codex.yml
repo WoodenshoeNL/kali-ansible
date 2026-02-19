@@ -68,7 +68,7 @@
   community.general.npm:
     name: "@openai/codex"
     global: yes
-    state: present
+    state: latest
   when: vmware_env in ["codex", "ubuntu"]
   tags:
     - codex
