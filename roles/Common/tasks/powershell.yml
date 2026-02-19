@@ -1,12 +1,71 @@
+# PowerShell 7 from Microsoft repo (works on Kali, Debian, Ubuntu)
+- name: powershell - Choose repo and suite for Microsoft packages
+  set_fact:
+    pwsh_distro_prefix: "{{ 'microsoft-ubuntu' if ansible_distribution == 'Ubuntu' else 'microsoft-debian' }}"
+    pwsh_suite: >-
+      {{ 'bookworm'
+         if (ansible_distribution == 'Kali' and
+             ansible_distribution_release == 'kali-rolling')
+         else ansible_distribution_release }}
+  when: ansible_os_family == 'Debian'
+  tags:
+    - powershell
+    - common
+
+- name: powershell - Ensure prerequisite packages
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == 'Debian'
+  tags:
+    - powershell
+    - common
+
+- name: powershell - Download Microsoft signing key
+  ansible.builtin.get_url:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    dest: /tmp/microsoft-powershell.asc
+    mode: '0644'
+    force: yes
+  when: ansible_os_family == 'Debian'
+  tags:
+    - powershell
+    - common
+
+- name: powershell - Install Microsoft signing key
+  ansible.builtin.shell: |
+    gpg --dearmor -o /usr/share/keyrings/microsoft-powershell.gpg /tmp/microsoft-powershell.asc
+  when: ansible_os_family == 'Debian'
+  tags:
+    - powershell
+    - common
+
+- name: powershell - Add Microsoft PowerShell repository
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-powershell.gpg]
+      https://packages.microsoft.com/repos/{{ pwsh_distro_prefix }}-{{ pwsh_suite }}-prod {{ pwsh_suite }} main
+    filename: powershell
+    state: present
+  when: ansible_os_family == 'Debian'
+  tags:
+    - powershell
+    - common
 
 - name: powershell - install PowerShell 7
   ansible.builtin.apt:
-    name: powershell          # package present in Kali repo
-    state: present            # idempotent install/upgrade
-    install_recommends: false # keep image slim
+    name: powershell
+    state: present
+    install_recommends: false
     update_cache: yes
     cache_valid_time: 3600
-  when: vmware_env != "ubuntu"
+  when: ansible_os_family == 'Debian'
   tags:
     - powershell
     - common
