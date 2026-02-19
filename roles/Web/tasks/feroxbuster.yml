@@ -16,7 +16,6 @@
     url: https://github.com/epi052/feroxbuster/releases/latest/download/x86_64-linux-feroxbuster.zip
     dest: /tmp/feroxbuster.zip
     timeout: 120
-    retries: 5
   when: vmware_env == "ubuntu"
   tags:
     - feroxbuster
