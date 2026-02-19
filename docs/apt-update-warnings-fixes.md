@@ -2,6 +2,24 @@
 
 If you see warnings when running `sudo apt update`, use these one-off fixes on the target machine. The Ansible roles have also been updated to prevent these issues on future runs.
 
+## 4. VS Code (duplicate vscode.list and vscode.sources) – “Target … is configured multiple times” (vscode.list and vscode.sources)
+
+Both `vscode.list` and `vscode.sources` exist, causing duplicate configuration. Remove the extra file and keep only one:
+
+```bash
+# Keep the .list format, remove .sources
+sudo rm -f /etc/apt/sources.list.d/vscode.sources
+```
+
+Or if you prefer DEB822 format, remove the .list instead:
+
+```bash
+sudo rm -f /etc/apt/sources.list.d/vscode.list
+```
+
+Then run `sudo apt update`.
+
+
 ## 1. Azure CLI – missing GPG key (NO_PUBKEY EB3E94ADBE1229CF)
 
 Install Microsoft’s key into the keyring and ensure the repo uses it:
@@ -44,9 +62,15 @@ Then:
 sudo apt update
 ```
 
-## 3. Tor Project – key in legacy trusted.gpg
+## 3. Tor Project – duplicate lines or key in legacy trusted.gpg
 
-The message means the Tor key is still in the old `apt-key` keyring. Remove it and use the keyring-based repo instead.
+**Duplicate lines in tor.list:** If you see "Target … is configured multiple times" for tor.list, keep a single repo line:
+
+```bash
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/torproject.gpg] https://deb.torproject.org/torproject.org $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/tor.list
+```
+
+**Legacy key:** If the message means the Tor key is still in the old `apt-key` keyring, remove it and use the keyring-based repo instead.
 
 Remove the legacy key:
 

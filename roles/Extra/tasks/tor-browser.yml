@@ -27,6 +27,15 @@
     - torbrowser
     - privacy
 
+- name: torbrowser - Remove existing Tor repo (prevents duplicate lines on rerun)
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/tor.list
+    state: absent
+  when: vmware_env == "ubuntu"
+  tags:
+    - torbrowser
+    - privacy
+
 - name: torbrowser - Add Tor Project repository
   apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/torproject.gpg] https://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main"

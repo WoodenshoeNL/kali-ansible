@@ -5,6 +5,7 @@
     state: absent
   loop:
     - vscode.list
+    - vscode.sources
     - microsoft-vscode.list
   ignore_errors: yes
   when: vmware_env in ["workstation", "laptop", "ubuntu"]

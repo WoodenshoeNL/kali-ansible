@@ -1,0 +1,2 @@
+# Normalize line endings: LF for text files (Ansible, YAML, shell scripts)
+* text=auto eol=lf
