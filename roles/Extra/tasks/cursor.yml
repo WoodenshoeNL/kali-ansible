@@ -53,3 +53,11 @@
   when: vmware_env in ["cursor", "ubuntu"]
   tags:
     - cursor
+
+- name: Cursor - Remove vscode.sources (Cursor .deb adds it, duplicates vscode.list from Common)
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/vscode.sources
+    state: absent
+  when: vmware_env in ["cursor", "ubuntu"]
+  tags:
+    - cursor

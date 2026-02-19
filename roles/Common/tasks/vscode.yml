@@ -65,3 +65,12 @@
   tags:
     - vscode
     - common
+
+- name: vscode – remove vscode.sources (code package or Cursor .deb may add it, duplicates vscode.list)
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/vscode.sources
+    state: absent
+  when: vmware_env in ["workstation", "laptop", "ubuntu"]
+  tags:
+    - vscode
+    - common
