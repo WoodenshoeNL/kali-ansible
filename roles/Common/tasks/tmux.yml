@@ -4,6 +4,7 @@
     name:
       - tmux
       - xsel
+      - wl-clipboard
     state: present
     update_cache: yes
     cache_valid_time: 3600
