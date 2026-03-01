@@ -45,20 +45,33 @@
     - tmux
     - common
 
+- name: Clone TPM plugins (so tmux works by default, no prefix+I needed)
+  become: false
+  git:
+    repo: "https://github.com/{{ item }}.git"
+    dest: "{{ login_home }}/.tmux/plugins/{{ item.split('/')[-1] }}"
+    depth: 1
+    update: yes
+  loop:
+    - tmux-plugins/tmux-logging
+    - tmux-plugins/tmux-yank
+  tags:
+    - tmux
+    - common
+
 - name: Tmux - add quick reminder read-me
   become: false
   ansible.builtin.copy:
     dest: "{{ login_home }}/Tmux_README_First_RUN.txt"
     mode: "0644"
     content: |
-      First time:
-      1. Start tmux:  tmux
-         (your .tmux.conf is loaded automatically)
-      2. Inside tmux, install TPM plugins:  prefix + Shift+I
-         (prefix is Ctrl+b by default)
+      Plugins (yank, logging) are pre-installed. Just run:  tmux
 
-      To reload config later (only when tmux is already running):
+      To reload config when tmux is already running:
         tmux source-file {{ login_home }}/.tmux.conf
+
+      If you add new plugins to .tmux.conf, install them:  prefix + Shift+I
+        (prefix is Ctrl+b by default)
   tags:
     - tmux
     - common

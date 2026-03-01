@@ -1,0 +1,13 @@
+# uv - fast Python package installer and resolver (Astral)
+# https://docs.astral.sh/uv/
+# Use: uv run, uv pip, uv venv, uv python
+
+- name: uv - Install uv via pipx
+  community.general.pipx:
+    name: uv
+    state: latest
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - uv
+    - common

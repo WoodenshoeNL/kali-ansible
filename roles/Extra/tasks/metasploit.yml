@@ -1,0 +1,48 @@
+# Install Metasploit Framework on Ubuntu via official nightly installer.
+# On Kali, Metasploit is typically preinstalled or available from the Kali repos.
+# See: https://docs.metasploit.com/docs/using-metasploit/getting-started/nightly-installers.html
+
+- name: metasploit - Check if already installed
+  ansible.builtin.stat:
+    path: /opt/metasploit-framework/bin/msfconsole
+  register: metasploit_installed
+  tags:
+    - metasploit
+    - extra
+
+- name: metasploit - Ensure curl is present (Ubuntu)
+  ansible.builtin.apt:
+    name: curl
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when:
+    - vmware_env == "ubuntu"
+    - not metasploit_installed.stat.exists
+  tags:
+    - metasploit
+    - extra
+
+- name: metasploit - Download official installer script (Ubuntu)
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb
+    dest: /tmp/msfinstall
+    mode: '0755'
+    force: yes
+  when:
+    - vmware_env == "ubuntu"
+    - not metasploit_installed.stat.exists
+  tags:
+    - metasploit
+    - extra
+
+- name: metasploit - Run installer (Ubuntu)
+  ansible.builtin.shell: /tmp/msfinstall
+  args:
+    creates: /opt/metasploit-framework/bin/msfconsole
+  when:
+    - vmware_env == "ubuntu"
+    - not metasploit_installed.stat.exists
+  tags:
+    - metasploit
+    - extra

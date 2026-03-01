@@ -30,9 +30,11 @@
     dest: "{{ login_home }}/BloodhoundCE_README.txt"
     mode: "0644"
     content: |
-      BloodHoundCE docker compose located at {{ login_home }}/BloodHoundCE
+      BloodHoundCE docker-compose located at {{ login_home }}/BloodHoundCE
       cd {{ login_home }}/BloodHoundCE
-      sudo docker compose up -d
+      sudo docker-compose up -d
+      Get initial admin password before login:
+        sudo docker-compose logs bloodhound 2>&1 | grep -i "initial\|password\|admin"
       http://localhost:8080/ui/login
       admin:<Initial Password>
   become: yes
