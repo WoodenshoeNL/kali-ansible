@@ -1,16 +1,33 @@
+# evil-winrm-py: WinRM shell for remote Windows (with Kerberos support)
+# https://github.com/adityatelange/evil-winrm-py
+# Install uses uv (ensure Common role with uv runs first).
 
-#- name: evil-winrm-py - ensure pipx PATH for "{{ login_user }}"
-#  become: yes
-#  become_user: "{{ login_user }}"
-#  ansible.builtin.command: python3 -m pipx ensurepath --force
-#  changed_when: false   # running it twice is harmless; we suppress “changed”
+- name: evil-winrm-py - install Kerberos build prerequisites (Linux)
+  ansible.builtin.apt:
+    name:
+      - gcc
+      - python3-dev
+      - libkrb5-dev
+      - krb5-pkinit
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - evil-winrm-py
+    - network
 
-- name: evil-winrm-py - install/upgrade evil-winrm-py via pipx
+- name: evil-winrm-py - install/upgrade evil-winrm-py with Kerberos via uv
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: evil-winrm-py
-    state: latest       # upgrades if an older version is present
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - "evil-winrm-py[kerberos]"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH }}"
   tags:
     - evil-winrm-py
     - network
