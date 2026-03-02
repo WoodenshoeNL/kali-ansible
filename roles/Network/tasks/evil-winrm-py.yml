@@ -25,6 +25,7 @@
       - tool
       - install
       - --upgrade
+      - --force
       - "evil-winrm-py[kerberos]"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH }}"
