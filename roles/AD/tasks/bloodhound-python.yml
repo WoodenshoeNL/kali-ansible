@@ -6,6 +6,7 @@
       - tool
       - install
       - --upgrade
+      - --force
       - bloodhound
   become: yes
   become_user: "{{ login_user }}"
@@ -22,6 +23,7 @@
       - tool
       - install
       - --upgrade
+      - --force
       - bloodhound-ce
   become: yes
   become_user: "{{ login_user }}"

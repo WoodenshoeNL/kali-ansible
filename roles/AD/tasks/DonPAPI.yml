@@ -26,14 +26,13 @@
     - DonPAPI
     - AD
 
-- name: DonPAPI - install DonPAPI via uv (binary-only for lxml, with setuptools)
+- name: DonPAPI - install DonPAPI via uv (with setuptools)
   ansible.builtin.command:
     argv:
       - uv
       - tool
       - install
-      - --only-binary
-      - lxml
+      - --force
       - --with
       - setuptools
       - donpapi

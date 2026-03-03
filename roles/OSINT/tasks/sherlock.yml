@@ -6,6 +6,7 @@
       - tool
       - install
       - --upgrade
+      - --force
       - sherlock-project
   become: yes
   become_user: "{{ login_user }}"

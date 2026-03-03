@@ -165,6 +165,7 @@
       - uv
       - tool
       - install
+      - --force
       - "netexec @ git+https://github.com/Pennyw0rth/NetExec.git"
   become: yes
   become_user: "{{ login_user }}"

@@ -16,6 +16,7 @@
       - uv
       - tool
       - install
+      - --force
       - dploot
   become: yes
   become_user: "{{ login_user }}"

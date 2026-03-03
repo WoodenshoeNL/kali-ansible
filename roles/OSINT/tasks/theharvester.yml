@@ -6,6 +6,7 @@
       - tool
       - install
       - --upgrade
+      - --force
       - "theHarvester @ git+https://github.com/laramies/theHarvester.git"
   become: yes
   become_user: "{{ login_user }}"

@@ -6,6 +6,7 @@
       - tool
       - install
       - --upgrade
+      - --force
       - changedetection.io
   become: yes
   become_user: "{{ login_user }}"

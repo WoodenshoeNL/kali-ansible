@@ -28,6 +28,7 @@
       - uv
       - tool
       - install
+      - --force
       - "enum4linux-ng @ git+https://github.com/cddmp/enum4linux-ng.git"
   become: yes
   become_user: "{{ login_user }}"
