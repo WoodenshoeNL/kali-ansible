@@ -10,11 +10,36 @@
     - seamlesspass
     - cloud
 
-- name: SeamlessPass - create Python virtualenv with uv (runs as "{{ login_user }}")
+- name: SeamlessPass - check if venv has pkg_resources (setuptools)
+  ansible.builtin.command:
+    argv:
+      - "{{ login_home }}/seamlesspass/venv/bin/python"
+      - -c
+      - "import pkg_resources"
+  register: seamlesspass_setuptools_check
+  changed_when: false
+  failed_when: false
+  tags:
+    - seamlesspass
+    - cloud
+
+- name: SeamlessPass - remove venv when setuptools missing (to recreate with --seed)
+  ansible.builtin.file:
+    path: "{{ login_home }}/seamlesspass/venv"
+    state: absent
+  become: yes
+  become_user: "{{ login_user }}"
+  when: seamlesspass_setuptools_check.rc != 0
+  tags:
+    - seamlesspass
+    - cloud
+
+- name: SeamlessPass - create Python virtualenv with uv --seed (runs as "{{ login_user }}")
   ansible.builtin.command:
     argv:
       - uv
       - venv
+      - --seed
       - "{{ login_home }}/seamlesspass/venv"
   become: yes
   become_user: "{{ login_user }}"
@@ -22,23 +47,6 @@
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   args:
     creates: "{{ login_home }}/seamlesspass/venv/bin/activate"
-  tags:
-    - seamlesspass
-    - cloud
-
-- name: SeamlessPass - install setuptools in virtualenv (pkg_resources dependency)
-  ansible.builtin.command:
-    argv:
-      - uv
-      - pip
-      - install
-      - --python
-      - "{{ login_home }}/seamlesspass/venv/bin/python"
-      - setuptools
-  become: yes
-  become_user: "{{ login_user }}"
-  environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - seamlesspass
     - cloud
