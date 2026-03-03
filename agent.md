@@ -12,10 +12,10 @@ This document helps AI agents and contributors add new tasks to the kali-ansible
 - `playbook.yml` — Single play, `hosts: all`, `gather_facts: yes`, `become: true`. Runs roles in order.
 - `run.md` — How to run Ansible (VMware Workstation, remote VM, laptop, Ubuntu, tags).
 - `bootstrap.sh` — Minimal VM bootstrap: `apt install git ansible open-vm-tools-desktop`, mount VMShare, then run the playbook.
-- `requirements.yml` — Ansible Galaxy collections (e.g. `community.general` for `pipx`). Install with `ansible-galaxy install -r requirements.yml` if needed.
+- `requirements.yml` — Ansible Galaxy collections (e.g. `community.general` for npm, ufw). Install with `ansible-galaxy install -r requirements.yml` if needed.
 
 **Roles** (order matters):
-1. **Common** — Base system, docker, pipx, golang, tmux, Firefox, stockpile, etc.
+1. **Common** — Base system, docker, uv (Python), golang, tmux, Firefox, stockpile, etc.
 2. **Web** — Feroxbuster, Nuclei, httpx, Burp, etc.
 3. **Cloud** — Azure CLI, Roadrecon, ScoutSuite, etc.
 4. **AD** — BloodHound CE, Certipy, kerbrute, ldapx, etc.
@@ -81,7 +81,7 @@ roles/
 ### 4.1 Naming
 
 - **Task file**: `kebab-case.yml` (e.g. `bloodhound-python.yml`, `evil-winrm-py.yml`). Some use PascalCase (e.g. `GoWitness.yml`) — prefer kebab-case for new ones.
-- **Task names**: Prefix with `ToolName - `, e.g. `nmap - install nmap package`, `mitm6 - install/upgrade mitm6 via pipx`.
+- **Task names**: Prefix with `ToolName - `, e.g. `nmap - install nmap package`, `mitm6 - install/upgrade mitm6 via uv`.
 
 ### 4.2 Tags
 
@@ -99,25 +99,24 @@ tags:
 
 ### 4.3 Variables
 
-- **`login_user`**, **`login_home`** — Always available; use for user-specific dirs, pipx, venvs, GOPATH.
+- **`login_user`**, **`login_home`** — Always available; use for user-specific dirs, uv tools, venvs, GOPATH.
 - **`vmware_env`** — Use in `when:` to vary behaviour (Kali vs Ubuntu, or optional tools like Cursor/n8n).
 
 ### 4.4 `become` and `become_user`
 
 - Playbook uses `become: true` by default.
-- **`become: false`**: When copying to `{{ login_home }}` as the control-machine user (e.g. `*_Tools.txt`). Also sometimes for pipx (see dploot Ubuntu path).
-- **`become_user: "{{ login_user }}"`**: User-space tools (pipx, venv, `~/go`), so config and binaries stay in the target user’s home.
+- **`become: false`**: When copying to `{{ login_home }}` as the control-machine user (e.g. `*_Tools.txt`). - **`become_user: "{{ login_user }}"`**: User-space tools (uv, venv, `~/go`), so config and binaries stay in the target user’s home.
 
 ### 4.5 `when` conditions
 
-- **Kali vs Ubuntu**: `when: vmware_env != "ubuntu"` (Kali-only) or `when: vmware_env == "ubuntu"` (Ubuntu-only). Use for different install methods (apt vs pipx vs binary).
+- **Kali vs Ubuntu**: `when: vmware_env != "ubuntu"` (Kali-only) or `when: vmware_env == "ubuntu"` (Ubuntu-only). Use for different install methods (apt vs uv vs binary).
 - **Desktop / optional**: `when: vmware_env in ["workstation", "laptop"]` or `when: vmware_env == "cursor"` etc.
 - **Optional roles**: Extra tools often use `when: vmware_env == "<env>"` so they only run when explicitly requested.
 
 ### 4.6 Idempotency
 
 - **apt**: `update_cache: yes`, `cache_valid_time: 3600` when adding packages.
-- **pipx**: `state: latest` or `state: present`; pipx is idempotent.
+- **uv tool install**: Use `--force` to overwrite existing executables (e.g. from pipx migration); idempotent.
 - **get_url**: Use `force: no` to avoid re-download when file exists, or `force: yes` to always refresh.
 - **unarchive**: Use `creates: /path/to/file` or `remote_src: yes` as appropriate.
 - **git**: `update: yes` for pulls; `depth: 1` for shallow clone.
@@ -145,23 +144,30 @@ Use these patterns when adding new tools. Keep task names, tags, and `when` cond
 
 If Kali vs Ubuntu differ (e.g. different packages or extra deps), split with `when: vmware_env != "ubuntu"` / `when: vmware_env == "ubuntu"`.
 
-### 5.2 Pipx (user-space, recommended for many Python CLI tools)
+### 5.2 uv tool (user-space, recommended for Python CLI tools)
 
 ```yaml
-- name: <tool> - install/upgrade <tool> via pipx
+- name: <tool> - install/upgrade <tool> via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - --force
+      - <pip-package-name>
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: <pip-package-name>
-    state: latest
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - <tool>
     - <role>
 ```
 
-`pipx ensurepath` is sometimes used elsewhere but often omitted; ensure pipx is installed (Common role).
+uv is installed by the Common role (standalone script, no pip/pipx). Use `--force` to overwrite existing executables.
 
-### 5.3 Git clone + venv + pip (project with requirements.txt)
+### 5.3 Git clone + uv venv + uv pip (project with requirements.txt)
 
 ```yaml
 - name: <tool> - clone repository
@@ -174,13 +180,33 @@ If Kali vs Ubuntu differ (e.g. different packages or extra deps), split with `wh
   become_user: "{{ login_user }}"
   tags: [<tool>, <role>]
 
-- name: <tool> - install Python requirements into virtualenv
-  ansible.builtin.pip:
-    requirements: "{{ login_home }}/<tool>/requirements.txt"
-    virtualenv: "{{ login_home }}/<tool>/venv"
-    virtualenv_python: python3
+- name: <tool> - create virtualenv with uv
+  ansible.builtin.command:
+    argv: [uv, venv, "{{ login_home }}/<tool>/venv"]
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/<tool>/venv/bin/activate"
+  tags: [<tool>, <role>]
+
+- name: <tool> - install Python requirements with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/<tool>/venv/bin/python"
+      - -r
+      - "{{ login_home }}/<tool>/requirements.txt"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    chdir: "{{ login_home }}/<tool>"
   tags: [<tool>, <role>]
 
 - name: <tool> - add launcher to /usr/local/bin
@@ -196,7 +222,7 @@ If Kali vs Ubuntu differ (e.g. different packages or extra deps), split with `wh
 
 See `roles/AD/tasks/SCCMHunter.yml` for a full example with run script and README.
 
-### 5.4 Virtualenv + pip (single package, no repo)
+### 5.4 uv venv + uv pip (single package, no repo)
 
 ```yaml
 - name: <tool> - create project directory
@@ -208,22 +234,31 @@ See `roles/AD/tasks/SCCMHunter.yml` for a full example with run script and READM
     mode: "0755"
   tags: [<tool>, <role>]
 
-- name: <tool> - create virtualenv
-  command: python3 -m venv "{{ login_home }}"/<tool>/venv
+- name: <tool> - create virtualenv with uv
+  ansible.builtin.command:
+    argv: [uv, venv, "{{ login_home }}/<tool>/venv"]
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   args:
     creates: "{{ login_home }}/<tool>/venv/bin/activate"
-  become: yes
-  become_user: "{{ login_user }}"
   tags: [<tool>, <role>]
 
-- name: <tool> - install package in virtualenv
-  pip:
-    name: <pip-package>
-    virtualenv: "{{ login_home }}/<tool>/venv"
-    virtualenv_python: python3
-    state: latest
+- name: <tool> - install package in virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/<tool>/venv/bin/python"
+      - --upgrade
+      - <pip-package>
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags: [<tool>, <role>]
 
 - name: <tool> - symlink CLI into /usr/local/bin
@@ -379,10 +414,10 @@ See `roles/AD/tasks/BloodhoundCE.yml` and `roles/AD/files/bloodHoundCE/`.
 
 See `roles/Web/tasks/burp.yml`.
 
-### 5.12 Kali vs Ubuntu split (apt vs pipx or binary)
+### 5.12 Kali vs Ubuntu split (apt vs uv or binary)
 
 - One block for Kali: `apt` install, `when: vmware_env != "ubuntu"`.
-- Another for Ubuntu: deps (e.g. pipx, build-essential) then pipx or `get_url` + unarchive, `when: vmware_env == "ubuntu"`.
+- Another for Ubuntu: deps (e.g. build-essential) then uv or `get_url` + unarchive, `when: vmware_env == "ubuntu"`.
 
 See `roles/Network/tasks/hashcat.yml`, `roles/AD/tasks/dploot.yml`, `roles/Web/tasks/feroxbuster.yml`, `roles/Network/tasks/Enum4linux-ng.yml`.
 
@@ -436,8 +471,8 @@ New tasks generally do not change bootstrap; ensure they work with that default 
 
 | Need | Use |
 |------|-----|
-| Python CLI, available on PyPI | pipx (§5.2) |
-| Python project with requirements.txt | Git + venv + pip (§5.3) |
+| Python CLI, available on PyPI | uv tool (§5.2) |
+| Python project with requirements.txt | Git + uv venv + uv pip (§5.3) |
 | Go binary, single main | Go install + GOBIN (§5.5) or GOPATH + copy (§5.6) |
 | Pre-built binary | get_url ± unarchive (§5.7, §5.8) |
 | Kali package | apt (§5.1); add Ubuntu path if different (§5.12) |

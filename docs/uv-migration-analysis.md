@@ -201,12 +201,12 @@ If uv is installed via standalone script as `{{ login_user }}`, it goes to `~/.l
 
 ---
 
-### Phase 4: Cleanup
+### Phase 4: Cleanup — DONE
 
-1. Remove `pipx` from apt packages in Common (if no longer needed)
-2. Remove `python3-pip` and `python3-virtualenv` if unused
-3. Update `install.md`, `agent.md`, and tool docs
-4. Update `docs/uv-migration-plan.md` to reflect completion
+1. ~~Remove `pipx` from apt packages in Common~~ (done in Phase 2)
+2. ~~Remove `python3-pip` and `python3-virtualenv`~~ (done)
+3. ~~Update `install.md`, `agent.md`~~ (done)
+4. Update `docs/uv-migration-plan.md` to reflect completion (optional)
 
 ---
 
