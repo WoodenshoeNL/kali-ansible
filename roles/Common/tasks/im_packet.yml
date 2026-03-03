@@ -8,57 +8,76 @@
     - impacket
     - common
 
-- name: impacket - Ensure Python 3 and pip are available
-  ansible.builtin.apt:
-    name:
-      - python3
-      - python3-pip
-    state: present
-    update_cache: yes
-    cache_valid_time: 3600
+- name: impacket - create project directory for {{ login_user }}
+  ansible.builtin.file:
+    path: "{{ login_home }}/impacket"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
   when: impacket_check.rc != 0
   tags:
     - impacket
     - common
 
-- name: impacket - Install via pip with --break-system-packages flag
-  ansible.builtin.pip:
-    name: impacket
-    state: latest
-    executable: pip3
-    extra_args: --break-system-packages --ignore-installed
+- name: impacket - create Python virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/impacket/venv"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/impacket/venv/bin/activate"
   when: impacket_check.rc != 0
   tags:
     - impacket
     - common
 
-- name: impacket - Find impacket scripts location
-  ansible.builtin.command: python3 -m pip show impacket
-  register: impacket_info
-  changed_when: false
-  failed_when: false
+- name: impacket - install impacket in virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/impacket/venv/bin/python"
+      - --upgrade
+      - impacket
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  when: impacket_check.rc != 0
   tags:
     - impacket
     - common
 
-- name: impacket - Get Python scripts directory
-  ansible.builtin.command: python3 -c "import site; print(site.getusersitepackages() if hasattr(site, 'getusersitepackages') else site.getsitepackages()[0])"
-  register: python_site_packages
-  changed_when: false
-  failed_when: false
-  tags:
-    - impacket
-    - common
-
-- name: impacket - Find impacket tools in common locations
+- name: impacket - find installed scripts in venv
   ansible.builtin.find:
-    paths:
-      - /usr/local/bin
-      - /usr/bin
-      - "{{ ansible_env.HOME }}/.local/bin"
+    paths: "{{ login_home }}/impacket/venv/bin"
     patterns: "impacket-*"
     file_type: file
-  register: impacket_tools
+  register: impacket_scripts
+  when: impacket_check.rc != 0
+  tags:
+    - impacket
+    - common
+
+- name: impacket - create symlinks in /usr/local/bin
+  ansible.builtin.file:
+    src: "{{ item.path }}"
+    dest: "/usr/local/bin/{{ item.path | basename }}"
+    state: link
+    force: yes
+  loop: "{{ impacket_scripts.files | default([]) }}"
+  when:
+    - impacket_check.rc != 0
+    - impacket_scripts.files is defined
+    - impacket_scripts.files | length > 0
   tags:
     - impacket
     - common
@@ -106,9 +125,6 @@
       getST.py: {{ 'Found' if impacket_getST.rc == 0 else 'Not found' }}
       wmiexec.py: {{ 'Found' if impacket_wmiexec.rc == 0 else 'Not found' }}
       secretsdump.py: {{ 'Found' if impacket_secretsdump.rc == 0 else 'Not found' }}
-      {% if impacket_tools.files is defined and impacket_tools.files | length > 0 %}
-      Tools found in: {{ impacket_tools.files | map(attribute='path') | list | join(', ') }}
-      {% endif %}
   tags:
     - impacket
     - common

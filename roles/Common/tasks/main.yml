@@ -134,11 +134,11 @@
 - name: Run Powershell setup
   import_tasks: powershell.yml
 
-- name: Run impacket setup
-  import_tasks: im_packet.yml
-
 - name: Run uv setup (Python runner)
   import_tasks: uv.yml
+
+- name: Run impacket setup
+  import_tasks: im_packet.yml
 
 - name: Run vscode setup
   import_tasks: vscode.yml
