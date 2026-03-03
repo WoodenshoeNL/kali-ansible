@@ -144,10 +144,9 @@
     - netexec
     - network
 
-- name: netexec - Install dependencies for pipx (Ubuntu)
+- name: netexec - Install dependencies for uv (Ubuntu)
   ansible.builtin.apt:
     name:
-      - pipx
       - git
     state: present
     update_cache: yes
@@ -160,13 +159,17 @@
     - netexec
     - network
 
-- name: netexec - Install via pipx from git (Ubuntu fallback)
-  community.general.pipx:
-    name: netexec
-    source: git+https://github.com/Pennyw0rth/NetExec.git
-    state: present
+- name: netexec - Install via uv from git (Ubuntu fallback)
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - "netexec @ git+https://github.com/Pennyw0rth/NetExec.git"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   when: 
     - vmware_env == "ubuntu"
     - netexec_check.rc != 0
@@ -175,7 +178,7 @@
     - netexec
     - network
 
-- name: netexec - Create symlink to pipx binary in /usr/local/bin (Ubuntu)
+- name: netexec - Create symlink to uv tool binary in /usr/local/bin (Ubuntu)
   ansible.builtin.file:
     src: "{{ login_home }}/.local/bin/netexec"
     dest: /usr/local/bin/netexec

@@ -8,45 +8,39 @@
     - DonPAPI
     - AD
 
-- name: DonPAPI - ensure pipx PATH for {{ login_user }}
-  become: yes
-  become_user: "{{ login_user }}"
-  ansible.builtin.command: python3 -m pipx ensurepath --force
-  changed_when: false   # running it twice is harmless; we suppress "changed"
-  tags:
-    - DonPAPI
-    - AD
-
-- name: DonPAPI - remove broken pipx installation if exists
-  become: yes
-  become_user: "{{ login_user }}"
+- name: DonPAPI - remove broken uv tool installation if exists
   ansible.builtin.command:
-    cmd: pipx uninstall donpapi
-  register: pipx_uninstall
-  changed_when: pipx_uninstall.rc == 0
+    argv:
+      - uv
+      - tool
+      - uninstall
+      - donpapi
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  register: uv_uninstall
+  changed_when: uv_uninstall.rc == 0
   failed_when: false
   tags:
     - DonPAPI
     - AD
 
-- name: DonPAPI - install DonPAPI via pipx (binary-only for lxml)
+- name: DonPAPI - install DonPAPI via uv (binary-only for lxml, with setuptools)
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --only-binary
+      - lxml
+      - --with
+      - setuptools
+      - donpapi
   become: yes
   become_user: "{{ login_user }}"
-  ansible.builtin.command:
-    cmd: pipx install donpapi --pip-args="--only-binary lxml"
-  register: pipx_result
-  changed_when: "'installed package' in pipx_result.stdout"
-  tags:
-    - DonPAPI
-    - AD
-
-- name: DonPAPI - inject setuptools for pkg_resources support
-  become: yes
-  become_user: "{{ login_user }}"
-  ansible.builtin.command:
-    cmd: pipx inject donpapi setuptools
-  register: inject_result
-  changed_when: "'injected package' in inject_result.stdout"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - DonPAPI
     - AD

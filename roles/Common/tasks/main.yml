@@ -99,7 +99,6 @@
       - python3-virtualenv
       - python3-lxml
       - git
-      - pipx
       - golang
       - jq
       - moreutils

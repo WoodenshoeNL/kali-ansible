@@ -10,20 +10,17 @@
     - dploot
     - AD
 
-- name: dploot - install via pipx (Ubuntu/Debian)
-  block:
-    - name: Ensure pipx is installed
-      ansible.builtin.apt:
-        name: pipx
-        state: present
-        update_cache: yes
-        cache_valid_time: 3600
-
-    - name: Install dploot via pipx
-      community.general.pipx:
-        name: dploot
-        state: present
-      become: no  # pipx installs to user space
+- name: dploot - install via uv (Ubuntu/Debian)
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - dploot
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   when: vmware_env == "ubuntu"
   tags:
     - dploot

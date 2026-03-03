@@ -1,21 +1,16 @@
 
-- name: changedetection - install/upgrade changedetection.io via pipx
+- name: changedetection - install/upgrade changedetection.io via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - changedetection.io
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: changedetection.io
-    state: latest       # upgrades if an older version is present
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - changedetection
     - OSINT
-
-
-
-
-
-
-
-
-
-
-

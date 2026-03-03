@@ -1,26 +1,32 @@
 
-#- name: bloodhound-python - ensure pipx PATH for {{ login_user }}
-#  become: yes
-#  become_user: {{ login_user }}
-#  ansible.builtin.command: python3 -m pipx ensurepath --force
-#  changed_when: false   # running it twice is harmless; we suppress “changed”
-
-- name: bloodhound-python - install/upgrade bloodhound-python via pipx
+- name: bloodhound-python - install/upgrade bloodhound-python via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - bloodhound
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: bloodhound
-    state: latest       # upgrades if an older version is present
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - bloodhound-python
     - AD
 
-- name: bloodhound-ce-python - install/upgrade bloodhound-ce-python via pipx
+- name: bloodhound-ce-python - install/upgrade bloodhound-ce-python via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - bloodhound-ce
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: bloodhound-ce
-    state: latest       # upgrades if an older version is present
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - bloodhound-python
     - AD

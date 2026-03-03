@@ -1,11 +1,16 @@
 
-- name: sublist3r - install/upgrade sublist3r via pipx
+- name: sublist3r - install/upgrade sublist3r via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - sublist3r
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: sublist3r
-    state: latest       # upgrades if an older version is present
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - sublist3r
     - OSINT
-

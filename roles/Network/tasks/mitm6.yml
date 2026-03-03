@@ -1,19 +1,16 @@
 
-- name: mitm6 - install/upgrade mitm6 via pipx
+- name: mitm6 - install/upgrade mitm6 via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - mitm6
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: mitm6
-    state: latest
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - mitm6
     - network
-
-
-
-
-
-
-
-
-

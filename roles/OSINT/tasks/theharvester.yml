@@ -1,12 +1,16 @@
 
-- name: theharvester - install/upgrade theHarvester via pipx from git
+- name: theharvester - install/upgrade theHarvester via uv from git
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - "theHarvester @ git+https://github.com/laramies/theHarvester.git"
   become: yes
   become_user: "{{ login_user }}"
-  community.general.pipx:
-    name: theHarvester
-    source: git+https://github.com/laramies/theHarvester.git
-    state: latest       # upgrades if an older version is present
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - theharvester
     - OSINT
-

@@ -25,11 +25,16 @@
   tags:
     - beads
 
-- name: Install beads-mcp for Cursor
-  community.general.pipx:
-    name: beads-mcp
-    state: present
+- name: Install beads-mcp for Cursor via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - beads-mcp
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - beads
