@@ -16,7 +16,6 @@
     name:
       - chromium
       - chromium-driver
-      - python3-venv
     state: present
     update_cache: yes
     cache_valid_time: 3600
@@ -24,21 +23,36 @@
     - meowEye
     - web
 
-- name: meowEye - create virtual environment
+- name: meowEye - create virtual environment with uv
   become: true
   ansible.builtin.command:
-    cmd: python3 -m venv /opt/meowEye/venv
+    argv:
+      - uv
+      - venv
+      - /opt/meowEye/venv
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
     creates: /opt/meowEye/venv/bin/python
   tags:
     - meowEye
     - web
 
-- name: meowEye - install requirements in venv
+- name: meowEye - install requirements in venv with uv
   become: true
-  ansible.builtin.pip:
-    requirements: /opt/meowEye/requirements.txt
-    virtualenv: /opt/meowEye/venv
-    state: present
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - /opt/meowEye/venv/bin/python
+      - -r
+      - /opt/meowEye/requirements.txt
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    chdir: /opt/meowEye
   tags:
     - meowEye
     - web

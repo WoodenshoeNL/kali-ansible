@@ -10,24 +10,36 @@
     - ntdsdotsqlite
     - AD
 
-- name: ntdsdotsqlite - create Python virtualenv (runs as "{{ login_user }}")
-  command: python3 -m venv "{{ login_home }}"/ntdsdotsqlite/venv
-  args:
-    creates: "{{ login_home }}/ntdsdotsqlite/venv/bin/activate"
+- name: ntdsdotsqlite - create Python virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/ntdsdotsqlite/venv"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/ntdsdotsqlite/venv/bin/activate"
   tags:
     - ntdsdotsqlite
     - AD
 
-- name: ntdsdotsqlite - install ntdsdotsqlite inside the virtualenv (runs as "{{ login_user }}")
-  pip:
-    name: ntdsdotsqlite
-    virtualenv: "{{ login_home }}/ntdsdotsqlite/venv"
-    virtualenv_python: python3
-    state: latest              # change to “present” if you prefer pinning
+- name: ntdsdotsqlite - install ntdsdotsqlite in virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/ntdsdotsqlite/venv/bin/python"
+      - --upgrade
+      - ntdsdotsqlite
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - ntdsdotsqlite
     - AD

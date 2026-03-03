@@ -22,22 +22,38 @@
     - gmsadumper
     - AD
 
-- name: gmsadumper - create Python virtualenv (runs as "{{ login_user }}")
-  command: python3 -m venv "{{ login_home }}"/gmsadumper/venv
-  args:
-    creates: "{{ login_home }}/gmsadumper/venv/bin/activate"
+- name: gmsadumper - create Python virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/gmsadumper/venv"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/gmsadumper/venv/bin/activate"
   tags:
     - gmsadumper
     - AD
 
-- name: gMSADumper – install Python requirements into venv
-  ansible.builtin.pip:
-    requirements: "{{ login_home }}/gmsadumper/requirements.txt"
-    virtualenv: "{{ login_home }}/gmsadumper/venv"
-    virtualenv_command: /usr/bin/python3 -m venv
+- name: gMSADumper – install Python requirements into venv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/gmsadumper/venv/bin/python"
+      - -r
+      - "{{ login_home }}/gmsadumper/requirements.txt"
+  become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    chdir: "{{ login_home }}/gmsadumper"
   tags:
     - gmsadumper
     - AD

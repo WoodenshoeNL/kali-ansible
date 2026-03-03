@@ -10,24 +10,36 @@
     - seamlesspass
     - cloud
 
-- name: SeamlessPass - create Python virtualenv (runs as "{{ login_user }}")
-  command: python3 -m venv "{{ login_home }}"/seamlesspass/venv
-  args:
-    creates: "{{ login_home }}/seamlesspass/venv/bin/activate"
+- name: SeamlessPass - create Python virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/seamlesspass/venv"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/seamlesspass/venv/bin/activate"
   tags:
     - seamlesspass
     - cloud
 
-- name: SeamlessPass - install SeamlessPass inside the virtualenv (runs as "{{ login_user }}")
-  pip:
-    name: seamlesspass
-    virtualenv: "{{ login_home }}/seamlesspass/venv"
-    virtualenv_python: python3
-    state: latest              # change to “present” if you prefer pinning
+- name: SeamlessPass - install SeamlessPass in virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/seamlesspass/venv/bin/python"
+      - --upgrade
+      - seamlesspass
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - seamlesspass
     - cloud

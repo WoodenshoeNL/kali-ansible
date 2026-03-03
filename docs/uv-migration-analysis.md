@@ -212,10 +212,10 @@ If uv is installed via standalone script as `{{ login_user }}`, it goes to `~/.l
 
 ## 6. File Checklist (Quick Reference)
 
-| Category | Files to Modify |
-|----------|-----------------|
-| **uv bootstrap** | roles/Common/tasks/uv.yml |
-| **venv+pip** | Certipy, gmsadumper, SCCMHunter, ntdsdotsqlite, scoutsuite, Roadtx, Roadrecon, SeamlessPass, spiderfoot, recon-ng, carbon14, blackbird, whatsmyname, meowEye |
+| Category | Files to Modify | Status |
+|----------|-----------------|--------|
+| **uv bootstrap** | roles/Common/tasks/uv.yml | Done (Phase 0) |
+| **venv+pip** | Certipy, gmsadumper, SCCMHunter, ntdsdotsqlite, scoutsuite, Roadtx, Roadrecon, SeamlessPass, spiderfoot, recon-ng, carbon14, blackbird, whatsmyname, meowEye | Done (Phase 1) |
 | **pipx** | bloodhound-python, DonPAPI, dploot, mitm6, netexec, Enum4linux-ng, sherlock, holehe, theharvester, changedetection, maigret, sublist3r, beads |
 | **system pip** | im_packet, BloodyAD |
 | **apt cleanup** | roles/Common/tasks/main.yml |

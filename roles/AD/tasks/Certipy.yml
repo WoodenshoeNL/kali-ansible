@@ -10,24 +10,36 @@
     - certipy
     - AD
 
-- name: certipy - create Python virtualenv (runs as {{ login_user }})
-  command: python3 -m venv "{{ login_home }}"/certipy/venv
-  args:
-    creates: "{{ login_home }}/certipy/venv/bin/activate"
+- name: certipy - create Python virtualenv with uv (runs as {{ login_user }})
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/certipy/venv"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/certipy/venv/bin/activate"
   tags:
     - certipy
     - AD
 
-- name: certipy - install certipy inside the virtualenv (runs as {{ login_user }})
-  pip:
-    name: certipy-ad
-    virtualenv: "{{ login_home }}/certipy/venv"
-    virtualenv_python: python3
-    state: latest              # change to “present” if you prefer pinning
+- name: certipy - install certipy-ad in virtualenv with uv (runs as {{ login_user }})
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/certipy/venv/bin/python"
+      - --upgrade
+      - certipy-ad
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - certipy
     - AD

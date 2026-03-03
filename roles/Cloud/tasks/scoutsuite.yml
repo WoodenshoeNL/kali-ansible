@@ -10,24 +10,36 @@
     - scoutsuite
     - cloud
 
-- name: scoutsuite - create Python virtualenv (runs as "{{ login_user }}")
-  command: python3 -m venv "{{ login_home }}"/scoutsuite/venv
-  args:
-    creates: "{{ login_home }}/scoutsuite/venv/bin/activate"
+- name: scoutsuite - create Python virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/scoutsuite/venv"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/scoutsuite/venv/bin/activate"
   tags:
     - scoutsuite
     - cloud
 
-- name: scoutsuite - install scoutsuite inside the virtualenv (runs as "{{ login_user }}")
-  pip:
-    name: scoutsuite
-    virtualenv: "{{ login_home }}/scoutsuite/venv"
-    virtualenv_python: python3
-    state: latest              # change to “present” if you prefer pinning
+- name: scoutsuite - install scoutsuite in virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/scoutsuite/venv/bin/python"
+      - --upgrade
+      - scoutsuite
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - scoutsuite
     - cloud

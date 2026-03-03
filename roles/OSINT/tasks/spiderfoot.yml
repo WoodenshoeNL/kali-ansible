@@ -33,35 +33,48 @@
     - spiderfoot
     - OSINT
 
-- name: spiderfoot - Create virtual environment
+- name: spiderfoot - Create virtual environment with uv
   become: yes
   become_user: "{{ login_user }}"
-  command:
-    cmd: python3 -m venv venv
-    chdir: "{{ login_home }}/Programs/spiderfoot"
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/Programs/spiderfoot/venv"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
     creates: "{{ login_home }}/Programs/spiderfoot/venv"
   tags:
     - spiderfoot
     - OSINT
 
-- name: spiderfoot - Install compatible lxml version (Python 3.13 fix)
+- name: spiderfoot - Install compatible lxml version (Python 3.13 fix) with uv
   become: yes
   become_user: "{{ login_user }}"
-  pip:
-    name: "lxml>=5.0"
-    virtualenv: "{{ login_home }}/Programs/spiderfoot/venv"
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/Programs/spiderfoot/venv/bin/python"
+      - "lxml>=5.0"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - spiderfoot
     - OSINT
 
-- name: spiderfoot - Install requirements in venv (excluding lxml)
+- name: spiderfoot - Install requirements in venv with uv (excluding lxml)
   become: yes
   become_user: "{{ login_user }}"
-  shell: |
-    grep -v '^lxml' requirements.txt | {{ login_home }}/Programs/spiderfoot/venv/bin/pip install -r /dev/stdin
+  ansible.builtin.shell: |
+    grep -v '^lxml' requirements.txt | uv pip install --python "{{ login_home }}/Programs/spiderfoot/venv/bin/python" -r /dev/stdin
   args:
     chdir: "{{ login_home }}/Programs/spiderfoot"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - spiderfoot
     - OSINT
-

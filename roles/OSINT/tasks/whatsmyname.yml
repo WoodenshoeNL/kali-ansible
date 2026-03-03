@@ -21,34 +21,38 @@
     - whatsmyname
     - OSINT
 
-- name: whatsmyname - Create virtual environment
+- name: whatsmyname - Create virtual environment with uv
   become: yes
   become_user: "{{ login_user }}"
-  command:
-    cmd: python3 -m venv venv
-    chdir: "{{ login_home }}/Programs/WhatsMyName-Python"
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/Programs/WhatsMyName-Python/venv"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
     creates: "{{ login_home }}/Programs/WhatsMyName-Python/venv"
   tags:
     - whatsmyname
     - OSINT
 
-- name: whatsmyname - Install requirements in venv
+- name: whatsmyname - Install requirements in venv with uv
   become: yes
   become_user: "{{ login_user }}"
-  pip:
-    requirements: "{{ login_home }}/Programs/WhatsMyName-Python/requirements.txt"
-    virtualenv: "{{ login_home }}/Programs/WhatsMyName-Python/venv"
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/Programs/WhatsMyName-Python/venv/bin/python"
+      - -r
+      - "{{ login_home }}/Programs/WhatsMyName-Python/requirements.txt"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    chdir: "{{ login_home }}/Programs/WhatsMyName-Python"
   tags:
     - whatsmyname
     - OSINT
-
-
-
-
-
-
-
-
-
-
-

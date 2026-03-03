@@ -10,24 +10,36 @@
     - roadtx
     - cloud
 
-- name: roadtx - create Python virtualenv (runs as "{{ login_user }}")
-  command: python3 -m venv "{{ login_home }}"/roadtx/venv
-  args:
-    creates: "{{ login_home }}/roadtx/venv/bin/activate"
+- name: roadtx - create Python virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/roadtx/venv"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/roadtx/venv/bin/activate"
   tags:
     - roadtx
     - cloud
 
-- name: roadtx - install roadtx inside the virtualenv (runs as "{{ login_user }}")
-  pip:
-    name: roadtx
-    virtualenv: "{{ login_home }}/roadtx/venv"
-    virtualenv_python: python3
-    state: latest              # change to “present” if you prefer pinning
+- name: roadtx - install roadtx in virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/roadtx/venv/bin/python"
+      - --upgrade
+      - roadtx
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - roadtx
     - cloud

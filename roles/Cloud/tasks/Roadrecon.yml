@@ -10,24 +10,36 @@
     - roadrecon
     - cloud
 
-- name: roadrecon - create Python virtualenv (runs as "{{ login_user }}")
-  command: python3 -m venv "{{ login_home }}"/roadrecon/venv
-  args:
-    creates: "{{ login_home }}/roadrecon/venv/bin/activate"
+- name: roadrecon - create Python virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/roadrecon/venv"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/roadrecon/venv/bin/activate"
   tags:
     - roadrecon
     - cloud
 
-- name: roadrecon - install Roadrecon inside the virtualenv (runs as "{{ login_user }}")
-  pip:
-    name: roadrecon
-    virtualenv: "{{ login_home }}/roadrecon/venv"
-    virtualenv_python: python3
-    state: latest              # change to “present” if you prefer pinning
+- name: roadrecon - install Roadrecon in virtualenv with uv (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/roadrecon/venv/bin/python"
+      - --upgrade
+      - roadrecon
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - roadrecon
     - cloud

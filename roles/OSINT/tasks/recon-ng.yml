@@ -21,24 +21,38 @@
     - recon-ng
     - OSINT
 
-- name: recon-ng - Create virtual environment
+- name: recon-ng - Create virtual environment with uv
   become: yes
   become_user: "{{ login_user }}"
-  command:
-    cmd: python3 -m venv venv
-    chdir: "{{ login_home }}/Programs/recon-ng"
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/Programs/recon-ng/venv"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
     creates: "{{ login_home }}/Programs/recon-ng/venv"
   tags:
     - recon-ng
     - OSINT
 
-- name: recon-ng - Install requirements in venv
+- name: recon-ng - Install requirements in venv with uv
   become: yes
   become_user: "{{ login_user }}"
-  pip:
-    requirements: "{{ login_home }}/Programs/recon-ng/REQUIREMENTS"
-    virtualenv: "{{ login_home }}/Programs/recon-ng/venv"
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/Programs/recon-ng/venv/bin/python"
+      - -r
+      - "{{ login_home }}/Programs/recon-ng/REQUIREMENTS"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    chdir: "{{ login_home }}/Programs/recon-ng"
   tags:
     - recon-ng
     - OSINT
-

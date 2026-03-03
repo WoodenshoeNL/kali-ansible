@@ -5,22 +5,45 @@
     dest: "{{ login_home }}/sccmhunter"            # fixed path keeps things predictable
     version: main
     update: yes
-    # force: yes           # uncomment if {{ login_home }}/sccmhunter already exists but isn’t a repo
+    # force: yes           # uncomment if {{ login_home }}/sccmhunter already exists but isn't a repo
   become: yes
   become_user: "{{ login_user }}"
   tags:
     - sccmhunter
     - AD
 
-# The pip module will CREATE the virtualenv automatically if it does not exist
-- name: sccmhunter - install Python requirements into virtualenv
-  ansible.builtin.pip:
-    requirements: "{{ login_home }}/sccmhunter/requirements.txt"
-    virtualenv: "{{ login_home }}/sccmhunter/venv"
-    virtualenv_python: python3
-    virtualenv_site_packages: no
+- name: sccmhunter - create Python virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/sccmhunter/venv"
   become: yes
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/sccmhunter/venv/bin/activate"
+  tags:
+    - sccmhunter
+    - AD
+
+- name: sccmhunter - install Python requirements into virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/sccmhunter/venv/bin/python"
+      - -r
+      - "{{ login_home }}/sccmhunter/requirements.txt"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    chdir: "{{ login_home }}/sccmhunter"
   tags:
     - sccmhunter
     - AD

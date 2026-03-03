@@ -21,24 +21,38 @@
     - carbon14
     - OSINT
 
-- name: carbon14 - Create virtual environment
+- name: carbon14 - Create virtual environment with uv
   become: yes
   become_user: "{{ login_user }}"
-  command:
-    cmd: python3 -m venv venv
-    chdir: "{{ login_home }}/Programs/Carbon14"
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/Programs/Carbon14/venv"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
     creates: "{{ login_home }}/Programs/Carbon14/venv"
   tags:
     - carbon14
     - OSINT
 
-- name: carbon14 - Install requirements in venv
+- name: carbon14 - Install requirements in venv with uv
   become: yes
   become_user: "{{ login_user }}"
-  pip:
-    requirements: "{{ login_home }}/Programs/Carbon14/requirements.txt"
-    virtualenv: "{{ login_home }}/Programs/Carbon14/venv"
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/Programs/Carbon14/venv/bin/python"
+      - -r
+      - "{{ login_home }}/Programs/Carbon14/requirements.txt"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    chdir: "{{ login_home }}/Programs/Carbon14"
   tags:
     - carbon14
     - OSINT
-
