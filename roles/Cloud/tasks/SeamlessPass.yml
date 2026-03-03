@@ -26,7 +26,24 @@
     - seamlesspass
     - cloud
 
-- name: SeamlessPass - install SeamlessPass and setuptools in virtualenv with uv (runs as "{{ login_user }}")
+- name: SeamlessPass - install setuptools in virtualenv (pkg_resources dependency)
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/seamlesspass/venv/bin/python"
+      - setuptools
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  tags:
+    - seamlesspass
+    - cloud
+
+- name: SeamlessPass - install SeamlessPass in virtualenv with uv (runs as "{{ login_user }}")
   ansible.builtin.command:
     argv:
       - uv
@@ -36,7 +53,6 @@
       - "{{ login_home }}/seamlesspass/venv/bin/python"
       - --upgrade
       - seamlesspass
-      - setuptools
   become: yes
   become_user: "{{ login_user }}"
   environment:
