@@ -15,7 +15,6 @@
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
     mode: "0755"
-  when: impacket_check.rc != 0
   tags:
     - impacket
     - common
@@ -32,7 +31,6 @@
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   args:
     creates: "{{ login_home }}/impacket/venv/bin/activate"
-  when: impacket_check.rc != 0
   tags:
     - impacket
     - common
@@ -51,7 +49,6 @@
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
-  when: impacket_check.rc != 0
   tags:
     - impacket
     - common
@@ -62,7 +59,6 @@
     patterns: "impacket-*"
     file_type: file
   register: impacket_scripts
-  when: impacket_check.rc != 0
   tags:
     - impacket
     - common
@@ -74,10 +70,7 @@
     state: link
     force: yes
   loop: "{{ impacket_scripts.files | default([]) }}"
-  when:
-    - impacket_check.rc != 0
-    - impacket_scripts.files is defined
-    - impacket_scripts.files | length > 0
+  when: impacket_scripts.files is defined and impacket_scripts.files | length > 0
   tags:
     - impacket
     - common
