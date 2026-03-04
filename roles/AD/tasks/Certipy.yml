@@ -46,10 +46,11 @@
 
 - name: certipy - create global wrapper in /usr/local/bin
   file:
-    src: "{{ login_home }}/certipy/venv/bin/certipy-ad"
+    src: "{{ login_home }}/certipy/venv/bin/certipy"
     dest: /usr/local/bin/certipy-ad
     state: link
     force: yes
+    follow: false
   tags:
     - certipy
     - AD
