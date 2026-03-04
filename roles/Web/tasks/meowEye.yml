@@ -51,6 +51,7 @@
       - /opt/meowEye/requirements.txt
       - packaging
       - "setuptools<71"
+      - "blinker<1.8.0"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   args:
