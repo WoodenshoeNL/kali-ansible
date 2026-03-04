@@ -104,7 +104,7 @@ To print all verification commands without running:
 | evil-winrm-py | `evil-winrm-py --help` |
 | mitm6 | `mitm6 --help` |
 | hashcat | `hashcat --version` |
-| john | `john --version` |
+| john | `john 2>&1 | head -1 | grep -q 'John the Ripper'` |
 | nmap | `nmap --version` |
 | netexec | `netexec --version` |
 
