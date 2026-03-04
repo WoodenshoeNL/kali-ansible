@@ -50,7 +50,7 @@ To print all verification commands without running:
 | Tool | Verification Command |
 |------|---------------------|
 | feroxbuster | `feroxbuster --version` |
-| gowitness | `gowitness --version` |
+| gowitness | `gowitness version` |
 | nuclei | `nuclei -version` |
 | tlsx | `tlsx -version` |
 | httpx | `httpx -version` |

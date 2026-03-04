@@ -84,7 +84,7 @@ echo ""
 # --- Web ---
 echo "--- Web ---"
 test_cmd "feroxbuster" "feroxbuster --version"
-test_cmd "gowitness" "gowitness --version"
+test_cmd "gowitness" "gowitness version"
 test_cmd "nuclei" "nuclei -version"
 test_cmd "tlsx" "tlsx -version"
 test_cmd "httpx" "httpx -version"
