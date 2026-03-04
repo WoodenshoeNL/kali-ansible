@@ -84,7 +84,7 @@ To print all verification commands without running:
 | dploot | `dploot --help` |
 | donpapi | `donpapi --help` |
 | kerbrute | `kerbrute -h` |
-| ldapx | `ldapx -h` |
+| ldapx | `ldapx --version` or `ldapx -v` |
 | bloodhound | `bloodhound --help` |
 | bloodhound-ce | `bloodhound-ce --help` |
 | bloodyAD | `bloodyAD --help` |
