@@ -85,8 +85,8 @@ To print all verification commands without running:
 | donpapi | `donpapi --help` |
 | kerbrute | `kerbrute -h` |
 | ldapx | `ldapx --version` or `ldapx -v` |
-| bloodhound | `bloodhound --help` |
-| bloodhound-ce | `bloodhound-ce --help` |
+| bloodhound-python | `bloodhound-python -h` |
+| bloodhound-ce-python | `bloodhound-ce-python -h` |
 | bloodyAD | `bloodyAD --help` |
 | ntdsdotsqlite | `ntdsdotsqlite --help` |
 | gMSADumper | `gMSADumper --help` |
