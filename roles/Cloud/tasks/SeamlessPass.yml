@@ -4,6 +4,7 @@
       - uv
       - tool
       - install
+      - --reinstall
       - seamlesspass
       - --with
       - setuptools
@@ -13,7 +14,10 @@
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
     UV_TOOL_BIN_DIR: "{{ login_home }}/.local/bin"
   register: seamlesspass_install
-  changed_when: "'Installed' in seamlesspass_install.stdout"
+  changed_when: >
+    seamlesspass_install.rc == 0 and
+    ('Installed' in seamlesspass_install.stdout or
+     'installed' in seamlesspass_install.stdout)
   tags:
     - seamlesspass
     - cloud
