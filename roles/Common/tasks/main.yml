@@ -103,7 +103,7 @@
       - rlwrap
       - git
       - build-essential
-      - freerdp3-x11
+      - "{{ 'freerdp2-x11' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'jammy') else 'freerdp3-x11' }}"
       - unzip
       - libssl-dev
       - pkg-config

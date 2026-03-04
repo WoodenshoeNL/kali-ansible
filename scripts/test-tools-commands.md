@@ -41,7 +41,7 @@ To print all verification commands without running:
 | jq | `jq --version` |
 | git | `git --version` |
 | vim | `vim --version` |
-| xfreerdp | `xfreerdp --version` |
+| xfreerdp | `xfreerdp --version` or `xfreerdp3 --version` (freerdp2-x11 on jammy, freerdp3-x11 on noble+) |
 | duckdb | `duckdb --version` |
 | SecLists | `test -d /opt/SecLists` |
 | stockpile | `test -d /stockpile` |
