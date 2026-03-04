@@ -37,6 +37,27 @@
     - common
 
 
+- name: RunasCs – create RunasCs directory
+  ansible.builtin.file:
+    path: /stockpile/RunasCs
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - stockpile
+    - common
+
+- name: RunasCs – download and extract (Windows tool for stockpile)
+  ansible.builtin.unarchive:
+    src: https://github.com/antonioCoco/RunasCs/releases/latest/download/RunasCs.zip
+    dest: /stockpile/RunasCs
+    remote_src: yes
+    creates: /stockpile/RunasCs/RunasCs.exe
+  tags:
+    - stockpile
+    - common
+
 - name: Mimikatz ‑ create mimikatz directory
   ansible.builtin.file:
     path: /stockpile/mimikatz

@@ -92,7 +92,7 @@ To print all verification commands without running:
 | gMSADumper | `gMSADumper --help` |
 | godap | `godap -h` |
 | rusthound-ce | `rusthound-ce --help` |
-| runascs | `runascs --help` |
+| RunasCs (stockpile) | `test -d /stockpile/RunasCs` (Windows tool, in stockpile for transfer) |
 | BloodHoundCE | `test -f ~/BloodHoundCE/docker-compose.yml` |
 
 ### Network

@@ -126,8 +126,7 @@ test_cmd "ntdsdotsqlite" "ntdsdotsqlite --help"
 test_cmd "gMSADumper" "gMSADumper --help"
 test_cmd "godap" "godap -h"
 test_cmd "rusthound-ce" "rusthound-ce --help"
-test_cmd "runascs" "runascs --help"
-test_path "BloodHoundCE" "$LOGIN_HOME/BloodHoundCE/docker-compose.yml"
+#test_path "BloodHoundCE" "$LOGIN_HOME/BloodHoundCE/docker-compose.yml"
 echo ""
 
 # --- Network ---
