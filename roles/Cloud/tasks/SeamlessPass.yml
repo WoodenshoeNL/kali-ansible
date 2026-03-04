@@ -1,32 +1,66 @@
-- name: SeamlessPass - install via uv tool (runs as "{{ login_user }}")
-  ansible.builtin.shell:
-    cmd: "{{ login_home }}/.local/bin/uv tool install --reinstall seamlesspass"
+- name: SeamlessPass - create project directory for "{{ login_user }}" user
+  file:
+    path: "{{ login_home }}/seamlesspass"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  tags:
+    - seamlesspass
+    - cloud
+
+- name: SeamlessPass - create Python virtualenv with uv --seed (runs as "{{ login_user }}")
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - --seed
+      - "{{ login_home }}/seamlesspass/venv"
   become: yes
   become_user: "{{ login_user }}"
   environment:
     HOME: "{{ login_home }}"
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
-    UV_TOOL_BIN_DIR: "{{ login_home }}/.local/bin"
-  changed_when: true
+  args:
+    creates: "{{ login_home }}/seamlesspass/venv/bin/activate"
   tags:
     - seamlesspass
     - cloud
 
-- name: SeamlessPass - inject setuptools into uv tool venv (for pkg_resources)
-  ansible.builtin.shell:
-    cmd: "{{ login_home }}/.local/share/uv/tools/seamlesspass/bin/pip install --upgrade setuptools"
+- name: SeamlessPass - install seamlesspass via venv pip
+  ansible.builtin.command:
+    argv:
+      - "{{ login_home }}/seamlesspass/venv/bin/pip"
+      - install
+      - seamlesspass
   become: yes
   become_user: "{{ login_user }}"
   environment:
     HOME: "{{ login_home }}"
-  changed_when: true
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  tags:
+    - seamlesspass
+    - cloud
+
+- name: SeamlessPass - force-reinstall setuptools via pip to expose pkg_resources
+  ansible.builtin.command:
+    argv:
+      - "{{ login_home }}/seamlesspass/venv/bin/pip"
+      - install
+      - --force-reinstall
+      - setuptools
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    HOME: "{{ login_home }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
     - seamlesspass
     - cloud
 
 - name: SeamlessPass - create global wrapper in /usr/local/bin
   file:
-    src: "{{ login_home }}/.local/bin/seamlesspass"
+    src: "{{ login_home }}/seamlesspass/venv/bin/seamlesspass"
     dest: /usr/local/bin/seamlesspass
     state: link
     force: yes
