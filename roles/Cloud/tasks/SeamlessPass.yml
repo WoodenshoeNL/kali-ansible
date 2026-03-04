@@ -1,23 +1,25 @@
 - name: SeamlessPass - install via uv tool (runs as "{{ login_user }}")
-  ansible.builtin.command:
-    argv:
-      - uv
-      - tool
-      - install
-      - --reinstall
-      - seamlesspass
-      - --with
-      - setuptools
+  ansible.builtin.shell:
+    cmd: "{{ login_home }}/.local/bin/uv tool install --reinstall seamlesspass"
   become: yes
   become_user: "{{ login_user }}"
   environment:
+    HOME: "{{ login_home }}"
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
     UV_TOOL_BIN_DIR: "{{ login_home }}/.local/bin"
-  register: seamlesspass_install
-  changed_when: >
-    seamlesspass_install.rc == 0 and
-    ('Installed' in seamlesspass_install.stdout or
-     'installed' in seamlesspass_install.stdout)
+  changed_when: true
+  tags:
+    - seamlesspass
+    - cloud
+
+- name: SeamlessPass - inject setuptools into uv tool venv (for pkg_resources)
+  ansible.builtin.shell:
+    cmd: "{{ login_home }}/.local/share/uv/tools/seamlesspass/bin/pip install --upgrade setuptools"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    HOME: "{{ login_home }}"
+  changed_when: true
   tags:
     - seamlesspass
     - cloud
