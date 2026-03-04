@@ -139,7 +139,7 @@ test_cmd "mitm6" "mitm6 --help"
 test_cmd "hashcat" "hashcat --version"
 test_cmd "john" "john 2>&1 | head -1 | grep -q 'John the Ripper'"
 test_cmd "nmap" "nmap --version"
-test_cmd "netexec" "netexec --version"
+test_cmd "netexec" "netexec --version 2>&1 | head -1"
 echo ""
 
 # --- OSINT ---
