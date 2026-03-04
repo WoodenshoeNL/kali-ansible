@@ -51,27 +51,13 @@
     - seamlesspass
     - cloud
 
-- name: SeamlessPass - install setuptools via venv pip (pkg_resources)
+- name: SeamlessPass - install setuptools and seamlesspass via venv pip (runs as "{{ login_user }}")
   ansible.builtin.command:
     argv:
       - "{{ login_home }}/seamlesspass/venv/bin/pip"
       - install
-      - setuptools
-  become: yes
-  become_user: "{{ login_user }}"
-  tags:
-    - seamlesspass
-    - cloud
-
-- name: SeamlessPass - install SeamlessPass in virtualenv with uv (runs as "{{ login_user }}")
-  ansible.builtin.command:
-    argv:
-      - uv
-      - pip
-      - install
-      - --python
-      - "{{ login_home }}/seamlesspass/venv/bin/python"
       - --upgrade
+      - setuptools
       - seamlesspass
   become: yes
   become_user: "{{ login_user }}"
