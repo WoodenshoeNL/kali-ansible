@@ -32,7 +32,8 @@ To print all verification commands without running:
 | uv | `uv --version` |
 | cargo/rust | `cargo --version` (source ~/.cargo/env first) |
 | pwsh | `pwsh --version` |
-| impacket | `impacket-GetTGT --help` |
+| impacket (getTGT.py) | `getTGT.py --help` or `impacket-GetTGT --help` |
+| impacket (secretsdump.py) | `secretsdump.py --help` or `impacket-secretsdump --help` |
 | zsh | `zsh --version` |
 | docker | `docker --version` |
 | docker-compose | `docker-compose --version` |
