@@ -27,28 +27,13 @@
     - seamlesspass
     - cloud
 
-- name: SeamlessPass - install seamlesspass via venv pip
+- name: SeamlessPass - install seamlesspass and pin setuptools for pkg_resources compatibility
   ansible.builtin.command:
     argv:
       - "{{ login_home }}/seamlesspass/venv/bin/pip"
       - install
       - seamlesspass
-  become: yes
-  become_user: "{{ login_user }}"
-  environment:
-    HOME: "{{ login_home }}"
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
-  tags:
-    - seamlesspass
-    - cloud
-
-- name: SeamlessPass - force-reinstall setuptools via pip to expose pkg_resources
-  ansible.builtin.command:
-    argv:
-      - "{{ login_home }}/seamlesspass/venv/bin/pip"
-      - install
-      - --force-reinstall
-      - setuptools
+      - "setuptools<71"
   become: yes
   become_user: "{{ login_user }}"
   environment:
