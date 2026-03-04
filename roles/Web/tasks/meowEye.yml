@@ -38,7 +38,7 @@
     - meowEye
     - web
 
-- name: meowEye - install requirements in venv with uv
+- name: meowEye - install requirements in venv with uv (packaging + setuptools<71 for seleniumwire)
   become: true
   ansible.builtin.command:
     argv:
@@ -49,6 +49,8 @@
       - /opt/meowEye/venv/bin/python
       - -r
       - /opt/meowEye/requirements.txt
+      - packaging
+      - "setuptools<71"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   args:
