@@ -1,75 +1,26 @@
-
-- name: SeamlessPass - create project directory for "{{ login_user }}" user
-  file:
-    path: "{{ login_home }}/seamlesspass"
-    state: directory
-    owner: "{{ login_user }}"
-    group: "{{ login_user }}"
-    mode: "0755"
-  tags:
-    - seamlesspass
-    - cloud
-
-- name: SeamlessPass - check if venv has pkg_resources (setuptools)
-  ansible.builtin.command:
-    argv:
-      - "{{ login_home }}/seamlesspass/venv/bin/python"
-      - -c
-      - "import pkg_resources"
-  register: seamlesspass_setuptools_check
-  changed_when: false
-  failed_when: false
-  tags:
-    - seamlesspass
-    - cloud
-
-- name: SeamlessPass - remove venv when setuptools missing (to recreate with --seed)
-  ansible.builtin.file:
-    path: "{{ login_home }}/seamlesspass/venv"
-    state: absent
-  become: yes
-  become_user: "{{ login_user }}"
-  when: seamlesspass_setuptools_check.rc != 0
-  tags:
-    - seamlesspass
-    - cloud
-
-- name: SeamlessPass - create Python virtualenv with uv --seed (runs as "{{ login_user }}")
+- name: SeamlessPass - install via uv tool (runs as "{{ login_user }}")
   ansible.builtin.command:
     argv:
       - uv
-      - venv
-      - --seed
-      - "{{ login_home }}/seamlesspass/venv"
-  become: yes
-  become_user: "{{ login_user }}"
-  environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
-  args:
-    creates: "{{ login_home }}/seamlesspass/venv/bin/activate"
-  tags:
-    - seamlesspass
-    - cloud
-
-- name: SeamlessPass - install setuptools and seamlesspass via venv pip (runs as "{{ login_user }}")
-  ansible.builtin.command:
-    argv:
-      - "{{ login_home }}/seamlesspass/venv/bin/pip"
+      - tool
       - install
-      - --upgrade
-      - setuptools
       - seamlesspass
+      - --with
+      - setuptools
   become: yes
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    UV_TOOL_BIN_DIR: "{{ login_home }}/.local/bin"
+  register: seamlesspass_install
+  changed_when: "'Installed' in seamlesspass_install.stdout"
   tags:
     - seamlesspass
     - cloud
 
 - name: SeamlessPass - create global wrapper in /usr/local/bin
   file:
-    src: "{{ login_home }}/seamlesspass/venv/bin/seamlesspass"
+    src: "{{ login_home }}/.local/bin/seamlesspass"
     dest: /usr/local/bin/seamlesspass
     state: link
     force: yes
