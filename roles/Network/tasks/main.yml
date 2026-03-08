@@ -32,5 +32,8 @@
 - name: Run nmap setup
   import_tasks: nmap.yml
 
+- name: Run socat setup
+  import_tasks: socat.yml
+
 - name: Run netexec setup
   import_tasks: netexec.yml
