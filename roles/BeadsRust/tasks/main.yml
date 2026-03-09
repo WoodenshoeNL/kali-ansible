@@ -1,0 +1,20 @@
+---
+# Beads Rust (br) - Fast Rust port of Steve Yegge's beads
+# https://github.com/Dicklesworthstone/beads_rust
+# Stores tasks in SQLite with JSONL export for git collaboration
+
+- name: BeadsRust - Ensure curl is installed
+  ansible.builtin.apt:
+    name: curl
+    state: present
+    update_cache: true
+  tags:
+    - beads_rust
+    - br
+
+- name: BeadsRust - Install or update via official install script
+  ansible.builtin.shell: |
+    curl -fsSL "https://raw.githubusercontent.com/Dicklesworthstone/beads_rust/main/install.sh?$(date +%s)" | bash -s -- --system --skip-skills
+  tags:
+    - beads_rust
+    - br

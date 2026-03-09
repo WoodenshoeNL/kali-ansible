@@ -1,0 +1,12 @@
+# Beads Rust (br) - Standalone playbook
+# https://github.com/Dicklesworthstone/beads_rust
+#
+# Run: ansible-playbook -i localhost, -c local playbook-br.yml
+# Or:  ansible-playbook -i localhost, -c local playbook-br.yml --tags br
+
+- hosts: all
+  gather_facts: yes
+  become: true
+
+  roles:
+    - BeadsRust
