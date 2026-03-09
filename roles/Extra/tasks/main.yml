@@ -28,3 +28,6 @@
 
 - name: Run Beads setup
   import_tasks: beads.yml
+
+- name: Run Beads Rust setup
+  import_tasks: beads_rust.yml
