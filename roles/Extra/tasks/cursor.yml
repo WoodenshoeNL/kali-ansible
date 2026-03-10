@@ -51,6 +51,16 @@
     - cursor
     - AI
 
+- name: Cursor - Install Cursor CLI
+  ansible.builtin.shell: curl https://cursor.com/install -fsS | bash
+  args:
+    creates: "{{ login_home }}/.local/bin/cursor"
+  become_user: "{{ login_user }}"
+  when: vmware_env != "esx"
+  tags:
+    - cursor
+    - AI
+
 - name: Cursor - Clean up .deb file
   ansible.builtin.file:
     path: /tmp/cursor.deb
