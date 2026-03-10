@@ -7,6 +7,7 @@
   when: vmware_env != "esx"
   tags:
     - antigravity
+    - AI
 
 - name: Download Google Antigravity GPG key
   ansible.builtin.get_url:
@@ -16,6 +17,7 @@
   when: vmware_env != "esx"
   tags:
     - antigravity
+    - AI
 
 - name: Antigravity - Dearmor GPG key
   ansible.builtin.shell:
@@ -24,6 +26,7 @@
   when: vmware_env != "esx"
   tags:
     - antigravity
+    - AI
 
 - name: Antigravity - Add Google Antigravity repository
   ansible.builtin.apt_repository:
@@ -34,6 +37,7 @@
   when: vmware_env != "esx"
   tags:
     - antigravity
+    - AI
 
 - name: Antigravity - Install Google Antigravity
   ansible.builtin.apt:
@@ -42,3 +46,4 @@
   when: vmware_env != "esx"
   tags:
     - antigravity
+    - AI

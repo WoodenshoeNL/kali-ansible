@@ -11,6 +11,7 @@
   tags:
     - beads_rust
     - br
+    - AI
 
 - name: Beads Rust - Install or update via official install script
   ansible.builtin.shell: |
@@ -18,3 +19,4 @@
   tags:
     - beads_rust
     - br
+    - AI

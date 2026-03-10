@@ -46,6 +46,11 @@ Install with specific tag:
 sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=workstation login_user=kali login_home=/home/kali" --tags core
 ```
 
+Install AI tools only (beads_rust, Claude Code, Codex, Cursor, Antigravity):
+```
+sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=workstation login_user=kali login_home=/home/kali" --tags AI
+```
+
 ## Ubuntu
 
 Run for Ansible:

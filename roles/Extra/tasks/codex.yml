@@ -17,6 +17,7 @@
     update_cache: yes
   tags:
     - codex
+    - AI
 
 # ------------------------------------------------------------------------------
 # Node.js via NodeSource (v20.x - LTS)
@@ -27,6 +28,7 @@
   register: codex_nodesource_repo
   tags:
     - codex
+    - AI
 
 - name: Codex - Add NodeSource GPG key
   ansible.builtin.shell: |
@@ -36,6 +38,7 @@
   when: not codex_nodesource_repo.stat.exists
   tags:
     - codex
+    - AI
 
 - name: Codex - Add NodeSource repository
   ansible.builtin.apt_repository:
@@ -45,6 +48,7 @@
   when: not codex_nodesource_repo.stat.exists
   tags:
     - codex
+    - AI
 
 - name: Codex - Install Node.js
   ansible.builtin.apt:
@@ -53,6 +57,7 @@
     update_cache: yes
   tags:
     - codex
+    - AI
 
 # ------------------------------------------------------------------------------
 # Codex CLI via npm
@@ -64,6 +69,7 @@
     state: latest
   tags:
     - codex
+    - AI
 
 # ------------------------------------------------------------------------------
 # Verify
@@ -74,9 +80,11 @@
   changed_when: false
   tags:
     - codex
+    - AI
 
 - name: Codex - Display installed version
   ansible.builtin.debug:
     msg: "Codex CLI installed successfully: {{ codex_version.stdout }}"
   tags:
     - codex
+    - AI

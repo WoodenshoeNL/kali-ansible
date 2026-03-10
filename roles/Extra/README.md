@@ -61,3 +61,5 @@ These run on every system (unless skipped via `--tags`):
 ## Tags
 
 Use `--tags` to run specific tools, e.g. `--tags beads_rust`, `--tags beads`, `--tags cursor`, `--tags mullvad`.
+
+**`--tags AI`** — Install all AI tools: beads_rust, Claude Code, Codex, Cursor, Antigravity.

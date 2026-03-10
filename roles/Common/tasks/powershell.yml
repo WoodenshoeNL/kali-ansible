@@ -11,6 +11,7 @@
   tags:
     - powershell
     - common
+    - core
 
 - name: powershell - Ensure prerequisite packages
   ansible.builtin.apt:
@@ -26,6 +27,7 @@
   tags:
     - powershell
     - common
+    - core
 
 - name: powershell - Download Microsoft signing key
   ansible.builtin.get_url:
@@ -37,6 +39,7 @@
   tags:
     - powershell
     - common
+    - core
 
 - name: powershell - Install Microsoft signing key
   ansible.builtin.shell: |
@@ -45,6 +48,7 @@
   tags:
     - powershell
     - common
+    - core
 
 - name: powershell - Add Microsoft PowerShell repository
   ansible.builtin.apt_repository:
@@ -57,6 +61,7 @@
   tags:
     - powershell
     - common
+    - core
 
 - name: powershell - install PowerShell 7
   ansible.builtin.apt:
@@ -69,3 +74,4 @@
   tags:
     - powershell
     - common
+    - core

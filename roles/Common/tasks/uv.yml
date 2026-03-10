@@ -12,6 +12,7 @@
   tags:
     - uv
     - common
+    - core
 
 - name: uv - Download standalone installer
   ansible.builtin.get_url:
@@ -21,6 +22,7 @@
   tags:
     - uv
     - common
+    - core
 
 - name: uv - Install uv via standalone installer (runs as {{ login_user }})
   ansible.builtin.shell: /tmp/uv-install.sh
@@ -32,6 +34,7 @@
   tags:
     - uv
     - common
+    - core
 
 - name: uv - Remove installer script
   ansible.builtin.file:
@@ -40,3 +43,4 @@
   tags:
     - uv
     - common
+    - core

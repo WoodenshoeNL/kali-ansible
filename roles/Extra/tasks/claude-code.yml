@@ -6,6 +6,7 @@
   become_user: "{{ login_user }}"
   tags:
     - claude_code
+    - AI
 
 - name: Claude Code - Create directories
   ansible.builtin.file:
@@ -21,6 +22,7 @@
   when: claude_code_check.rc != 0
   tags:
     - claude_code
+    - AI
 
 - name: Claude Code - Get latest stable version
   ansible.builtin.uri:
@@ -30,6 +32,7 @@
   when: claude_code_check.rc != 0
   tags:
     - claude_code
+    - AI
 
 - name: Claude Code - Download binary
   ansible.builtin.get_url:
@@ -41,6 +44,7 @@
   when: claude_code_check.rc != 0
   tags:
     - claude_code
+    - AI
 
 - name: Claude Code - Create symlink
   ansible.builtin.file:
@@ -52,6 +56,7 @@
   when: claude_code_check.rc != 0
   tags:
     - claude_code
+    - AI
 
 - name: Claude Code - Ensure PATH includes ~/.local/bin in .bashrc
   ansible.builtin.lineinfile:
@@ -62,3 +67,4 @@
   become_user: "{{ login_user }}"
   tags:
     - claude_code
+    - AI

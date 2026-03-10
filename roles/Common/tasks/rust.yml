@@ -12,6 +12,7 @@
   tags:
     - rust
     - common
+    - core
 
 - name: Rust - Download rustup-init.sh
   get_url:
@@ -24,6 +25,7 @@
   tags:
     - rust
     - common
+    - core
 
 - name: Rust - Install rust
   shell: /tmp/rustup-init.sh -y
@@ -35,6 +37,7 @@
   tags:
     - rust
     - common
+    - core
 
 - name: Rust - Remove rustup-init.sh
   file:
@@ -46,6 +49,7 @@
   tags:
     - rust
     - common
+    - core
 
 - name: Rust - Verify installation
   shell: |
@@ -60,6 +64,7 @@
   tags:
     - rust
     - common
+    - core
 
 - name: Rust - Display version
   debug:
@@ -67,3 +72,4 @@
   tags:
     - rust
     - common
+    - core
