@@ -1,9 +1,11 @@
 
 - name: Run Mullvad VPN setup
   import_tasks: mullvad.yml
+  when: install_mullvad | default(false) | bool
 
 - name: Run n8n setup
   import_tasks: n8n.yml
+  when: install_n8n | default(false) | bool
 
 - name: Run Cursor setup
   import_tasks: cursor.yml
@@ -19,15 +21,18 @@
 
 - name: Run Tor Browser setup
   import_tasks: tor-browser.yml
+  when: install_torbrowser | default(false) | bool
 
 - name: Run Terraform setup
   import_tasks: terraform.yml
+  when: install_terraform | default(false) | bool
 
 - name: Run Metasploit setup (Ubuntu)
   import_tasks: metasploit.yml
 
 - name: Run Beads setup
   import_tasks: beads.yml
+  when: install_beads | default(false) | bool
 
 - name: Run Beads Rust setup
   import_tasks: beads_rust.yml

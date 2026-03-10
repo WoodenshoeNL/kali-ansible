@@ -16,7 +16,6 @@
     n8n_basic_auth_active: "{{ n8n_basic_auth_active | default(false) }}"
     n8n_basic_auth_user: "{{ n8n_basic_auth_user | default('admin') }}"
     n8n_basic_auth_password: "{{ n8n_basic_auth_password | default('changeme') }}"
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -30,7 +29,6 @@
       - build-essential
     state: present
     update_cache: yes
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -38,7 +36,6 @@
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/nodesource.list
   register: nodesource_repo
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -47,9 +44,7 @@
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
   args:
     creates: /usr/share/keyrings/nodesource.gpg
-  when: >
-    vmware_env == "n8n"
-    and not nodesource_repo.stat.exists
+  when: not nodesource_repo.stat.exists
   tags:
     - n8n
 
@@ -58,9 +53,7 @@
     repo: "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main"
     filename: nodesource
     state: present
-  when: >
-    vmware_env == "n8n"
-    and not nodesource_repo.stat.exists
+  when: not nodesource_repo.stat.exists
   tags:
     - n8n
 
@@ -69,7 +62,6 @@
     name: nodejs
     state: present
     update_cache: yes
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -81,7 +73,6 @@
     name: n8n
     global: yes
     state: present
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -95,7 +86,6 @@
     system: no
     create_home: yes
     home: /home/n8n
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -106,7 +96,6 @@
     owner: n8n
     group: n8n
     mode: '0755'
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -117,7 +106,6 @@
   ansible.builtin.stat:
     path: /home/n8n/.n8n/.env
   register: n8n_env_file
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -126,9 +114,7 @@
   register: existing_key
   changed_when: false
   failed_when: false
-  when: >
-    vmware_env == "n8n"
-    and n8n_env_file.stat.exists
+  when: n8n_env_file.stat.exists
   tags:
     - n8n
 
@@ -137,8 +123,7 @@
   register: n8n_generated_key
   changed_when: false
   when: >
-    vmware_env == "n8n"
-    and n8n_encryption_key is not defined
+    n8n_encryption_key is not defined
     and (not n8n_env_file.stat.exists or existing_key.stdout == '')
   tags:
     - n8n
@@ -146,7 +131,6 @@
 - name: n8n - Set encryption key fact
   ansible.builtin.set_fact:
     n8n_encryption_key_final: "{{ n8n_encryption_key | default(existing_key.stdout if (n8n_env_file.stat.exists and existing_key.stdout != '') else n8n_generated_key.stdout) }}"
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -186,7 +170,6 @@
       N8N_BASIC_AUTH_PASSWORD={{ n8n_basic_auth_password }}
       {% endif %}
   register: n8n_env_changed
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -223,7 +206,6 @@
       [Install]
       WantedBy=multi-user.target
   register: n8n_service_changed
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -233,9 +215,7 @@
 - name: n8n - Reload systemd daemon
   ansible.builtin.systemd:
     daemon_reload: yes
-  when: >
-    vmware_env == "n8n"
-    and n8n_service_changed.changed
+  when: n8n_service_changed.changed
   tags:
     - n8n
 
@@ -244,7 +224,6 @@
     name: n8n
     enabled: yes
     state: started
-  when: vmware_env == "n8n"
   tags:
     - n8n
 
@@ -252,9 +231,7 @@
   ansible.builtin.systemd:
     name: n8n
     state: restarted
-  when: >
-    vmware_env == "n8n"
-    and n8n_env_changed.changed or n8n_service_changed.changed
+  when: n8n_env_changed.changed or n8n_service_changed.changed
   tags:
     - n8n
 
@@ -266,9 +243,7 @@
     rule: allow
     port: "{{ n8n_port }}"
     proto: tcp
-  when: >
-    vmware_env == "n8n"
-    and n8n_configure_ufw | bool
+  when: n8n_configure_ufw | bool
   tags:
     - n8n
 
@@ -281,6 +256,5 @@
       - "n8n installed successfully!"
       - "Access URL: http://{{ ansible_default_ipv4.address }}:{{ n8n_port }}"
       - "Encryption key stored in: /home/n8n/.n8n/.env"
-  when: vmware_env == "n8n"
   tags:
     - n8n

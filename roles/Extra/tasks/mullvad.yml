@@ -6,7 +6,6 @@
       - gnupg
     state: present
     update_cache: yes
-  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
@@ -16,7 +15,6 @@
     url: https://repository.mullvad.net/deb/mullvad-keyring.asc
     dest: /tmp/mullvad-keyring.asc
     mode: '0644'
-  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
@@ -27,7 +25,6 @@
   args:
     executable: /bin/bash
     creates: /usr/share/keyrings/mullvad-keyring.gpg
-  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
@@ -37,7 +34,6 @@
     repo: "deb [signed-by=/usr/share/keyrings/mullvad-keyring.gpg] https://repository.mullvad.net/deb/stable {{ ansible_distribution_release }} main"
     filename: mullvad
     state: present
-  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
@@ -47,7 +43,6 @@
     name: mullvad-vpn
     state: present
     update_cache: yes
-  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn
@@ -56,7 +51,6 @@
   ansible.builtin.file:
     path: /tmp/mullvad-keyring.asc
     state: absent
-  when: vmware_env == "vpn"
   tags:
     - mullvad
     - vpn

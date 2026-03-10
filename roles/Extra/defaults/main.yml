@@ -1,0 +1,12 @@
+---
+# Beads (original Python/Dolt version) - only install when explicitly requested.
+# Default is beads_rust (br), which is always installed.
+# Set install_beads: true to install beads + Dolt + beads-mcp.
+# See roles/Extra/README.md for details.
+install_beads: false
+
+# Optional Extra tools - only install when explicitly requested.
+install_n8n: false
+install_mullvad: false
+install_torbrowser: false
+install_terraform: false
