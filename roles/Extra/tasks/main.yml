@@ -30,9 +30,10 @@
 - name: Run Metasploit setup (Ubuntu)
   import_tasks: metasploit.yml
 
-- name: Run Beads setup
+- name: Run Beads (original) setup
   import_tasks: beads.yml
-  when: install_beads | default(false) | bool
+  when: install_beads_original | default(false) | bool
 
 - name: Run Beads Rust setup
   import_tasks: beads_rust.yml
+  when: install_beads_rust | default(true) | bool

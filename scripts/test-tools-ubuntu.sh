@@ -164,7 +164,7 @@ echo ""
 
 # --- Extra (optional, may not be installed) ---
 echo "--- Extra (optional) ---"
-test_cmd "bd (beads)" "bd --version 2>/dev/null || which bd"
+#test_cmd "bd (beads original - optional)" "bd --version 2>/dev/null || which bd"
 test_cmd "antigravity" "antigravity --version 2>/dev/null || which antigravity"
 #test_cmd "terraform" "terraform version"
 #test_cmd "msfconsole" "test -f /opt/metasploit-framework/bin/msfconsole"

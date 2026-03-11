@@ -10,19 +10,19 @@
     state: present
     update_cache: true
   tags:
-    - beads
+    - beads_original
 
 - name: Dolt - Install or update via official install script
   ansible.builtin.shell: |
     curl -L https://github.com/dolthub/dolt/releases/latest/download/install.sh | bash
   tags:
-    - beads
+    - beads_original
 
 - name: Beads - Install or update via official install script
   ansible.builtin.shell: |
     curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
   tags:
-    - beads
+    - beads_original
 
 - name: Install beads-mcp for Cursor via uv
   ansible.builtin.command:
@@ -37,4 +37,4 @@
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
   tags:
-    - beads
+    - beads_original

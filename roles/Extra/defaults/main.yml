@@ -1,9 +1,11 @@
 ---
+# Beads Rust (br) - Fast Rust port (default).
+install_beads_rust: true
+
 # Beads (original Python/Dolt version) - only install when explicitly requested.
-# Default is beads_rust (br), which is always installed.
-# Set install_beads: true to install beads + Dolt + beads-mcp.
+# Set install_beads_original: true to install beads + Dolt + beads-mcp.
 # See roles/Extra/README.md for details.
-install_beads: false
+install_beads_original: false
 
 # Optional Extra tools - only install when explicitly requested.
 install_n8n: false

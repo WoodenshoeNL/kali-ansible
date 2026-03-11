@@ -6,7 +6,8 @@ Optional tools and environment-specific setups. Most tasks run only when `instal
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `install_beads` | `false` | Install original beads (Python + Dolt + beads-mcp). When `false`, only **beads_rust** (br) is installed. |
+| `install_beads_rust` | `true` | Install Beads Rust (br). Default beads implementation. |
+| `install_beads_original` | `false` | Install original beads (Python + Dolt + beads-mcp). |
 | `install_n8n` | `false` | Install n8n workflow automation. |
 | `install_mullvad` | `false` | Install Mullvad VPN. |
 | `install_torbrowser` | `false` | Install Tor Browser. |
@@ -21,13 +22,14 @@ These run only when explicitly requested:
 
 | Variable | Tasks |
 |----------|-------|
-| `install_beads` | beads (original): Dolt, beads, beads-mcp |
+| `install_beads_original` | beads (original): Dolt, beads, beads-mcp |
+| `install_beads_rust` | beads (rust): beads_rust (br) |
 | `install_n8n` | n8n workflow automation |
 | `install_mullvad` | Mullvad VPN |
 | `install_torbrowser` | Tor Browser |
 | `install_terraform` | Terraform |
 
-**beads_rust** (br) is the default beads implementation and always runs.
+**beads_rust** (br) is the default beads implementation and runs by default (`install_beads_rust=true`).
 
 **Claude Code** and **Codex** install on every system by default.
 
@@ -35,7 +37,7 @@ These run only when explicitly requested:
 
 Example:
 ```bash
-ansible-playbook playbook.yml -e "vmware_env=ubuntu login_user=michel login_home=/home/michel install_beads=true install_n8n=true install_mullvad=true"
+ansible-playbook playbook.yml -e "vmware_env=ubuntu login_user=michel login_home=/home/michel install_beads_original=true install_n8n=true"
 ```
 
 ### vmware_env (still used for)
@@ -52,7 +54,7 @@ ansible-playbook playbook.yml -e "vmware_env=ubuntu login_user=michel login_home
 
 These run on every system (unless skipped via `--tags`):
 
-- **beads_rust** (br)
+- **beads_rust** (br) (controlled by `install_beads_rust`)
 - **Claude Code**
 - **Codex**
 
@@ -60,6 +62,8 @@ These run on every system (unless skipped via `--tags`):
 
 ## Tags
 
-Use `--tags` to run specific tools, e.g. `--tags beads_rust`, `--tags beads`, `--tags cursor`, `--tags mullvad`.
+Use `--tags` to run specific tools, e.g. `--tags beads_rust`, `--tags beads`, `--tags cursor`, `--tags mullvad`. 
+
+Note: `--tags beads` now targets the **Rust** version (recommended). Use `--tags beads_original` for the Python version.
 
 **`--tags AI`** — Install all AI tools: beads_rust, Claude Code, Codex, Cursor, Antigravity.

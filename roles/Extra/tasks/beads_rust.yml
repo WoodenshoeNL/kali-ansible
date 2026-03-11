@@ -10,6 +10,7 @@
     update_cache: true
   tags:
     - beads_rust
+    - beads
     - br
     - AI
 
@@ -18,5 +19,6 @@
     curl -fsSL "https://raw.githubusercontent.com/Dicklesworthstone/beads_rust/main/install.sh?$(date +%s)" | bash -s -- --system --skip-skills
   tags:
     - beads_rust
+    - beads
     - br
     - AI
