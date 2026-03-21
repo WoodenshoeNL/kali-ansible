@@ -1,3 +1,6 @@
+# Uses official install script: https://code.claude.com/docs/en/quickstart
+# Native install gets automatic background updates from Anthropic.
+
 - name: Claude Code - Check if Claude Code is installed
   ansible.builtin.shell: command -v claude
   register: claude_code_check
@@ -8,51 +11,15 @@
     - claude_code
     - AI
 
-- name: Claude Code - Create directories
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: "{{ login_user }}"
-    group: "{{ login_user }}"
-    mode: '0755'
-  loop:
-    - "{{ login_home }}/.local/bin"
-    - "{{ login_home }}/.local/share/claude"
-    - "{{ login_home }}/.claude"
-  when: claude_code_check.rc != 0
-  tags:
-    - claude_code
-    - AI
-
-- name: Claude Code - Get latest stable version
-  ansible.builtin.uri:
-    url: "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/stable"
-    return_content: yes
-  register: claude_version
-  when: claude_code_check.rc != 0
-  tags:
-    - claude_code
-    - AI
-
-- name: Claude Code - Download binary
-  ansible.builtin.get_url:
-    url: "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/{{ claude_version.content }}/linux-x64/claude"
-    dest: "{{ login_home }}/.local/share/claude/claude"
-    mode: '0755'
-    owner: "{{ login_user }}"
-    group: "{{ login_user }}"
-  when: claude_code_check.rc != 0
-  tags:
-    - claude_code
-    - AI
-
-- name: Claude Code - Create symlink
-  ansible.builtin.file:
-    src: "{{ login_home }}/.local/share/claude/claude"
-    dest: "{{ login_home }}/.local/bin/claude"
-    state: link
-    owner: "{{ login_user }}"
-    group: "{{ login_user }}"
+- name: Claude Code - Install via official script (Linux/macOS/WSL)
+  ansible.builtin.shell: |
+    curl -fsSL https://claude.ai/install.sh | bash
+  args:
+    creates: "{{ login_home }}/.local/bin/claude"
+  environment:
+    HOME: "{{ login_home }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('/usr/local/bin:/usr/bin:/bin') }}"
+  become_user: "{{ login_user }}"
   when: claude_code_check.rc != 0
   tags:
     - claude_code

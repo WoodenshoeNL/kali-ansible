@@ -92,3 +92,15 @@
     - tmux
     - common
     - core
+
+- name: Tmux - Add persistent tt alias
+  ansible.builtin.lineinfile:
+    path: "{{ login_home }}/.bashrc"
+    regexp: '^alias tt='
+    line: "alias tt='tmux new-session -s main || tmux attach -t main'"
+    state: present
+  become_user: "{{ login_user }}"
+  tags:
+    - tmux
+    - common
+    - core
