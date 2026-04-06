@@ -73,6 +73,7 @@ These tools run only when explicitly requested. Add the variable to your `-e` fl
 | Mullvad VPN | `install_mullvad=true` | `-e "install_mullvad=true"` |
 | Tor Browser | `install_torbrowser=true` | `-e "install_torbrowser=true"` |
 | Terraform | `install_terraform=true` | `-e "install_terraform=true"` |
+| 1Password | `install_1password=true` | `-e "install_1password=true"` |
 
 Example (Ubuntu with beads, n8n, and Mullvad):
 ```
@@ -93,6 +94,7 @@ sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu 
 | `install_mullvad` | No | `false` | Install Mullvad VPN. |
 | `install_torbrowser` | No | `false` | Install Tor Browser. |
 | `install_terraform` | No | `false` | Install Terraform. |
+| `install_1password` | No | `false` | Install 1Password desktop app. |
 
 ### vmware_env values (Extra role)
 

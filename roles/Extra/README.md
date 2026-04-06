@@ -12,6 +12,7 @@ Optional tools and environment-specific setups. Most tasks run only when `instal
 | `install_mullvad` | `false` | Install Mullvad VPN. |
 | `install_torbrowser` | `false` | Install Tor Browser. |
 | `install_terraform` | `false` | Install Terraform. |
+| `install_1password` | `false` | Install 1Password desktop app. |
 | `vmware_env` | — | Environment profile. Claude Code and Codex install on every system. Cursor and Antigravity install on all except `esx` (remote Kali). Metasploit runs only on `ubuntu`. Tor Browser path when `install_torbrowser=true`. |
 
 ## Task conditions
@@ -28,6 +29,7 @@ These run only when explicitly requested:
 | `install_mullvad` | Mullvad VPN |
 | `install_torbrowser` | Tor Browser |
 | `install_terraform` | Terraform |
+| `install_1password` | 1Password desktop app |
 
 **beads_rust** (br) is the default beads implementation and runs by default (`install_beads_rust=true`).
 

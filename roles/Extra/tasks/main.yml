@@ -27,6 +27,10 @@
   import_tasks: terraform.yml
   when: install_terraform | default(false) | bool
 
+- name: Run 1Password setup
+  import_tasks: "1password.yml"
+  when: install_1password | default(false) | bool
+
 - name: Run Metasploit setup (Ubuntu)
   import_tasks: metasploit.yml
 

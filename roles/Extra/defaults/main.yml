@@ -12,3 +12,4 @@ install_n8n: false
 install_mullvad: false
 install_torbrowser: false
 install_terraform: false
+install_1password: false
