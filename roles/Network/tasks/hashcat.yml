@@ -25,27 +25,10 @@
     - hashcat
     - network
 
-- name: hashcat - Compare version with 7.1.2 using dpkg
-  ansible.builtin.shell: |
-    if [ -z "{{ hashcat_current_version | default('0.0.0') }}" ] || [ "{{ hashcat_current_version | default('0.0.0') }}" = "0.0.0" ]; then
-      echo "needs_update"
-    elif dpkg --compare-versions "{{ hashcat_current_version | default('0.0.0') }}" lt "7.1.2"; then
-      echo "needs_update"
-    else
-      echo "ok"
-    fi
-  register: hashcat_version_comparison
-  changed_when: false
-  failed_when: false
-  when: hashcat_version_check is defined
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Set needs update based on comparison
+- name: hashcat - Compare version with 7.1.2 (Jinja version test, no shell)
   ansible.builtin.set_fact:
-    hashcat_needs_update: "{{ hashcat_version_comparison.stdout == 'needs_update' }}"
-  when: hashcat_version_comparison is defined
+    hashcat_needs_update: "{{ (hashcat_current_version | default('0.0.0')) is version('7.1.2', '<') }}"
+  when: hashcat_version_check is defined
   tags:
     - hashcat
     - network
@@ -92,29 +75,12 @@
     - hashcat
     - network
 
-- name: hashcat - Compare version after apt install with 7.1.2
-  ansible.builtin.shell: |
-    if dpkg --compare-versions "{{ hashcat_version_after_apt_parsed | default('0.0.0') }}" lt "7.1.2"; then
-      echo "needs_update"
-    else
-      echo "ok"
-    fi
-  register: hashcat_version_after_apt_comparison
-  changed_when: false
-  failed_when: false
+- name: hashcat - Compare version after apt install with 7.1.2 (Jinja version test)
+  ansible.builtin.set_fact:
+    hashcat_still_needs_update: "{{ (hashcat_version_after_apt_parsed | default('0.0.0')) is version('7.1.2', '<') }}"
   when: 
     - hashcat_needs_update | default(true)
     - hashcat_version_after_apt_parsed is defined
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Update still needs update flag based on comparison
-  ansible.builtin.set_fact:
-    hashcat_still_needs_update: "{{ hashcat_version_after_apt_comparison.stdout | default('ok') == 'needs_update' }}"
-  when: 
-    - hashcat_needs_update | default(true)
-    - hashcat_version_after_apt_comparison is defined
   tags:
     - hashcat
     - network

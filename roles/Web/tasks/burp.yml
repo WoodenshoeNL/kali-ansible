@@ -1,6 +1,9 @@
+# Pinned to 2026.1: since ~2026.3 PortSwigger gates Community downloads
+# behind a reCAPTCHA on /burp/communitydownload, so newer versions cannot be
+# fetched by URL. To go newer, download manually and bump this pin.
 - name: burpsuite - Download installer
   get_url:
-    url: https://portswigger-cdn.net/burp/releases/download?product=community&version=2024.11.1&type=Linux
+    url: https://portswigger-cdn.net/burp/releases/download?product=community&version=2026.1&type=Linux
     dest: /tmp/burpsuite_installer.sh
     mode: '0755'
   when: vmware_env == "ubuntu"

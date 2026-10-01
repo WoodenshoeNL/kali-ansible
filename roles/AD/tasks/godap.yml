@@ -1,12 +1,30 @@
-
-- name: godap - install latest release with go install (idempotent)
-  ansible.builtin.command: >
+- name: godap - install latest release with go install (idempotent, as login_user)
+  become: yes
+  become_user: "{{ login_user }}"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    mkdir -p "$TMPDIR"
     go install github.com/Macmod/godap@latest
   args:
-    creates: /usr/local/bin/godap     # skips rebuild if binary exists
+    executable: /bin/bash
+    creates: "{{ login_home }}/go/bin/godap"
   environment:
-    GOBIN: /usr/local/bin            # install straight to system PATH
-    GO111MODULE: "on"
+    GOPATH: "{{ login_home }}/go"
+    PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
+    TMPDIR: "{{ login_home }}/.cache/go-tmp"
+  tags:
+    - godap
+    - AD
+
+- name: godap - copy binary to /usr/local/bin
+  become: true
+  ansible.builtin.copy:
+    src: "{{ login_home }}/go/bin/godap"
+    dest: /usr/local/bin/godap
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: true
   tags:
     - godap
     - AD

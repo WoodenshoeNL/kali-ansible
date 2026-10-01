@@ -45,10 +45,22 @@
     - sn0int
     - OSINT
 
-- name: sn0int - remove ALL stale vulns repo configs (Ubuntu)
-  shell: rm -f /etc/apt/sources.list.d/*vulns*
+- name: sn0int - find stale vulns repo configs (Ubuntu)
+  ansible.builtin.find:
+    paths: /etc/apt/sources.list.d
+    patterns: "*vulns*"
+  register: sn0int_stale_repos
   when: vmware_env == "ubuntu"
-  changed_when: false
+  tags:
+    - sn0int
+    - OSINT
+
+- name: sn0int - remove stale vulns repo configs (Ubuntu)
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ sn0int_stale_repos.files | default([]) }}"
+  when: vmware_env == "ubuntu"
   tags:
     - sn0int
     - OSINT

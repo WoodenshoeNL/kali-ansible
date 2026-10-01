@@ -1,4 +1,3 @@
-
 - name: windapsearch - Ensure installation directory exists
   file:
     path: "/opt/windapsearch"
@@ -10,39 +9,23 @@
     - windapsearch
     - AD
 
-- name: windapsearch - Download Windapsearch binary (if missing or outdated)
+- name: windapsearch - Get latest release version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/ropnop/go-windapsearch/releases/latest
+    return_content: yes
+    follow_redirects: all
+  register: windapsearch_release
+  tags:
+    - windapsearch
+    - AD
+
+- name: windapsearch - Download latest Windapsearch binary
   get_url:
-    url: "https://github.com/ropnop/go-windapsearch/releases/download/v0.3.0/windapsearch-linux-amd64"
+    url: "https://github.com/ropnop/go-windapsearch/releases/download/{{ windapsearch_release.json.tag_name }}/windapsearch-linux-amd64"
     dest: "/opt/windapsearch/windapsearch"
     mode: "0755"
-    force: no         # skip download when the file already exists and size/hash match
+    force: true       # always refresh to latest
   register: windap_dl
-  tags:
-    - windapsearch
-    - AD
-
-- name: windapsearch - Create/update symlink in /usr/local/bin
-  file:
-    src:  "/opt/windapsearch/windapsearch"
-    dest: "/usr/local/bin/windapsearch"
-    state: link
-    owner: root
-    group: root
-    force: yes        # replaces an old link pointing elsewhere if needed
-  tags:
-    - windapsearch
-    - AD
-
-- name: windapsearch - Verify installation
-  command: windapsearch --version
-  register: windapsearch_version
-  changed_when: false
-  tags: [debug]
-
-- name: windapsearch - Show installed version
-  debug:
-    msg: "{{ windapsearch_version.stdout }}"
-  when: windapsearch_version.stdout is defined
   tags:
     - windapsearch
     - AD

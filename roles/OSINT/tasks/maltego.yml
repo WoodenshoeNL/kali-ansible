@@ -9,9 +9,29 @@
     - maltego
     - osint
 
-- name: Download Maltego CE for Ubuntu
+# Latest v4 .deb resolved from the downloads directory listing at runtime,
+# so the version pin doesn't go stale (v4.7.0 was the previous hard pin).
+- name: Maltego - Find latest v4 .deb filename (Ubuntu)
+  ansible.builtin.uri:
+    url: https://downloads.maltego.com/maltego-v4/linux/
+    return_content: yes
+  register: maltego_listing
+  when: vmware_env == "ubuntu"
+  tags:
+    - maltego
+    - osint
+
+- name: Maltego - Set latest .deb URL fact (Ubuntu)
+  ansible.builtin.set_fact:
+    maltego_deb_url: "https://downloads.maltego.com/maltego-v4/linux/{{ (maltego_listing.content | regex_findall('Maltego[.]v4[.][0-9.]+[.]deb') | unique | version_sort | last) }}"
+  when: vmware_env == "ubuntu"
+  tags:
+    - maltego
+    - osint
+
+- name: Download Maltego CE for Ubuntu (latest)
   ansible.builtin.get_url:
-    url: "https://downloads.maltego.com/maltego-v4/linux/Maltego.v4.7.0.deb"
+    url: "{{ maltego_deb_url }}"
     dest: "/tmp/maltego.deb"
     mode: '0644'
   when: vmware_env == "ubuntu"

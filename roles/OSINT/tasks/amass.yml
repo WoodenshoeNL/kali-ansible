@@ -18,7 +18,7 @@
   ansible.builtin.shell: |
     set -euo pipefail
     mkdir -p "$TMPDIR"
-    go install github.com/owasp-amass/amass/v4/...@master
+    go install github.com/owasp-amass/amass/v4/cmd/amass@latest
   args:
     executable: /bin/bash
     creates: "{{ login_home }}/go/bin/amass"
