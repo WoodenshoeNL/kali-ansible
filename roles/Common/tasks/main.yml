@@ -93,7 +93,7 @@
     name:
       - zsh
       - docker.io
-      - docker-compose
+      - docker-compose-v2
       - python3
       - python3-lxml
       - git
@@ -101,7 +101,6 @@
       - jq
       - moreutils
       - rlwrap
-      - git
       - build-essential
       - "{{ 'freerdp2-x11' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'jammy') else 'freerdp3-x11' }}"
       - unzip
@@ -117,14 +116,14 @@
     - core
     - common
 
+- name: Run docker group membership setup
+  import_tasks: docker-group.yml
+
 - name: Run tmux setup
   import_tasks: tmux.yml
 
 - name: Run firefox quiet script
   import_tasks: firefox.yml
-
-- name: Run disable screenlock script
-  import_tasks: disable_screen_lock.yml
 
 - name: Create stockpile
   import_tasks: stockpile.yml

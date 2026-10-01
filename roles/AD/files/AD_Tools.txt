@@ -19,7 +19,7 @@ SCCMHunter
 
 BloodHound CE
 -------------
-  Usage: docker-compose up -d (in ~/bloodhoundCE)
+  Usage: docker compose up -d (in ~/bloodhoundCE)
   Description: Attack path mapping tool for Active Directory environments.
   OPSEC: SAFE - Analysis tool, processes collected data offline.
   GitHub: https://github.com/SpecterOps/BloodHound

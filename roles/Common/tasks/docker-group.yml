@@ -1,0 +1,13 @@
+# Allow {{ login_user }} to run docker without sudo.
+# Deliberate choice: recorded because it grants root-equivalent access via the
+# docker socket. Remove this task if that trade-off is unacceptable.
+
+- name: Docker - Ensure {{ login_user }} is in the docker group
+  ansible.builtin.user:
+    name: "{{ login_user }}"
+    groups: docker
+    append: true
+  tags:
+    - docker
+    - common
+    - core

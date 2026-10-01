@@ -28,7 +28,7 @@
   get_url:
     url: "https://raw.githubusercontent.com/r3motecontrol/Ghostpack-CompiledBinaries/master/dotnet%20v4.8.1%20compiled%20binaries/Rubeus.exe"
     dest: "/stockpile/Rubeus/Rubeus.exe"
-    mode: "0755"              # makes it executable on *nix
+    mode: "0644"
     force: true               # overwrite if changed upstream
     use_proxy: false          # flip to true if you need a proxy
     validate_certs: true      # set false only if your CA chain blocks TLS
@@ -270,7 +270,7 @@
 
 - name: WinPEAS – download WinPEAS - winPEASx64.exe
   get_url:
-    url: https://github.com/peass-ng/PEASS-ng/releases/download/20250701-bdcab634/winPEASx64.exe
+    url: https://github.com/peass-ng/PEASS-ng/releases/latest/download/winPEASx64.exe
     dest: /stockpile/WinPEAS/winPEASx64.exe
     mode: '0644'
     force: yes          # re‑download if the upstream file changes
@@ -280,7 +280,7 @@
 
 - name: WinPEAS – download WinPEAS - winPEASx86.exe
   get_url:
-    url: https://github.com/peass-ng/PEASS-ng/releases/download/20250701-bdcab634/winPEASx86.exe
+    url: https://github.com/peass-ng/PEASS-ng/releases/latest/download/winPEASx86.exe
     dest: /stockpile/WinPEAS/winPEASx86.exe
     mode: '0644'
     force: yes
@@ -290,7 +290,7 @@
 
 - name: WinPEAS – download WinPEAS - winPEAS.bat
   get_url:
-    url: https://github.com/peass-ng/PEASS-ng/releases/download/20250701-bdcab634/winPEAS.bat
+    url: https://github.com/peass-ng/PEASS-ng/releases/latest/download/winPEAS.bat
     dest: /stockpile/WinPEAS/winPEAS.bat
     mode: '0644'
     force: yes

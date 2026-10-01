@@ -36,7 +36,7 @@ To print all verification commands without running:
 | impacket (secretsdump.py) | `secretsdump.py --help` or `impacket-secretsdump --help` |
 | zsh | `zsh --version` |
 | docker | `docker --version` |
-| docker-compose | `docker-compose --version` |
+| docker-compose | `docker compose version` |
 | go | `go version` |
 | jq | `jq --version` |
 | git | `git --version` |

@@ -33,7 +33,7 @@
 - name: ADCollector - Copy the EXE to a clean output folder
   ansible.builtin.copy:
     remote_src: yes
-    src: "/stockpile/ADCollector/ADCollector3/bin/Release//stockpile/ADCollector"
+    src: "/stockpile/ADCollector/ADCollector3/bin/Release/ADCollector.exe"
     dest: "/stockpile/ADCollector/"
   tags:
     - stockpile

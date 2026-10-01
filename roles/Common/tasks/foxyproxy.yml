@@ -6,7 +6,7 @@
   when: vmware_env in ['workstation', 'laptop']
   tags:
     - foxyproxy
-    - web
+    - common
 
 - name: foxyproxy - Ensure Firefox extensions directory exists (Ubuntu)
   file:
@@ -16,24 +16,38 @@
   when: vmware_env == "ubuntu"
   tags:
     - foxyproxy
-    - web
+    - common
+
+- name: foxyproxy - Resolve latest FoxyProxy Standard XPI via AMO API
+  ansible.builtin.uri:
+    url: https://addons.mozilla.org/api/v5/addons/addon/foxyproxy-standard/
+    return_content: true
+    headers:
+      Accept: application/json
+      User-Agent: kali-ansible
+  register: foxyproxy_amo
+  tags:
+    - foxyproxy
+    - common
 
 - name: foxyproxy - Download and install extension (Kali)
   get_url:
-    url: https://addons.mozilla.org/firefox/downloads/file/4472757/foxyproxy_standard-9.2.xpi
+    url: "{{ foxyproxy_amo.json.current_version.file.url }}"
     dest: /usr/lib/firefox-esr/distribution/extensions/foxyproxy@eric.h.jung.xpi
     mode: '0644'
+    force: true
   when: vmware_env in ['workstation', 'laptop']
   tags:
     - foxyproxy
-    - web
+    - common
 
 - name: foxyproxy - Download and install extension (Ubuntu)
   get_url:
-    url: https://addons.mozilla.org/firefox/downloads/file/4472757/foxyproxy_standard-9.2.xpi
+    url: "{{ foxyproxy_amo.json.current_version.file.url }}"
     dest: /usr/lib/firefox/distribution/extensions/foxyproxy@eric.h.jung.xpi
     mode: '0644'
+    force: true
   when: vmware_env == "ubuntu"
   tags:
     - foxyproxy
-    - web
+    - common

@@ -67,7 +67,7 @@ test_cmd "getTGT.py (impacket)" "getTGT.py --help 2>/dev/null || impacket-GetTGT
 test_cmd "secretsdump.py (impacket)" "secretsdump.py --help 2>/dev/null || impacket-secretsdump --help"
 test_cmd "zsh" "zsh --version"
 test_cmd "docker" "docker --version"
-test_cmd "docker-compose" "docker-compose --version"
+test_cmd "docker-compose" "docker compose version"
 test_cmd "go" "go version"
 test_cmd "jq" "jq --version"
 test_cmd "git" "git --version"
