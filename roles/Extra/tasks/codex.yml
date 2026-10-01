@@ -1,7 +1,7 @@
 ---
 # roles/Extra/tasks/codex.yml
 # OpenAI Codex CLI - AI coding assistant in the terminal
-# Installed on every system by default. Requires login_user and login_home.
+# Opt-in: set install_codex=true. Requires login_user and login_home.
 # Requires: Node.js v18+ (installed via NodeSource)
 
 # ------------------------------------------------------------------------------

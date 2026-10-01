@@ -13,3 +13,9 @@ install_mullvad: false
 install_torbrowser: false
 install_terraform: false
 install_1password: false
+
+# AI tools - opt-in (they change too much to install by default).
+install_claude_code: false
+install_codex: false
+install_cursor: false
+install_antigravity: false

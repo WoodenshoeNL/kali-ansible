@@ -46,9 +46,9 @@ Install with specific tag:
 sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=workstation login_user=kali login_home=/home/kali" --tags core
 ```
 
-Install AI tools only (beads_rust, Claude Code, Codex, Cursor, Antigravity):
+Install AI tools only (beads_rust, Claude Code, Codex, Cursor, Antigravity) — AI CLIs are opt-in since they change too much to install by default, so pass the flags:
 ```
-sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=workstation login_user=kali login_home=/home/kali" --tags AI
+sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=workstation login_user=kali login_home=/home/kali install_claude_code=true install_codex=true install_cursor=true install_antigravity=true" --tags AI
 ```
 
 ## Ubuntu
@@ -60,7 +60,7 @@ sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu 
 
 ## Codex CLI (OpenAI)
 
-Codex CLI is installed on every system by default. No special `vmware_env` needed.
+Opt-in: pass `install_codex=true`. No special `vmware_env` needed.
 
 ## Optional Extra tools (install_* variables)
 
@@ -74,6 +74,10 @@ These tools run only when explicitly requested. Add the variable to your `-e` fl
 | Tor Browser | `install_torbrowser=true` | `-e "install_torbrowser=true"` |
 | Terraform | `install_terraform=true` | `-e "install_terraform=true"` |
 | 1Password | `install_1password=true` | `-e "install_1password=true"` |
+| Claude Code | `install_claude_code=true` | `-e "install_claude_code=true"` |
+| Codex CLI | `install_codex=true` | `-e "install_codex=true"` |
+| Cursor | `install_cursor=true` | `-e "install_cursor=true"` |
+| Antigravity | `install_antigravity=true` | `-e "install_antigravity=true"` |
 
 Example (Ubuntu with beads, n8n, and Mullvad):
 ```
@@ -95,12 +99,16 @@ sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu 
 | `install_torbrowser` | No | `false` | Install Tor Browser. |
 | `install_terraform` | No | `false` | Install Terraform. |
 | `install_1password` | No | `false` | Install 1Password desktop app. |
+| `install_claude_code` | No | `false` | Install Claude Code CLI. Opt-in — AI CLIs change too much for default installs. |
+| `install_codex` | No | `false` | Install OpenAI Codex CLI (+ NodeSource Node.js). Opt-in — AI CLIs change too much for default installs. |
+| `install_cursor` | No | `false` | Install Cursor editor. Opt-in — AI CLIs change too much for default installs. |
+| `install_antigravity` | No | `false` | Install Google Antigravity. Opt-in — AI CLIs change too much for default installs. |
 
 ### vmware_env values (Extra role)
 
-**Always installed**: beads_rust, Claude Code, Codex.
+**Always installed**: beads_rust.
 
-**Cursor and Antigravity**: Installed on all except `esx` (remote Kali).
+**AI CLIs (Claude Code, Codex, Cursor, Antigravity)**: opt-in via `install_*` flags since they change too much to install by default. Cursor and Antigravity additionally skip on `esx` (remote Kali) even when opted in.
 
 | Value | Effect |
 |-------|--------|

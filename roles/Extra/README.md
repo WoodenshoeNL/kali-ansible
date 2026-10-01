@@ -13,7 +13,11 @@ Optional tools and environment-specific setups. Most tasks run only when `instal
 | `install_torbrowser` | `false` | Install Tor Browser. |
 | `install_terraform` | `false` | Install Terraform. |
 | `install_1password` | `false` | Install 1Password desktop app. |
-| `vmware_env` | — | Environment profile. Claude Code and Codex install on every system. Cursor and Antigravity install on all except `esx` (remote Kali). Metasploit runs only on `ubuntu`. Tor Browser path when `install_torbrowser=true`. |
+| `install_claude_code` | `false` | Install Claude Code CLI. |
+| `install_codex` | `false` | Install OpenAI Codex CLI (+ NodeSource Node.js). |
+| `install_cursor` | `false` | Install Cursor editor (not on `esx`). |
+| `install_antigravity` | `false` | Install Google Antigravity (not on `esx`). |
+| `vmware_env` | — | Environment profile. Metasploit runs only on `ubuntu`. Cursor/Antigravity skip on `esx` even when opted in. Tor Browser path when `install_torbrowser=true`. |
 
 ## Task conditions
 
@@ -30,12 +34,14 @@ These run only when explicitly requested:
 | `install_torbrowser` | Tor Browser |
 | `install_terraform` | Terraform |
 | `install_1password` | 1Password desktop app |
+| `install_claude_code` | Claude Code CLI |
+| `install_codex` | Codex CLI (+ Node.js) |
+| `install_cursor` | Cursor editor |
+| `install_antigravity` | Antigravity |
 
 **beads_rust** (br) is the default beads implementation and runs by default (`install_beads_rust=true`).
 
-**Claude Code** and **Codex** install on every system by default.
-
-**Cursor** and **Antigravity** install on all systems except remote Kali (`vmware_env=esx`).
+**AI CLIs (Claude Code, Codex, Cursor, Antigravity)** are opt-in since they change too much to install by default: pass `install_claude_code=true`, `install_codex=true`, `install_cursor=true`, and/or `install_antigravity=true`. Cursor and Antigravity additionally skip on `vmware_env=esx` (remote Kali).
 
 Example:
 ```bash
@@ -57,10 +63,8 @@ ansible-playbook playbook.yml -e "vmware_env=ubuntu login_user=michel login_home
 These run on every system (unless skipped via `--tags`):
 
 - **beads_rust** (br) (controlled by `install_beads_rust`)
-- **Claude Code**
-- **Codex**
 
-**Cursor** and **Antigravity** run on all except `vmware_env=esx` (remote Kali).
+AI CLIs (Claude Code, Codex, Cursor, Antigravity) no longer run by default — pass their `install_*` flags.
 
 ## Tags
 
@@ -68,4 +72,4 @@ Use `--tags` to run specific tools, e.g. `--tags beads_rust`, `--tags beads`, `-
 
 Note: `--tags beads` now targets the **Rust** version (recommended). Use `--tags beads_original` for the Python version.
 
-**`--tags AI`** — Install all AI tools: beads_rust, Claude Code, Codex, Cursor, Antigravity.
+**`--tags AI`** — Install AI tools: beads_rust plus whichever AI CLIs are opted in via `install_*` flags.

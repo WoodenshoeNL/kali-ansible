@@ -9,15 +9,19 @@
 
 - name: Run Cursor setup
   import_tasks: cursor.yml
+  when: install_cursor | default(false) | bool
 
 - name: Run Antigravity setup
   import_tasks: antigravity.yml
+  when: install_antigravity | default(false) | bool
 
 - name: Run Claude Code setup
   import_tasks: claude-code.yml
+  when: install_claude_code | default(false) | bool
 
 - name: Run Codex CLI setup
   import_tasks: codex.yml
+  when: install_codex | default(false) | bool
 
 - name: Run Tor Browser setup
   import_tasks: tor-browser.yml
