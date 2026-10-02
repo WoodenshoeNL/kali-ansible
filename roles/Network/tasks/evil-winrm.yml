@@ -27,10 +27,13 @@
       - ruby
       - ruby-dev
       - build-essential
+      # readline-ext native gem needs these headers
+      - libreadline-dev
+      - libncurses-dev
     state: present
     update_cache: yes
     cache_valid_time: 3600
-  when: 
+  when:
     - vmware_env == "ubuntu"
     - evil_winrm_check.rc != 0
   tags:
