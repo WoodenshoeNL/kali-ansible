@@ -9,15 +9,28 @@
     - azcli
     - cloud
 
+- name: Azure CLI - Check which suites the azure-cli repo publishes
+  ansible.builtin.shell: |
+    curl -fsSL "https://packages.microsoft.com/repos/azure-cli/dists/" | grep -oE 'href="\./[^"/]+/"' | cut -d/ -f2 | sort -u
+  register: azcli_suites
+  changed_when: false
+  tags:
+    - azcli
+    - cloud
+
 - name: Azure CLI - Choose the Azure CLI repo suite
+  # Kali Rolling uses Debian 12 (bookworm) packages.
+  # Ubuntu: use the native codename when the repo publishes it; otherwise fall
+  # back to noble (24.04) — Microsoft does not publish a suite for every Ubuntu
+  # release (e.g. no plucky/questing).
   set_fact:
-    # Kali Rolling uses Debian 12 (bookworm) packages
-    # Ubuntu uses its own codename (jammy, noble, etc.)
     azcli_suite: >-
       {{ 'bookworm'
          if (ansible_distribution == 'Kali' and
              ansible_distribution_release == 'kali-rolling')
-         else ansible_distribution_release }}
+         else (ansible_distribution_release
+               if ansible_distribution_release in azcli_suites.stdout_lines
+               else 'noble') }}
   tags:
     - azcli
     - cloud
