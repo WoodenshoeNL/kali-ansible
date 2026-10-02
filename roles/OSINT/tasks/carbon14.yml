@@ -38,21 +38,24 @@
     - OSINT
 
 - name: carbon14 - Install requirements in venv with uv
+  # Upstream dropped requirements.txt in favour of pyproject.toml; install the
+  # project itself. Keep the -r requirements.txt attempt as a fallback for
+  # older checkouts.
   become: yes
   become_user: "{{ login_user }}"
-  ansible.builtin.command:
-    argv:
-      - uv
-      - pip
-      - install
-      - --python
-      - "{{ login_home }}/Programs/Carbon14/venv/bin/python"
-      - -r
-      - "{{ login_home }}/Programs/Carbon14/requirements.txt"
-  environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  ansible.builtin.shell: |
+    set -e
+    if [ -f requirements.txt ]; then
+      uv pip install --python venv/bin/python -r requirements.txt
+    else
+      uv pip install --python venv/bin/python .
+    fi
+    venv/bin/carbon14 --help > /dev/null
   args:
     chdir: "{{ login_home }}/Programs/Carbon14"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  changed_when: true
   tags:
     - carbon14
     - OSINT
