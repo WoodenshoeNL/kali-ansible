@@ -9,13 +9,22 @@
     - maltego
     - osint
 
-# Latest v4 .deb resolved from the downloads directory listing at runtime,
-# so the version pin doesn't go stale (v4.7.0 was the previous hard pin).
-- name: Maltego - Find latest v4 .deb filename (Ubuntu)
-  ansible.builtin.uri:
-    url: https://downloads.maltego.com/maltego-v4/linux/
-    return_content: yes
-  register: maltego_listing
+# Maltego removed the downloads.maltego.com/maltego-v4/linux/ directory listing
+# (404 since ~Oct 2026); only direct file URLs resolve now. Probe version URLs
+# newest-first (the website's own JS still hardcodes a stale 4.3.1, so it cannot
+# be trusted either). 4.13.0 was newest at time of writing.
+- name: Maltego - Find latest v4 .deb version (Ubuntu)
+  ansible.builtin.shell: |
+    for v in 4.20.0 4.19.0 4.18.0 4.17.0 4.16.0 4.15.0 4.14.0 4.13.2 4.13.1 4.13.0 \
+             4.12.2 4.12.1 4.12.0 4.11.0 4.10.1 4.10.0 4.9.0 4.8.0 4.7.0; do
+      url="https://downloads.maltego.com/maltego-v4/linux/Maltego.v${v}.deb"
+      if [ "$(curl -s -o /dev/null -w '%{http_code}' -I --max-time 20 "$url")" = "200" ]; then
+        echo "$v"; exit 0
+      fi
+    done
+    echo "not-found"; exit 1
+  register: maltego_version
+  changed_when: false
   when: vmware_env == "ubuntu"
   tags:
     - maltego
@@ -23,7 +32,7 @@
 
 - name: Maltego - Set latest .deb URL fact (Ubuntu)
   ansible.builtin.set_fact:
-    maltego_deb_url: "https://downloads.maltego.com/maltego-v4/linux/{{ (maltego_listing.content | regex_findall('Maltego[.]v4[.][0-9.]+[.]deb') | unique | version_sort | last) }}"
+    maltego_deb_url: "https://downloads.maltego.com/maltego-v4/linux/Maltego.v{{ maltego_version.stdout }}.deb"
   when: vmware_env == "ubuntu"
   tags:
     - maltego
