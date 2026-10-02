@@ -211,6 +211,9 @@
     dest: /stockpile/PowerView/PowerView.ps1
     mode: '0644'
     force: yes          # re‑download if the upstream file changes
+    timeout: 60
+  retries: 3
+  delay: 5
   tags:
     - stockpile
     - common
