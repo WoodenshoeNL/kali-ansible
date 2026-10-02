@@ -3,6 +3,10 @@
   ansible.builtin.apt:
     name:
       - python3-lxml
+      # headers needed when uv must build lxml from source (no wheel for the
+      # running Python); harmless when wheels are available
+      - libxml2-dev
+      - libxslt1-dev
     state: present
   tags:
     - DonPAPI
@@ -27,12 +31,17 @@
     - AD
 
 - name: DonPAPI - install DonPAPI via uv (with setuptools)
+  # --python 3.12: donpapi -> dploot pins lxml 4.9.3, whose Cython-generated C
+  # does not compile against Python 3.13+/3.14 (removed private C-APIs). 3.12
+  # still has prebuilt lxml wheels.
   ansible.builtin.command:
     argv:
       - uv
       - tool
       - install
       - --force
+      - --python
+      - "3.12"
       - --with
       - setuptools
       - donpapi
