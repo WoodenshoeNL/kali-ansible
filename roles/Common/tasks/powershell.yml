@@ -1,12 +1,28 @@
 # PowerShell 7 from Microsoft repo (works on Kali, Debian, Ubuntu)
 - name: powershell - Choose repo and suite for Microsoft packages
-  set_fact:
-    pwsh_distro_prefix: "{{ 'microsoft-ubuntu' if ansible_distribution == 'Ubuntu' else 'microsoft-debian' }}"
-    pwsh_suite: >-
-      {{ 'bookworm'
-         if (ansible_distribution == 'Kali' and
-             ansible_distribution_release == 'kali-rolling')
-         else ansible_distribution_release }}
+  # Microsoft does not publish PowerShell for every Ubuntu release (e.g. no
+  # plucky/questing repos ship it). Probe the -prod repos newest-first and use
+  # the newest one that actually carries the powershell package; fall back to
+  # noble (24.04 LTS), the last release with guaranteed coverage.
+  block:
+    - name: powershell - Probe Microsoft repos for powershell package (newest first)
+      ansible.builtin.shell: |
+        for rel in {{ ansible_distribution_release }} noble; do
+          if curl -fsSL "https://packages.microsoft.com/repos/microsoft-ubuntu-${rel}-prod/dists/${rel}/main/binary-amd64/Packages" \
+               | grep -q '^Package: powershell$'; then
+            echo "$rel"; exit 0
+          fi
+        done
+        echo "none"
+      register: pwsh_probe
+      changed_when: false
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: powershell - Set repo suite fact
+      ansible.builtin.set_fact:
+        pwsh_distro_prefix: "{{ 'microsoft-ubuntu' if ansible_distribution == 'Ubuntu' else 'microsoft-debian' }}"
+        pwsh_suite: "{{ (pwsh_probe.stdout_lines | default([]) | last | default('noble')) if (ansible_distribution == 'Ubuntu') else ('bookworm' if (ansible_distribution == 'Kali') else ansible_distribution_release) }}"
+      when: ansible_os_family == 'Debian'
   when: ansible_os_family == 'Debian'
   tags:
     - powershell
@@ -29,7 +45,23 @@
     - common
     - core
 
-- name: powershell - Download Microsoft signing key
+# Key: the legacy keys/microsoft.asc (2015 key BC52...29CF) does NOT contain the
+# current signer for the ubuntu-*-prod repos (rsa4096 2023 key AA86F75E...182B).
+# Canonical source for the current key: the packages-microsoft-prod config deb,
+# e.g. https://packages.microsoft.com/config/<distro>/<release>/packages-microsoft-prod.deb
+# (contains usr/share/keyrings/microsoft-prod.gpg). Key pinned by fingerprint.
+- name: powershell - Download Microsoft config package (carries current signing key)
+  ansible.builtin.get_url:
+    url: "https://packages.microsoft.com/config/{{ ansible_distribution | lower }}/{{ ansible_distribution_version }}/packages-microsoft-prod.deb"
+    dest: /tmp/packages-microsoft-prod.deb
+    mode: '0644'
+  when: ansible_os_family == 'Debian'
+  tags:
+    - powershell
+    - common
+    - core
+
+- name: powershell - Download legacy Microsoft signing key (2015, still signs older repos e.g. noble)
   ansible.builtin.get_url:
     url: https://packages.microsoft.com/keys/microsoft.asc
     dest: /tmp/microsoft-powershell.asc
@@ -41,9 +73,23 @@
     - common
     - core
 
-- name: powershell - Install Microsoft signing key
+- name: powershell - Build combined signing keyring (legacy 2015 + current 2023 keys)
   ansible.builtin.shell: |
-    gpg --batch --yes --dearmor -o /usr/share/keyrings/microsoft-powershell.gpg /tmp/microsoft-powershell.asc
+    rm -rf /tmp/ms-prod-ext && mkdir -p /tmp/ms-prod-ext
+    dpkg-deb -x /tmp/packages-microsoft-prod.deb /tmp/ms-prod-ext
+    gpg --batch --yes --dearmor -o /tmp/microsoft-legacy.gpg /tmp/microsoft-powershell.asc
+    cat /tmp/microsoft-legacy.gpg /tmp/ms-prod-ext/usr/share/keyrings/microsoft-prod.gpg > /usr/share/keyrings/microsoft-powershell.gpg
+  when: ansible_os_family == 'Debian'
+  tags:
+    - powershell
+    - common
+    - core
+
+- name: powershell - Verify signing key fingerprints (both keys present)
+  ansible.builtin.shell: |
+    fprs=$(gpg --no-default-keyring --keyring /usr/share/keyrings/microsoft-powershell.gpg --list-keys --with-colons | grep '^fpr' | cut -d: -f10)
+    echo "$fprs" | grep -q '^BC528686B50D79E339D3721CEB3E94ADBE1229CF$'
+    echo "$fprs" | grep -q '^AA86F75E427A19DD33346403EE4D7792F748182B$'
   when: ansible_os_family == 'Debian'
   tags:
     - powershell
