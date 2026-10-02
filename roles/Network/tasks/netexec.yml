@@ -170,7 +170,8 @@
   become: yes
   become_user: "{{ login_user }}"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    # ~/.cargo/bin needed: netexec -> aardwolf compiles a Rust extension
+    PATH: "{{ login_home }}/.local/bin:{{ login_home }}/.cargo/bin:{{ ansible_env.PATH | default('') }}"
   when: 
     - vmware_env == "ubuntu"
     - netexec_check.rc != 0
