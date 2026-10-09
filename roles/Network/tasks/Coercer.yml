@@ -1,0 +1,16 @@
+- name: Coercer - install/upgrade coercer via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - --force
+      - coercer
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  tags:
+    - coercer
+    - network

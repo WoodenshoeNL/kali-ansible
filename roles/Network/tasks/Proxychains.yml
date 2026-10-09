@@ -1,0 +1,12 @@
+- name: proxychains - install proxychains4 and smbmap packages
+  ansible.builtin.apt:
+    name:
+      - proxychains4
+      - smbmap
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - proxychains
+    - smbmap
+    - network

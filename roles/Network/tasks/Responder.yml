@@ -1,0 +1,64 @@
+- name: Responder - Check if already installed
+  ansible.builtin.stat:
+    path: "{{ login_home }}/Responder/venv/bin/activate"
+  register: responder_check
+  tags:
+    - responder
+    - network
+
+- name: Responder - clone repository
+  ansible.builtin.git:
+    repo: "https://github.com/lgandx/Responder"
+    dest: "{{ login_home }}/Responder"
+    version: HEAD
+    force: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - responder
+    - network
+
+- name: Responder - create Python virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/Responder/venv"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/Responder/venv/bin/activate"
+  tags:
+    - responder
+    - network
+
+- name: Responder - install requirements in virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/Responder/venv/bin/python"
+      - -r
+      - "{{ login_home }}/Responder/requirements.txt"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  tags:
+    - responder
+    - network
+
+- name: Responder - create global launcher in /usr/local/bin
+  ansible.builtin.copy:
+    dest: /usr/local/bin/responder
+    mode: "0755"
+    content: |
+      #!/bin/bash
+      exec {{ login_home }}/Responder/venv/bin/python {{ login_home }}/Responder/Responder.py "$@"
+  tags:
+    - responder
+    - network

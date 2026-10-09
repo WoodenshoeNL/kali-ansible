@@ -37,3 +37,18 @@
 
 - name: Run netexec setup
   import_tasks: netexec.yml
+
+- name: Run Responder setup
+  import_tasks: Responder.yml
+
+- name: Run Coercer setup
+  import_tasks: Coercer.yml
+
+- name: Run Krbrelayx setup
+  import_tasks: Krbrelayx.yml
+
+- name: Run Proxychains setup
+  import_tasks: Proxychains.yml
+
+- name: Run Ligolo-ng setup
+  import_tasks: Ligolo-ng.yml

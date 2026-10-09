@@ -1,0 +1,90 @@
+- name: ligolo-ng - create tools directory
+  ansible.builtin.file:
+    path: "{{ login_home }}/tools/ligolo-ng"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  tags:
+    - ligolo
+    - pivot
+    - network
+
+- name: ligolo-ng - resolve latest release tag with complete agent+proxy assets
+  ansible.builtin.shell: |
+    curl -s -H "User-Agent: ansible" "https://api.github.com/repos/nicocha30/ligolo-ng/releases?per_page=10" \
+      | jq -r '[.[] | select([.assets[].name] | any(endswith("linux_amd64.tar.gz"))) | select([.assets[].name] | any(test("agent.*linux_amd64"))) | select([.assets[].name] | any(test("proxy.*linux_amd64")))][0].tag_name'
+  register: ligolo_tag
+  changed_when: false
+  tags:
+    - ligolo
+    - pivot
+    - network
+
+- name: ligolo-ng - download and install proxy + agent binaries
+  ansible.builtin.get_url:
+    url: "https://github.com/nicocha30/ligolo-ng/releases/download/{{ ligolo_tag.stdout }}/ligolo-ng_{{ item }}_{{ ligolo_tag.stdout | replace('v', '') }}_linux_amd64.tar.gz"
+    dest: "/tmp/ligolo-{{ item }}.tar.gz"
+    mode: "0644"
+    timeout: 60
+  loop:
+    - proxy
+    - agent
+  register: ligolo_dl
+  retries: 3
+  delay: 5
+  until: ligolo_dl is not failed
+  tags:
+    - ligolo
+    - pivot
+    - network
+
+- name: ligolo-ng - create extract directories
+  ansible.builtin.file:
+    path: "/tmp/ligolo-extract-{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - proxy
+    - agent
+  tags:
+    - ligolo
+    - pivot
+    - network
+
+- name: ligolo-ng - extract binaries
+  ansible.builtin.unarchive:
+    src: "/tmp/ligolo-{{ item }}.tar.gz"
+    dest: "/tmp/ligolo-extract-{{ item }}"
+    remote_src: yes
+  loop:
+    - proxy
+    - agent
+  tags:
+    - ligolo
+    - pivot
+    - network
+
+- name: ligolo-ng - install binaries as ligolo-proxy / ligolo-agent
+  ansible.builtin.command: "install -m 0755 /tmp/ligolo-extract-{{ item }}/{{ item }} /usr/local/bin/ligolo-{{ item }}"
+  args:
+    creates: "/usr/local/bin/ligolo-{{ item }}"
+  loop:
+    - proxy
+    - agent
+  tags:
+    - ligolo
+    - pivot
+    - network
+
+- name: ligolo-ng - remove generic-named binaries from earlier layout
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/local/bin/proxy
+    - /usr/local/bin/agent
+  tags:
+    - ligolo
+    - pivot
+    - network

@@ -1,0 +1,61 @@
+- name: krbrelayx - clone repository
+  ansible.builtin.git:
+    repo: "https://github.com/dirkjanm/krbrelayx"
+    dest: "{{ login_home }}/krbrelayx"
+    version: HEAD
+    force: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - krbrelayx
+    - network
+
+- name: krbrelayx - create Python virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/krbrelayx/venv"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/krbrelayx/venv/bin/activate"
+  tags:
+    - krbrelayx
+    - network
+
+- name: krbrelayx - install impacket in virtualenv with uv (provides deps)
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/krbrelayx/venv/bin/python"
+      - --upgrade
+      - impacket
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  tags:
+    - krbrelayx
+    - network
+
+- name: krbrelayx - create global wrappers in /usr/local/bin
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+    force: yes
+    follow: false
+  loop:
+    - { src: "{{ login_home }}/krbrelayx/krbrelayx.py", dest: /usr/local/bin/krbrelayx }
+    - { src: "{{ login_home }}/krbrelayx/addspn.py", dest: /usr/local/bin/addspn }
+    - { src: "{{ login_home }}/krbrelayx/printerbug.py", dest: /usr/local/bin/printerbug }
+    - { src: "{{ login_home }}/krbrelayx/dnstool.py", dest: /usr/local/bin/dnstool }
+  tags:
+    - krbrelayx
+    - network
