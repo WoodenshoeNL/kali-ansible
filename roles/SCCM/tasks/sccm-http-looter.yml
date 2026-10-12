@@ -1,0 +1,43 @@
+# go.mod declares a bare module name (sccm-http-looter), so `go install
+# <path>@latest` cannot resolve it — build from a local clone.
+
+- name: sccm-http-looter - clone repository
+  ansible.builtin.git:
+    repo: https://github.com/chryzsh/sccm-http-looter.git
+    dest: "{{ login_home }}/sccm-http-looter"
+    version: main
+    update: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - sccm-http-looter
+    - SCCM
+
+- name: sccm-http-looter - build with go
+  ansible.builtin.command:
+    argv:
+      - go
+      - build
+      - -o
+      - sccm-http-looter
+      - .
+  become: yes
+  become_user: "{{ login_user }}"
+  args:
+    chdir: "{{ login_home }}/sccm-http-looter"
+    creates: "{{ login_home }}/sccm-http-looter/sccm-http-looter"
+  tags:
+    - sccm-http-looter
+    - SCCM
+
+- name: sccm-http-looter - copy binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: "{{ login_home }}/sccm-http-looter/sccm-http-looter"
+    dest: /usr/local/bin/sccm-http-looter
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  tags:
+    - sccm-http-looter
+    - SCCM

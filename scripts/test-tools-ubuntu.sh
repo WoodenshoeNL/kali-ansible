@@ -129,6 +129,18 @@ test_cmd "rusthound-ce" "rusthound-ce --help"
 #test_path "BloodHoundCE" "$LOGIN_HOME/BloodHoundCE/docker-compose.yml"
 echo ""
 
+# --- SCCM ---
+echo "--- SCCM ---"
+test_path "Misconfiguration-Manager" "$LOGIN_HOME/Misconfiguration-Manager/MisconfigurationManager.ps1"
+test_cmd "openhound (configmanbearpig)" "openhound --help"
+test_cmd "sccmhunter" "sccmhunter --help"
+test_path "SharpSCCM" "$LOGIN_HOME/SharpSCCM/SharpSCCM.exe"
+test_cmd "pxehacker" "pxehacker -h"
+# Go flag package exits 2 on -h; treat 2 as pass, anything else (e.g. 127 not found) as fail
+test_cmd "sccm-http-looter" "sccm-http-looter -h >/dev/null 2>&1 || [ \$? -eq 2 ]"
+test_cmd "go-cmloot" "go-cmloot -h >/dev/null 2>&1 || [ \$? -eq 2 ]"
+echo ""
+
 # --- Network ---
 echo "--- Network ---"
 test_cmd "enum4linux-ng" "enum4linux-ng -h"

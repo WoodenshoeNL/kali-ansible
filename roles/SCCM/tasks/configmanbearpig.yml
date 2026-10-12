@@ -1,0 +1,25 @@
+# OpenHound extension: after install the collector runs as `openhound collect sccm`.
+# configmanbearpig is not installable standalone; it plugs into the openhound CLI
+# via `uv tool install openhound --with configmanbearpig` (upstream Quick Start).
+# Prereleases allowed per upstream instructions (openhound is pre-1.0).
+
+- name: configmanbearpig - install/upgrade openhound with configmanbearpig via uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - tool
+      - install
+      - --upgrade
+      - --force
+      - --prerelease=allow
+      - openhound
+      - --with
+      - configmanbearpig
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  tags:
+    - configmanbearpig
+    - openhound
+    - SCCM

@@ -1,0 +1,66 @@
+================================================================================
+                            SCCM Tools Reference
+================================================================================
+
+Misconfiguration-Manager
+------------------------
+  Location: ~/Misconfiguration-Manager
+  Usage: pwsh -File ~/Misconfiguration-Manager/MisconfigurationManager.ps1 (see repo README for params)
+  Description: Central knowledge base of all known SCCM attack/defense techniques
+               (attack matrix, techniques, presentations) plus a PowerShell
+               audit script for known misconfigurations.
+  OPSEC: NOT SAFE - Audit script actively queries the SCCM site server / AD; logged.
+  GitHub: https://github.com/subat0mik/Misconfiguration-Manager
+
+ConfigManBearPig
+----------------
+  Usage: openhound collect sccm <options> (see repo README Quick Start)
+  Description: BloodHound OpenGraph collector for SCCM attack paths; OpenHound
+               extension (collect -> preprocess -> convert pipeline).
+  OPSEC: NOT SAFE - Active collection against SCCM site systems.
+  GitHub: https://github.com/SpecterOps/ConfigManBearPig
+
+SCCMHunter
+----------
+  Location: ~/SCCMHunter
+  Usage: sccmhunter (launcher) or: cd ~/SCCMHunter && source venv/bin/activate && python sccmhunter.py
+  Description: Post-ex tool to streamline identifying, profiling, and attacking
+               SCCM related attack paths.
+  OPSEC: NOT SAFE - Active enumeration of SCCM infrastructure, generates logs.
+  GitHub: https://github.com/garrettfoster13/sccmhunter
+
+SharpSCCM
+---------
+  Location: ~/SharpSCCM/SharpSCCM.exe (Windows PE - transfer to Windows target/beacon)
+  Usage: SharpSCCM.exe <command> <options> (see repo wiki)
+  Description: C# utility for interacting with SCCM (user hunting, client push
+               installation abuse, credential gathering).
+  OPSEC: NOT SAFE - Executes against the SCCM Management Point; heavily logged.
+  GitHub: https://github.com/Mayyhem/SharpSCCM
+
+PXEHacker
+---------
+  Location: ~/PXEHacker
+  Usage: pxehacker auto <dp_ip> <src_ip> -o ./loot --mp http://<mp_ip>
+         (pxehacker discover requires sudo - raw socket DHCP broadcast)
+  Description: SCCM PXE exploitation: DP discovery, PXE boot attack, TFTP media
+               download, decryption and policy/credential looting. Unifies
+               PXEThief and cred1py. SOCKS5 support for C2 pivots.
+  OPSEC: NOT SAFE - Crafted DHCP/PXE traffic and TFTP downloads against the DP.
+  GitHub: https://github.com/chryzsh/PXEHacker
+
+sccm-http-looter
+----------------
+  Usage: sccm-http-looter -server <dp_ip> [-allow ext1,ext2] [-output ./loot]
+  Description: Loot interesting files from SCCM distribution points over
+               HTTP/S (anonymous or NTLM) when inbound SMB is blocked.
+  OPSEC: NOT SAFE - HTTP requests against the DP, logged by IIS.
+  GitHub: https://github.com/chryzsh/sccm-http-looter
+
+go-cmloot
+---------
+  Usage: go-cmloot --host <dp> -d <domain> -u <user> -p <pass> [--download loot]
+  Description: Enumerate and download interesting files from the SCCMContentLib$
+               SMB share (Go port of CMLoot). Kerberos/NTLM/hash/SOCKS support.
+  OPSEC: NOT SAFE - SMB session and share enumeration on the DP.
+  GitHub: https://github.com/chryzsh/go-cmloot

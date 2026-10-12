@@ -1,0 +1,29 @@
+- name: SCCM - Copy SCCM_Tools.txt to home directory
+  become: false
+  copy:
+    src: SCCM_Tools.txt
+    dest: "{{ login_home }}/SCCM_Tools.txt"
+    mode: "0644"
+  tags:
+    - SCCM
+
+- name: Run Misconfiguration-Manager setup
+  import_tasks: misconfiguration-manager.yml
+
+- name: Run ConfigManBearPig setup
+  import_tasks: configmanbearpig.yml
+
+- name: Run SCCMHunter setup
+  import_tasks: sccmhunter.yml
+
+- name: Run SharpSCCM setup
+  import_tasks: sharpsccm.yml
+
+- name: Run PXEHacker setup
+  import_tasks: pxehacker.yml
+
+- name: Run sccm-http-looter setup
+  import_tasks: sccm-http-looter.yml
+
+- name: Run go-cmloot setup
+  import_tasks: go-cmloot.yml

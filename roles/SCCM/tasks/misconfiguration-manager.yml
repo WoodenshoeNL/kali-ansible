@@ -1,0 +1,25 @@
+# Knowledge base of all known SCCM attack/defense techniques (markdown docs,
+# matrices, presentations) plus the MisconfigurationManager.ps1 audit script.
+# The audit script is PowerShell — run it with pwsh (installed by the Common role).
+
+- name: misconfiguration-manager - clone repository
+  ansible.builtin.git:
+    repo: https://github.com/subat0mik/Misconfiguration-Manager.git
+    dest: "{{ login_home }}/Misconfiguration-Manager"
+    version: main
+    update: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - misconfiguration-manager
+    - SCCM
+
+- name: misconfiguration-manager - verify audit script is present
+  ansible.builtin.stat:
+    path: "{{ login_home }}/Misconfiguration-Manager/MisconfigurationManager.ps1"
+  register: mm_ps1
+  changed_when: false
+  failed_when: not mm_ps1.stat.exists
+  tags:
+    - misconfiguration-manager
+    - SCCM

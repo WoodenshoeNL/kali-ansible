@@ -1,0 +1,62 @@
+# PXEHacker: unified PXEThief/cred1py successor for SCCM PXE attacks.
+# Linux-first Python CLI. The `discover` subcommand needs root (raw socket).
+
+- name: pxehacker - clone repository
+  ansible.builtin.git:
+    repo: https://github.com/chryzsh/PXEHacker.git
+    dest: "{{ login_home }}/PXEHacker"
+    version: main
+    update: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - pxehacker
+    - SCCM
+
+- name: pxehacker - create Python virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/PXEHacker/venv"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    creates: "{{ login_home }}/PXEHacker/venv/bin/activate"
+  tags:
+    - pxehacker
+    - SCCM
+
+- name: pxehacker - install Python requirements into virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/PXEHacker/venv/bin/python"
+      - -r
+      - "{{ login_home }}/PXEHacker/requirements.txt"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  args:
+    chdir: "{{ login_home }}/PXEHacker"
+  tags:
+    - pxehacker
+    - SCCM
+
+- name: pxehacker - add launcher to system PATH
+  ansible.builtin.copy:
+    dest: /usr/local/bin/pxehacker
+    mode: "0755"
+    content: |
+      #!/usr/bin/env bash
+      source "{{ login_home }}"/PXEHacker/venv/bin/activate
+      exec python "{{ login_home }}"/PXEHacker/pxehacker.py "$@"
+  tags:
+    - pxehacker
+    - SCCM

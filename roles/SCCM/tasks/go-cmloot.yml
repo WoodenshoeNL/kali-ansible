@@ -1,0 +1,44 @@
+# chryzsh fork of jfjallid/go-cmloot. go.mod still declares the upstream module
+# path (github.com/jfjallid/go-cmloot), so `go install` from the fork URL fails
+# with a module-path mismatch — build from a local clone instead.
+
+- name: go-cmloot - clone repository
+  ansible.builtin.git:
+    repo: https://github.com/chryzsh/go-cmloot.git
+    dest: "{{ login_home }}/go-cmloot"
+    version: master
+    update: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - go-cmloot
+    - SCCM
+
+- name: go-cmloot - build with go
+  ansible.builtin.command:
+    argv:
+      - go
+      - build
+      - -o
+      - go-cmloot
+      - .
+  become: yes
+  become_user: "{{ login_user }}"
+  args:
+    chdir: "{{ login_home }}/go-cmloot"
+    creates: "{{ login_home }}/go-cmloot/go-cmloot"
+  tags:
+    - go-cmloot
+    - SCCM
+
+- name: go-cmloot - copy binary to /usr/local/bin
+  ansible.builtin.copy:
+    src: "{{ login_home }}/go-cmloot/go-cmloot"
+    dest: /usr/local/bin/go-cmloot
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  tags:
+    - go-cmloot
+    - SCCM

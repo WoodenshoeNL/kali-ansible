@@ -10,7 +10,7 @@
   become_user: "{{ login_user }}"
   tags:
     - sccmhunter
-    - AD
+    - SCCM
 
 - name: sccmhunter - create Python virtualenv with uv
   ansible.builtin.command:
@@ -26,7 +26,7 @@
     creates: "{{ login_home }}/sccmhunter/venv/bin/activate"
   tags:
     - sccmhunter
-    - AD
+    - SCCM
 
 - name: sccmhunter - install Python requirements into virtualenv with uv
   ansible.builtin.command:
@@ -46,7 +46,7 @@
     chdir: "{{ login_home }}/sccmhunter"
   tags:
     - sccmhunter
-    - AD
+    - SCCM
 
 # Optional: expose a convenient wrapper in /usr/local/bin
 - name: sccmhunter - add helper launcher to system PATH
@@ -59,7 +59,7 @@
       exec python "{{ login_home }}"/sccmhunter/sccmhunter.py "$@"
   tags:
     - sccmhunter
-    - AD
+    - SCCM
 
 # Light-weight functional check; ignored for idempotency purposes
 - name: sccmhunter - verify CLI starts
@@ -70,7 +70,7 @@
   changed_when: false
   tags:
     - sccmhunter
-    - AD
+    - SCCM
 
 - name: sccmhunter - place local launcher inside repo dir
   ansible.builtin.copy:
@@ -86,7 +86,7 @@
   become_user: "{{ login_user }}"
   tags:
     - sccmhunter
-    - AD
+    - SCCM
 
 - name: sccmhunter - add quick reminder read-me
   ansible.builtin.copy:
@@ -101,4 +101,4 @@
   become_user: "{{ login_user }}"
   tags:
     - sccmhunter
-    - AD
+    - SCCM

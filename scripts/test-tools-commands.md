@@ -95,6 +95,17 @@ To print all verification commands without running:
 | RunasCs (stockpile) | `test -d /stockpile/RunasCs` (Windows tool, in stockpile for transfer) |
 | BloodHoundCE | `test -f ~/BloodHoundCE/docker-compose.yml` |
 
+### SCCM
+| Tool | Verification Command |
+|------|---------------------|
+| misconfiguration-manager | `test -f ~/Misconfiguration-Manager/MisconfigurationManager.ps1` |
+| configmanbearpig / openhound | `openhound --help` |
+| sccmhunter | `sccmhunter --help` |
+| sharpsccm | `test -f ~/SharpSCCM/SharpSCCM.exe` (Windows tool, keep for transfer) |
+| pxehacker | `pxehacker -h` |
+| sccm-http-looter | `sccm-http-looter -h 2>&1` |
+| go-cmloot | `go-cmloot -v 2>&1` |
+
 ### Network
 | Tool | Verification Command |
 |------|---------------------|

@@ -9,14 +9,6 @@ windapsearch
   OPSEC: NOT SAFE - Direct LDAP queries to domain controller, logged by DC.
   GitHub: https://github.com/ropnop/windapsearch
 
-SCCMHunter
-----------
-  Location: ~/SCCMHunter
-  Usage: cd ~/SCCMHunter && source venv/bin/activate && python sccmhunter.py
-  Description: Post-ex tool for SCCM/MECM reconnaissance and lateral movement.
-  OPSEC: NOT SAFE - Active enumeration of SCCM infrastructure, generates logs.
-  GitHub: https://github.com/garrettfoster13/sccmhunter
-
 BloodHound CE
 -------------
   Usage: docker compose up -d (in ~/bloodhoundCE)

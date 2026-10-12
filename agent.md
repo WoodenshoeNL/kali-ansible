@@ -22,7 +22,8 @@ This document helps AI agents and contributors add new tasks to the kali-ansible
 5. **Network** — Nmap, hashcat, mitm6, evil-winrm, etc.
 6. **OSINT** — Sherlock, theHarvester, Maltego, etc.
 7. **Extra** — Mullvad, n8n, Cursor, Tor Browser, Terraform, etc.
-8. **Tools** — Placeholder; currently empty.
+8. **SCCM** — Misconfiguration-Manager, ConfigManBearPig, SCCMHunter, SharpSCCM, PXEHacker, sccm-http-looter, go-cmloot.
+9. **Tools** — Placeholder; currently empty.
 
 ---
 
@@ -56,7 +57,7 @@ roles/
       <tool>.yml     # One file per tool
 ```
 
-### 3.2 Domain roles (AD, Web, Cloud, Network, OSINT)
+### 3.2 Domain roles (AD, Web, Cloud, Network, OSINT, SCCM)
 
 - **main.yml**:
   1. *(Optional)* Copy `*_Tools.txt` to `{{ login_home }}` with `become: false`, `mode: "0644"`. Tag: role name (e.g. `AD`, `web`).

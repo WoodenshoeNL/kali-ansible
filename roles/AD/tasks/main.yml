@@ -11,9 +11,6 @@
 - name: Run windapsearch setup
   import_tasks: windapsearch.yml
 
-- name: Run SCCMHunter setup
-  import_tasks: SCCMHunter.yml
-
 - name: Run BloodhoundCE setup
   import_tasks: BloodhoundCE.yml
 
