@@ -1,0 +1,21 @@
+# Ghidra role — reverse engineering / bughunting kit
+# Layout mirrors SCCM role: one task file per component, tags per component
+# plus the role tag. User-level ops use become_user (playbook is become:true).
+
+- name: Ghidra - Run core install
+  import_tasks: ghidra.yml
+  tags:
+    - ghidra
+    - Ghidra
+
+- name: Ghidra - Run GhidraMCP install
+  import_tasks: ghidramcp.yml
+  tags:
+    - ghidramcp
+    - Ghidra
+
+- name: Ghidra - Run Windows lab VM stack
+  import_tasks: vms.yml
+  tags:
+    - ghidra-vms
+    - Ghidra

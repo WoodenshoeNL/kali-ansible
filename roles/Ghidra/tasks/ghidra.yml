@@ -1,0 +1,90 @@
+# Ghidra 12.1.4 core install.
+# Gotchas baked in (verified 2026-10-13 on RAPIER):
+# - Ghidra 12 rejects JDK 21 ("unsupported java version") — needs JDK 25
+# - openjdk-25-jdk-headless lacks libawt_xawt.so -> GUI UnsatisfiedLinkError,
+#   so install the full JDK
+# - JDK 25 defaults java.awt.headless=true -> GUI refuses to start even with
+#   working X; patched via VMARGS_LINUX line below
+
+- name: Ghidra - Install JDK 25 (full, GUI needs libawt_xawt)
+  ansible.builtin.apt:
+    name: openjdk-25-jdk
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - ghidra
+
+- name: Ghidra - Create tools directory
+  ansible.builtin.file:
+    path: "{{ login_home }}/tools"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  tags:
+    - ghidra
+
+- name: Ghidra - Download 12.1.4 release zip
+  ansible.builtin.get_url:
+    url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip"
+    dest: "/tmp/ghidra_12.1.4_PUBLIC.zip"
+    mode: "0644"
+  tags:
+    - ghidra
+
+- name: Ghidra - Unpack to ~/tools
+  ansible.builtin.unarchive:
+    src: "/tmp/ghidra_12.1.4_PUBLIC.zip"
+    dest: "{{ login_home }}/tools"
+    creates: "{{ login_home }}/tools/ghidra_12.1.4_PUBLIC/ghidraRun"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+  tags:
+    - ghidra
+
+- name: Ghidra - Pin JDK 25 in launch.properties (JAVA_HOME_OVERRIDE)
+  ansible.builtin.lineinfile:
+    path: "{{ login_home }}/tools/ghidra_12.1.4_PUBLIC/support/launch.properties"
+    regexp: '^JAVA_HOME_OVERRIDE='
+    line: 'JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-25-openjdk-amd64'
+  tags:
+    - ghidra
+
+- name: Ghidra - Force non-headless AWT (JDK 25 defaults headless, GUI dies)
+  ansible.builtin.lineinfile:
+    path: "{{ login_home }}/tools/ghidra_12.1.4_PUBLIC/support/launch.properties"
+    regexp: '^VMARGS_LINUX=-Djava\.awt\.headless='
+    line: 'VMARGS_LINUX=-Djava.awt.headless=false'
+    insertbefore: '^VMARGS_LINUX=-Dsun\.java2d\.pmoffscreen=false'
+  tags:
+    - ghidra
+
+- name: Ghidra - Create scripts and project directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  loop:
+    - "{{ login_home }}/tools/ghidra-scripts"
+    - "{{ login_home }}/ghidra-proj"
+  tags:
+    - ghidra
+
+- name: Ghidra - Deploy triage scripts
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ login_home }}/tools/ghidra-scripts/{{ item }}"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  loop:
+    - VulnTriage.java
+    - DumpSymbols.java
+    - triage.sh
+    - ghidra-decompile.py
+    - ghidra-callers.py
+  tags:
+    - ghidra

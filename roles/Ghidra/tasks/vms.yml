@@ -1,0 +1,56 @@
+# Windows lab VM stack (KVM/libvirt) + snapshot helper.
+# The win11-lab VM itself (UEFI/TPM/virtio, ISO attach) is defined manually
+# once via virt-install — see ~/BUGHUNT-LAB.md section 5; this file only
+# provisions the virtualization stack and the vm-lab.sh helper.
+
+- name: VMs - Install KVM/libvirt/virt-manager stack
+  ansible.builtin.apt:
+    name:
+      - qemu-kvm
+      - libvirt-daemon-system
+      - libvirt-clients
+      - virt-manager
+      - bridge-utils
+      - swtpm
+      - ovmf
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - ghidra-vms
+
+- name: VMs - Add user to libvirt and kvm groups
+  ansible.builtin.user:
+    name: "{{ login_user }}"
+    groups: libvirt,kvm
+    append: yes
+  tags:
+    - ghidra-vms
+
+- name: VMs - Enable and start libvirtd
+  ansible.builtin.systemd:
+    name: libvirtd
+    enabled: yes
+    state: started
+  tags:
+    - ghidra-vms
+
+- name: VMs - Autostart default NAT network
+  ansible.builtin.command:
+    argv:
+      - virsh
+      - net-autostart
+      - default
+  changed_when: false
+  tags:
+    - ghidra-vms
+
+- name: VMs - Deploy vm-lab.sh snapshot helper
+  ansible.builtin.copy:
+    src: vm-lab.sh
+    dest: "{{ login_home }}/vms/vm-lab.sh"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  tags:
+    - ghidra-vms

@@ -1,0 +1,72 @@
+# GhidraMCP 1.4 (GhidraMCP/GhidraMCP fork) + python bridge.
+# - Extension installs into the Ghidra user settings dir as an EXTRACTED
+#   directory; keeping the zip next to it triggers "Duplicate Extension Folder"
+# - Release zip is nested (outer zip contains GhidraMCP-release-1-4/<inner>.zip)
+# - Bridge needs python 3.10-3.13 (3.14 unsupported by pyghidra/mcp)
+# - One-time MANUAL step remains: enable GhidraMCPPlugin in the GUI
+#   (CodeBrowser -> File -> Configure -> Developer); server = 127.0.0.1:8080
+
+- name: GhidraMCP - Install python3.13 venv support
+  ansible.builtin.apt:
+    name: python3.13-venv
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Download release zip
+  ansible.builtin.get_url:
+    url: "https://github.com/GhidraMCP/GhidraMCP/releases/download/1.4/GhidraMCP-1-4.zip"
+    dest: "/tmp/GhidraMCP-1-4.zip"
+    mode: "0644"
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Unpack outer zip to /tmp
+  ansible.builtin.unarchive:
+    src: "/tmp/GhidraMCP-1-4.zip"
+    dest: "/tmp"
+    creates: "/tmp/GhidraMCP-release-1-4/GhidraMCP-1-4.zip"
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Create user extension directory
+  ansible.builtin.file:
+    path: "{{ login_home }}/.config/ghidra/ghidra_12.1.4_PUBLIC/Extensions"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Unpack inner extension zip
+  ansible.builtin.unarchive:
+    src: "/tmp/GhidraMCP-release-1-4/GhidraMCP-1-4.zip"
+    dest: "{{ login_home }}/.config/ghidra/ghidra_12.1.4_PUBLIC/Extensions"
+    creates: "{{ login_home }}/.config/ghidra/ghidra_12.1.4_PUBLIC/Extensions/GhidraMCP/extension.properties"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Remove leftover zip (avoids duplicate-extension warning)
+  ansible.builtin.file:
+    path: "{{ login_home }}/.config/ghidra/ghidra_12.1.4_PUBLIC/Extensions/GhidraMCP-1-4.zip"
+    state: absent
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Create bridge venv (python3.13) and install mcp/pyghidra
+  ansible.builtin.pip:
+    name:
+      - mcp
+      - requests
+      - pyghidra
+    virtualenv: "{{ login_home }}/tools/ghidramcp-1.4/venv"
+    virtualenv_command: "/usr/bin/python3.13 -m venv"
+  become: true
+  become_user: "{{ login_user }}"
+  tags:
+    - ghidramcp
