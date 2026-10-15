@@ -1,48 +1,113 @@
 ---
-- name: Antigravity - Ensure apt keyrings directory exists
+# Google stopped updating the legacy Antigravity apt repo
+# (us-central1-apt.pkg.dev ... antigravity-debian, frozen at 1.x) — 2.x ships
+# as a standalone tarball from antigravity.google/download only. URL is pinned
+# to 2.5.5; when it 404s, resolve the current linux-x64 tarball link from the
+# download page and update pin + version here.
+# NOTE: the tarball's top-level dir is "Antigravity IDE" (with a space) which
+# breaks Electron's internal execvp and .desktop Exec — renamed to
+# ~/tools/antigravity-ide below. Keep it space-free.
+- name: Antigravity - Download Antigravity IDE tarball (v2.5.5)
+  ansible.builtin.get_url:
+    url: https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/2.5.5-4923483625488384/linux-x64/Antigravity%20IDE.tar.gz
+    dest: /tmp/Antigravity-IDE.tar.gz
+    mode: '0644'
+    timeout: 60
+  register: ag_download
+  retries: 3
+  delay: 5
+  until: ag_download is not failed
+  when: vmware_env != "esx"
+  tags:
+    - antigravity
+    - AI
+
+- name: Antigravity - Extract Antigravity IDE to ~/tools
+  ansible.builtin.unarchive:
+    src: /tmp/Antigravity-IDE.tar.gz
+    dest: "{{ login_home }}/tools"
+    creates: "{{ login_home }}/tools/antigravity-ide/antigravity-ide"
+  become: true
+  become_user: "{{ login_user }}"
+  when: vmware_env != "esx"
+  tags:
+    - antigravity
+    - AI
+
+- name: Antigravity - Rename install dir to space-free path (Electron breaks on spaces)
+  ansible.builtin.command:
+    cmd: mv "{{ login_home }}/tools/Antigravity IDE" "{{ login_home }}/tools/antigravity-ide"
+  args:
+    creates: "{{ login_home }}/tools/antigravity-ide/antigravity-ide"
+  become: true
+  become_user: "{{ login_user }}"
+  when: vmware_env != "esx"
+  tags:
+    - antigravity
+    - AI
+
+- name: Antigravity - Remove space-named leftover dir from rename
   ansible.builtin.file:
-    path: /etc/apt/keyrings
+    path: "{{ login_home }}/tools/Antigravity IDE"
+    state: absent
+  become: true
+  become_user: "{{ login_user }}"
+  when: vmware_env != "esx"
+  tags:
+    - antigravity
+    - AI
+
+- name: Antigravity - Fix chrome-sandbox SUID permissions (Electron requirement)
+  ansible.builtin.file:
+    path: "{{ login_home }}/tools/antigravity-ide/chrome-sandbox"
+    owner: root
+    group: root
+    mode: '4755'
+  when: vmware_env != "esx"
+  tags:
+    - antigravity
+    - AI
+
+- name: Antigravity - Ensure user bin directory exists
+  ansible.builtin.file:
+    path: "{{ login_home }}/.local/bin"
     state: directory
     mode: '0755'
+  become: true
+  become_user: "{{ login_user }}"
   when: vmware_env != "esx"
   tags:
     - antigravity
     - AI
 
-- name: Download Google Antigravity GPG key
-  ansible.builtin.get_url:
-    url: https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg
-    dest: /etc/apt/keyrings/antigravity-repo-key.gpg.asc
+- name: Antigravity - Symlink antigravity-ide launcher
+  ansible.builtin.file:
+    src: "{{ login_home }}/tools/antigravity-ide/antigravity-ide"
+    dest: "{{ login_home }}/.local/bin/antigravity-ide"
+    state: link
+  become: true
+  become_user: "{{ login_user }}"
+  when: vmware_env != "esx"
+  tags:
+    - antigravity
+    - AI
+
+- name: Antigravity - Install desktop entry
+  ansible.builtin.copy:
+    dest: "{{ login_home }}/.local/share/applications/antigravity-ide.desktop"
     mode: '0644'
-  when: vmware_env != "esx"
-  tags:
-    - antigravity
-    - AI
-
-- name: Antigravity - Dearmor GPG key
-  ansible.builtin.shell:
-    cmd: gpg --dearmor < /etc/apt/keyrings/antigravity-repo-key.gpg.asc > /etc/apt/keyrings/antigravity-repo-key.gpg
-    creates: /etc/apt/keyrings/antigravity-repo-key.gpg
-  when: vmware_env != "esx"
-  tags:
-    - antigravity
-    - AI
-
-- name: Antigravity - Add Google Antigravity repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main"
-    filename: antigravity
-    state: present
-    update_cache: true
-  when: vmware_env != "esx"
-  tags:
-    - antigravity
-    - AI
-
-- name: Antigravity - Install Google Antigravity
-  ansible.builtin.apt:
-    name: antigravity
-    state: present
+    content: |
+      [Desktop Entry]
+      Type=Application
+      Name=Antigravity IDE
+      Comment=Google Antigravity IDE (agent-first development)
+      Exec={{ login_home }}/tools/antigravity-ide/antigravity-ide
+      Icon={{ login_home }}/tools/antigravity-ide/resources/app/out/vs/platform/browserOnboarding/static/antigravity.svg
+      Terminal=false
+      Categories=Development;IDE;
+      StartupWMClass=Antigravity IDE
+  become: true
+  become_user: "{{ login_user }}"
   when: vmware_env != "esx"
   tags:
     - antigravity
