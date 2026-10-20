@@ -62,6 +62,7 @@ To print all verification commands without running:
 | wfuzz | `wfuzz --version` |
 | meowEye | `meowEye --help` |
 | Burp Suite | `test -f /opt/BurpSuiteCommunity/BurpSuiteCommunity` |
+| ysoserial | `[ "$(ysoserial CommonsCollections6 true 2>/dev/null \| wc -c)" -gt 100 ]` |
 
 ### Cloud
 | Tool | Verification Command |

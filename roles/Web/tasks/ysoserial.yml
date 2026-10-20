@@ -30,10 +30,30 @@
     owner: root
     group: root
     mode: '0644'
+    checksum: sha256:2c9bddd6a1a4ec66c1078ea97dacb61eb66d1c41aec7b6d21e3c72214ce170f1
     timeout: 60
   # force: no on purpose: upstream has exactly one release (v0.0.6) since 2022,
   # so no re-download on every run. If the URL ever 404s, check
   # https://api.github.com/repos/frohoff/ysoserial/releases for a newer asset name.
+  tags:
+    - ysoserial
+    - web
+
+- name: ysoserial - stat JAR for checksum verification
+  ansible.builtin.stat:
+    path: /opt/ysoserial/ysoserial-all.jar
+    checksum_algorithm: sha256
+  register: ysoserial_jar
+  tags:
+    - ysoserial
+    - web
+
+- name: ysoserial - assert JAR integrity (fails if asset was replaced upstream)
+  ansible.builtin.assert:
+    that:
+      - ysoserial_jar.stat.exists
+      - ysoserial_jar.stat.checksum == '2c9bddd6a1a4ec66c1078ea97dacb61eb66d1c41aec7b6d21e3c72214ce170f1'
+    quiet: yes
   tags:
     - ysoserial
     - web

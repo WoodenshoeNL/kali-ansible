@@ -96,6 +96,8 @@ test_cmd "ffuf" "ffuf -V"
 test_cmd "wfuzz" "wfuzz --version 2>/dev/null || wfuzz -h"
 test_cmd "meowEye" "meowEye --help 2>/dev/null || meowEye -h"
 test_path "Burp Suite" "/opt/BurpSuiteCommunity/BurpSuiteCommunity"
+# bare ysoserial exits non-zero; verify a real payload generates instead
+test_cmd 'ysoserial' '[ "$(ysoserial CommonsCollections6 true 2>/dev/null | wc -c)" -gt 100 ]'
 echo ""
 
 # --- Cloud ---
