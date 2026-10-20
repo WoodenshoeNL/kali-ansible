@@ -87,6 +87,16 @@ MeowEye
   OPSEC: NOT SAFE - Active browser-based scanning, generates requests and logs.
   GitHub: https://github.com/eslam3kl/meowEye
 
+ysoserial
+---------
+  Usage: ysoserial <gadget> '<command>'  (e.g. ysoserial CommonsCollections6 'touch /tmp/pwn')
+  Description: Java deserialization payload generator for exploit gadget chains
+               (CommonsCollections, Groovy, Spring, etc.). JAR in /opt/ysoserial.
+               Launcher passes --add-opens for JDK 9+; CC5/Groovy1/Jython1/JSON1
+               cannot be generated on modern JDKs — use CC6/CC7 instead.
+  OPSEC: SAFE - runs locally, generates payload bytes on stdout only.
+  GitHub: https://github.com/frohoff/ysoserial
+
 ================================================================================
 
 TruffleHog

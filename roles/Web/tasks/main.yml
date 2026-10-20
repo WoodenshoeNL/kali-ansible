@@ -55,3 +55,5 @@
 
 - name: Run Gobuster setup
   import_tasks: gobuster.yml
+- name: Run - ysoserial setup
+  import_tasks: ysoserial.yml

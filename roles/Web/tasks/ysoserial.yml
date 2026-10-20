@@ -1,0 +1,68 @@
+# ysoserial - Java deserialization payload generator (frohoff).
+# Upstream publishes exactly one release (v0.0.6, 2022): fat JAR, no build needed.
+# See: https://github.com/frohoff/ysoserial
+
+- name: ysoserial - ensure Java runtime is present
+  ansible.builtin.apt:
+    name: default-jre-headless
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - ysoserial
+    - web
+
+- name: ysoserial - create install directory
+  ansible.builtin.file:
+    path: /opt/ysoserial
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - ysoserial
+    - web
+
+- name: ysoserial - download release JAR
+  ansible.builtin.get_url:
+    url: https://github.com/frohoff/ysoserial/releases/latest/download/ysoserial-all.jar
+    dest: /opt/ysoserial/ysoserial-all.jar
+    owner: root
+    group: root
+    mode: '0644'
+    timeout: 60
+  # force: no on purpose: upstream has exactly one release (v0.0.6) since 2022,
+  # so no re-download on every run. If the URL ever 404s, check
+  # https://api.github.com/repos/frohoff/ysoserial/releases for a newer asset name.
+  tags:
+    - ysoserial
+    - web
+
+- name: ysoserial - install launcher to /usr/local/bin
+  ansible.builtin.copy:
+    dest: /usr/local/bin/ysoserial
+    owner: root
+    group: root
+    mode: '0755'
+    content: |
+      #!/usr/bin/env bash
+      # v0.0.6 (2015) predates the JDK module system: reflect into JDK internals
+      # or every gadget dies with InaccessibleObjectException on Java 9+.
+      exec java \
+        --add-opens java.base/java.lang=ALL-UNNAMED \
+        --add-opens java.base/java.util=ALL-UNNAMED \
+        --add-opens java.base/java.net=ALL-UNNAMED \
+        --add-opens java.base/java.lang.reflect=ALL-UNNAMED \
+        --add-opens java.base/java.text=ALL-UNNAMED \
+        --add-opens java.base/java.util.concurrent=ALL-UNNAMED \
+        --add-opens java.base/sun.reflect.annotation=ALL-UNNAMED \
+        --add-opens java.management/javax.management=ALL-UNNAMED \
+        --add-opens java.xml/com.sun.org.apache.xalan.internal.xsltc.trax=ALL-UNNAMED \
+        --add-opens java.xml/com.sun.org.apache.xalan.internal.xsltc.runtime=ALL-UNNAMED \
+        -jar /opt/ysoserial/ysoserial-all.jar "$@"
+    # Known upstream limits on JDK 9+ regardless of opens: CommonsCollections5
+    # (Field.set type check), Groovy1 (MethodHandles$Lookup ctor), Jython1/JSON1
+    # (Nashorn removed) cannot be generated — use CC6/CC7 instead.
+  tags:
+    - ysoserial
+    - web
