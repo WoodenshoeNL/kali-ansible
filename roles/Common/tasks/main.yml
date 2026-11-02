@@ -93,7 +93,9 @@
     name:
       - zsh
       - docker.io
-      - docker-compose-v2
+      # Kali's docker-compose IS v2 (2.40.x) and it has no docker-compose-v2;
+      # Ubuntu dropped v1 docker-compose in 25.10 and ships v2 as docker-compose-v2.
+      - "{{ 'docker-compose' if ansible_distribution == 'Kali' else 'docker-compose-v2' }}"
       - python3
       - python3-lxml
       - git

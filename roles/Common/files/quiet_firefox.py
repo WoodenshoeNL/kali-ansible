@@ -216,30 +216,34 @@ BANNER = textwrap.dedent("""\
 # FUNCTIONS
 # ============================================================================
 
+def linux_firefox_candidates() -> list[Path]:
+    """
+    Every place Firefox on Linux may keep profiles.ini, newest layout first.
+
+    Firefox 147+ follows the XDG Base Directory spec for NEW installs, so a
+    fresh profile lands in $XDG_CONFIG_HOME/mozilla/firefox (~/.config/...)
+    rather than ~/.mozilla/firefox. Existing ~/.mozilla profiles are kept.
+    """
+    home = Path.home()
+    xdg = Path(os.environ.get("XDG_CONFIG_HOME") or home / ".config")
+    snap = home / "snap" / "firefox" / "common"
+    flatpak = home / ".var" / "app" / "org.mozilla.firefox"
+    return [
+        xdg / "mozilla" / "firefox",                 # XDG (Firefox 147+)
+        home / ".mozilla" / "firefox",               # traditional
+        snap / ".config" / "mozilla" / "firefox",    # Snap, XDG layout
+        snap / ".mozilla" / "firefox",               # Snap (Ubuntu default)
+        flatpak / "config" / "mozilla" / "firefox",  # Flatpak, XDG layout
+        flatpak / ".mozilla" / "firefox",            # Flatpak
+    ]
+
+
 def get_linux_firefox_bases() -> list[Path]:
     """
-    Return a list of possible Firefox base directories on Linux.
-    Handles both traditional and Snap installations.
+    Return the Firefox base directories that exist on this Linux machine.
+    Handles XDG, traditional, Snap and Flatpak installations.
     """
-    bases = []
-    home = Path.home()
-
-    # Traditional Firefox location
-    traditional = home / ".mozilla" / "firefox"
-    if traditional.exists():
-        bases.append(traditional)
-
-    # Snap Firefox location (Ubuntu default)
-    snap = home / "snap" / "firefox" / "common" / ".mozilla" / "firefox"
-    if snap.exists():
-        bases.append(snap)
-
-    # Flatpak Firefox location
-    flatpak = home / ".var" / "app" / "org.mozilla.firefox" / ".mozilla" / "firefox"
-    if flatpak.exists():
-        bases.append(flatpak)
-
-    return bases
+    return [base for base in linux_firefox_candidates() if base.exists()]
 
 
 def parse_profiles_ini(base: Path) -> list[Path]:
@@ -292,11 +296,7 @@ def platform_profiles() -> list[Path]:
 
         if not bases:
             # Check common locations and report which ones were tried
-            tried_locations = [
-                Path.home() / ".mozilla" / "firefox",
-                Path.home() / "snap" / "firefox" / "common" / ".mozilla" / "firefox",
-                Path.home() / ".var" / "app" / "org.mozilla.firefox" / ".mozilla" / "firefox",
-            ]
+            tried_locations = linux_firefox_candidates()
             print("Could not find Firefox profiles in any of these locations:", file=sys.stderr)
             for loc in tried_locations:
                 print(f"  - {loc}", file=sys.stderr)
@@ -398,6 +398,7 @@ if __name__ == "__main__":
               %(prog)s --dry-run           # Preview changes without writing
 
             Supported Firefox installations:
+              - XDG (Firefox 147+): ~/.config/mozilla/firefox/
               - Traditional: ~/.mozilla/firefox/
               - Snap (Ubuntu): ~/snap/firefox/common/.mozilla/firefox/
               - Flatpak: ~/.var/app/org.mozilla.firefox/.mozilla/firefox/

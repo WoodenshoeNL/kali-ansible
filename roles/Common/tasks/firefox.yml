@@ -12,6 +12,8 @@
   file:
     path: "{{ login_home }}/scripts"
     state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0755"
   when: vmware_env in ["workstation", "laptop", "ubuntu"]
   tags:
@@ -23,6 +25,8 @@
   copy:
     src: quiet_firefox.py
     dest: "{{ login_home }}/scripts/quiet_firefox.py"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0755"
   when: vmware_env in ["workstation", "laptop", "ubuntu"]
   tags:
@@ -30,22 +34,20 @@
     - quiet_firefox
     - common
 
-- name: Firefox - Check if a Firefox profile already exists
-  stat:
-    path: "{{ login_home }}/.mozilla/firefox/profiles.ini"
+# Firefox 147+ puts a NEW profile under ~/.config/mozilla/firefox (XDG), older
+# releases and existing installs under ~/.mozilla/firefox, the Ubuntu snap under
+# ~/snap/firefox/common/. quiet_firefox.py searches all of them; this only has
+# to make sure at least one profiles.ini exists before it runs.
+- name: Firefox - Create a default Firefox profile (headless) when none exists
+  ansible.builtin.shell: |
+    for d in "$HOME/.config/mozilla/firefox" "$HOME/.mozilla/firefox" \
+             "$HOME/snap/firefox/common/.config/mozilla/firefox" \
+             "$HOME/snap/firefox/common/.mozilla/firefox"; do
+      if [ -f "$d/profiles.ini" ]; then echo "exists: $d"; exit 0; fi
+    done
+    firefox --headless --createprofile default && echo created
   register: fx_profile
-  become: true
-  become_user: "{{ login_user }}"
-  when: vmware_env in ["workstation", "laptop", "ubuntu"]
-  tags:
-    - Firefox
-    - quiet_firefox
-    - common
-
-- name: Firefox - Create a default Firefox profile (headless) when needed
-  command: firefox --headless --createprofile default
-  args:
-    creates: "{{ login_home }}/.mozilla/firefox/profiles.ini"
+  changed_when: "'created' in fx_profile.stdout"
   become: true
   become_user: "{{ login_user }}"
   environment:

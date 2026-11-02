@@ -1,4 +1,22 @@
-# PowerShell 7 from Microsoft repo (works on Kali, Debian, Ubuntu)
+# PowerShell 7.
+# - Kali: Kali's own `powershell` package. Microsoft has no Kali config package
+#   (config/kali/<version>/packages-microsoft-prod.deb is a 404), which aborted
+#   the run here, and Kali already carries PowerShell itself.
+# - Ubuntu/Debian: Microsoft's repo. Microsoft does not publish PowerShell for
+#   every Ubuntu release (none for questing 25.10 or resolute 26.04, checked
+#   2026-11-02), so the newest repo that carries it is probed for below.
+- name: powershell - install PowerShell 7 from the Kali repo
+  ansible.builtin.apt:
+    name: powershell
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_distribution == 'Kali'
+  tags:
+    - powershell
+    - common
+    - core
+
 - name: powershell - Choose repo and suite for Microsoft packages
   # Microsoft does not publish PowerShell for every Ubuntu release (e.g. no
   # plucky/questing repos ship it). Probe the -prod repos newest-first and use
@@ -21,9 +39,9 @@
     - name: powershell - Set repo suite fact
       ansible.builtin.set_fact:
         pwsh_distro_prefix: "{{ 'microsoft-ubuntu' if ansible_distribution == 'Ubuntu' else 'microsoft-debian' }}"
-        pwsh_suite: "{{ (pwsh_probe.stdout_lines | default([]) | last | default('noble')) if (ansible_distribution == 'Ubuntu') else ('bookworm' if (ansible_distribution == 'Kali') else ansible_distribution_release) }}"
-      when: ansible_os_family == 'Debian'
-  when: ansible_os_family == 'Debian'
+        pwsh_suite: "{{ (pwsh_probe.stdout_lines | default([]) | last | default('noble')) if (ansible_distribution == 'Ubuntu') else ansible_distribution_release }}"
+      when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
+  when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
   tags:
     - powershell
     - common
@@ -39,7 +57,7 @@
     state: present
     update_cache: yes
     cache_valid_time: 3600
-  when: ansible_os_family == 'Debian'
+  when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
   tags:
     - powershell
     - common
@@ -55,7 +73,7 @@
     url: "https://packages.microsoft.com/config/{{ ansible_distribution | lower }}/{{ ansible_distribution_version }}/packages-microsoft-prod.deb"
     dest: /tmp/packages-microsoft-prod.deb
     mode: '0644'
-  when: ansible_os_family == 'Debian'
+  when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
   tags:
     - powershell
     - common
@@ -67,7 +85,7 @@
     dest: /tmp/microsoft-powershell.asc
     mode: '0644'
     force: yes
-  when: ansible_os_family == 'Debian'
+  when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
   tags:
     - powershell
     - common
@@ -79,18 +97,26 @@
     dpkg-deb -x /tmp/packages-microsoft-prod.deb /tmp/ms-prod-ext
     gpg --batch --yes --dearmor -o /tmp/microsoft-legacy.gpg /tmp/microsoft-powershell.asc
     cat /tmp/microsoft-legacy.gpg /tmp/ms-prod-ext/usr/share/keyrings/microsoft-prod.gpg > /usr/share/keyrings/microsoft-powershell.gpg
-  when: ansible_os_family == 'Debian'
+  when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
   tags:
     - powershell
     - common
     - core
 
-- name: powershell - Verify signing key fingerprints (both keys present)
+# Which key a config package carries depends on the release: 24.04's has only
+# the 2015 key (BC52...29CF), 25.10's only the 2023 key (AA86...182B). Requiring
+# both made 24.04 fail here. Require the legacy key (it signs the noble repo that
+# newer Ubuntu releases fall back to) and refuse any key that is not one of the two.
+- name: powershell - Verify signing key fingerprints (legacy present, nothing unexpected)
   ansible.builtin.shell: |
+    set -e
     fprs=$(gpg --no-default-keyring --keyring /usr/share/keyrings/microsoft-powershell.gpg --list-keys --with-colons | grep '^fpr' | cut -d: -f10)
-    echo "$fprs" | grep -q '^BC528686B50D79E339D3721CEB3E94ADBE1229CF$'
-    echo "$fprs" | grep -q '^AA86F75E427A19DD33346403EE4D7792F748182B$'
-  when: ansible_os_family == 'Debian'
+    echo "$fprs" | grep -qx 'BC528686B50D79E339D3721CEB3E94ADBE1229CF'
+    ! echo "$fprs" | grep -vxE 'BC528686B50D79E339D3721CEB3E94ADBE1229CF|AA86F75E427A19DD33346403EE4D7792F748182B'
+  args:
+    executable: /bin/bash
+  changed_when: false
+  when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
   tags:
     - powershell
     - common
@@ -103,7 +129,7 @@
       https://packages.microsoft.com/repos/{{ pwsh_distro_prefix }}-{{ pwsh_suite }}-prod {{ pwsh_suite }} main
     filename: powershell
     state: present
-  when: ansible_os_family == 'Debian'
+  when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
   tags:
     - powershell
     - common
@@ -116,7 +142,7 @@
     install_recommends: false
     update_cache: yes
     cache_valid_time: 3600
-  when: ansible_os_family == 'Debian'
+  when: (ansible_os_family == 'Debian' and ansible_distribution != 'Kali')
   tags:
     - powershell
     - common
