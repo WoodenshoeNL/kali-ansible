@@ -44,7 +44,7 @@ and Kali's package set differs from Ubuntu's (e.g. no `docker-compose-v2`,
 | **Tags** | Append `--tags <tag>` e.g. `--tags core`, `--tags nmap`, `--tags AD`. |
 
 **Variables always passed via `-e`**:
-- `vmware_env` — `workstation` \| `laptop` \| `ubuntu` \| `esx` \| `cursor` \| `n8n` \| `claude_code` \| `codex` \| `ubuntu_terraform` etc.
+- `vmware_env` — `workstation` \| `laptop` \| `esx` (Kali) or `ubuntu` (Ubuntu VM or laptop). Nothing else: `roles/Common/tasks/preflight.yml` refuses other values and a profile that does not match the distro, because many tasks pick the Kali or Ubuntu branch from `vmware_env` alone. Optional tools use `install_*` flags. A new profile must be added to that preflight list.
 - `login_user` — Unix user (e.g. `kali`, `michel`).
 - `login_home` — Home directory (e.g. `/home/kali`, `/home/michel`).
 

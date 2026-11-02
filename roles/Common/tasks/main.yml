@@ -1,4 +1,5 @@
-
+- name: Run preflight checks
+  import_tasks: preflight.yml
 
 - name: Common - Cleanup legacy Microsoft/Azure CLI repo configurations
   ansible.builtin.file:

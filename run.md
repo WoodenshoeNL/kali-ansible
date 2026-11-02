@@ -127,7 +127,7 @@ sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu 
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `vmware_env` | Yes | — | Environment/profile. Affects which optional tools run. |
+| `vmware_env` | Yes | — | `workstation`, `laptop`, `esx` (Kali) or `ubuntu`. Checked at the start of the run: an unknown value, or one that does not match the distro, stops the run. |
 | `login_user` | Yes | — | Unix user for configs (e.g. `kali`, `michel`). |
 | `login_home` | Yes | — | Home directory (e.g. `/home/kali`, `/home/michel`). |
 | `install_beads_original` | No | `false` | Install original beads (Python/Dolt). Default is `beads_rust` only. |

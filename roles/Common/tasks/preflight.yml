@@ -1,0 +1,64 @@
+# Preflight: fail in the first seconds, with a clear message, instead of
+# halfway through the run. Tagged `always`, so it also runs with --tags.
+#
+# Many tasks choose the Kali or the Ubuntu install method from vmware_env
+# alone (`vmware_env == "ubuntu"` / `!= "ubuntu"`), not from the distro. A
+# typo or the wrong profile (e.g. vmware_env=laptop on the Ubuntu laptop)
+# would run the Kali branches on Ubuntu and fail on missing packages much
+# later. login_user/login_home end up in owners and paths everywhere.
+
+- name: Preflight - Required variables are set
+  ansible.builtin.assert:
+    that:
+      - vmware_env is defined
+      - login_user is defined
+      - login_home is defined
+    fail_msg: >-
+      Pass all three with -e, e.g.
+      -e "vmware_env=ubuntu login_user=michel login_home=/home/michel" (see run.md)
+    quiet: true
+  tags:
+    - always
+
+- name: Preflight - vmware_env is a known profile
+  ansible.builtin.assert:
+    that:
+      - vmware_env in ['workstation', 'laptop', 'ubuntu', 'esx']
+    fail_msg: >-
+      vmware_env={{ vmware_env }} is not one of workstation, laptop, esx (Kali)
+      or ubuntu (Ubuntu VM or laptop). Tasks would silently take the wrong
+      branch. Optional tools are chosen with install_* flags, not vmware_env.
+    quiet: true
+  tags:
+    - always
+
+- name: Preflight - vmware_env matches the distribution
+  ansible.builtin.assert:
+    that:
+      - (vmware_env == 'ubuntu') == (ansible_distribution == 'Ubuntu')
+    fail_msg: >-
+      This host runs {{ ansible_distribution }} {{ ansible_distribution_version }},
+      but vmware_env={{ vmware_env }}.
+      {{ 'On Ubuntu use vmware_env=ubuntu.' if ansible_distribution == 'Ubuntu'
+         else 'vmware_env=ubuntu is only for Ubuntu hosts; on Kali use workstation, laptop or esx.' }}
+    quiet: true
+  tags:
+    - always
+
+- name: Preflight - login_user exists
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ login_user }}"
+  tags:
+    - always
+
+- name: Preflight - login_home is login_user's home directory
+  ansible.builtin.assert:
+    that:
+      - getent_passwd[login_user][4] == login_home
+    fail_msg: >-
+      login_home={{ login_home }}, but the home directory of {{ login_user }} is
+      {{ getent_passwd[login_user][4] }}. Files would be written to the wrong place.
+    quiet: true
+  tags:
+    - always
