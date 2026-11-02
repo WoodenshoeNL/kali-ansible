@@ -8,16 +8,6 @@
     - foxyproxy
     - common
 
-- name: foxyproxy - Ensure Firefox extensions directory exists (Ubuntu)
-  file:
-    path: /usr/lib/firefox/distribution/extensions
-    state: directory
-    mode: '0755'
-  when: vmware_env == "ubuntu"
-  tags:
-    - foxyproxy
-    - common
-
 - name: foxyproxy - Resolve latest FoxyProxy Standard XPI via AMO API
   ansible.builtin.uri:
     url: https://addons.mozilla.org/api/v5/addons/addon/foxyproxy-standard/
@@ -41,12 +31,50 @@
     - foxyproxy
     - common
 
-- name: foxyproxy - Download and install extension (Ubuntu)
-  get_url:
-    url: "{{ foxyproxy_amo.json.current_version.file.url }}"
-    dest: /usr/lib/firefox/distribution/extensions/foxyproxy@eric.h.jung.xpi
+# Ubuntu's Firefox is a snap, which never reads /usr/lib/firefox/distribution/
+# extensions, so the XPI dropped there was silently unused. The snap does read
+# enterprise policies from /etc/firefox/policies/policies.json; merge an
+# ExtensionSettings entry into whatever policies are already there.
+- name: foxyproxy - Ensure Firefox policies directory exists (Ubuntu)
+  ansible.builtin.file:
+    path: /etc/firefox/policies
+    state: directory
+    mode: '0755'
+  when: vmware_env == "ubuntu"
+  tags:
+    - foxyproxy
+    - common
+
+- name: foxyproxy - Read existing Firefox policies (Ubuntu)
+  ansible.builtin.slurp:
+    src: /etc/firefox/policies/policies.json
+  register: fx_policies_raw
+  failed_when: false
+  when: vmware_env == "ubuntu"
+  tags:
+    - foxyproxy
+    - common
+
+- name: foxyproxy - Install extension through Firefox policy (Ubuntu)
+  ansible.builtin.copy:
+    dest: /etc/firefox/policies/policies.json
     mode: '0644'
-    force: true
+    content: >-
+      {{ ((fx_policies_raw.content | b64decode | from_json) if (fx_policies_raw.content is defined) else {})
+         | combine({'policies': {'ExtensionSettings': {'foxyproxy@eric.h.jung': {
+             'installation_mode': 'normal_installed',
+             'install_url': 'https://addons.mozilla.org/firefox/downloads/latest/foxyproxy-standard/latest.xpi'}}}},
+           recursive=True)
+         | to_nice_json }}
+  when: vmware_env == "ubuntu"
+  tags:
+    - foxyproxy
+    - common
+
+- name: foxyproxy - Remove the unused sideload XPI from older runs (Ubuntu)
+  ansible.builtin.file:
+    path: /usr/lib/firefox/distribution/extensions/foxyproxy@eric.h.jung.xpi
+    state: absent
   when: vmware_env == "ubuntu"
   tags:
     - foxyproxy

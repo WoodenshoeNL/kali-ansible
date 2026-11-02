@@ -1,13 +1,4 @@
 
-- name: impacket - Check if already installed
-  ansible.builtin.command: which impacket-GetTGT
-  register: impacket_check
-  changed_when: false
-  failed_when: false
-  tags:
-    - impacket
-    - common
-
 - name: impacket - create project directory for {{ login_user }}
   ansible.builtin.file:
     path: "{{ login_home }}/impacket"
@@ -53,30 +44,36 @@
     - impacket
     - common
 
+# pip-installed impacket names its scripts after the example files (getTGT.py,
+# secretsdump.py, ...); only Kali's python3-impacket ships impacket-* names. The
+# old `impacket-*` pattern matched nothing, so Ubuntu got no impacket commands
+# on PATH. Link every script as impacket-<name>, the names Kali users type.
 - name: impacket - find installed scripts in venv
   ansible.builtin.find:
     paths: "{{ login_home }}/impacket/venv/bin"
-    patterns: "impacket-*"
+    patterns: "*.py"
+    excludes: "activate_this.py"
     file_type: file
   register: impacket_scripts
   tags:
     - impacket
     - common
 
-- name: impacket - create symlinks in /usr/local/bin
+- name: impacket - create impacket-<name> symlinks in /usr/local/bin
   ansible.builtin.file:
     src: "{{ item.path }}"
-    dest: "/usr/local/bin/{{ item.path | basename }}"
+    dest: "/usr/local/bin/impacket-{{ item.path | basename | regex_replace('\\.py$', '') }}"
     state: link
     force: yes
   loop: "{{ impacket_scripts.files | default([]) }}"
-  when: impacket_scripts.files is defined and impacket_scripts.files | length > 0
+  loop_control:
+    label: "{{ item.path | basename }}"
   tags:
     - impacket
     - common
 
 - name: impacket - Verify getTGT.py is available
-  ansible.builtin.command: impacket-GetTGT --help
+  ansible.builtin.command: impacket-getTGT --help
   register: impacket_getTGT
   changed_when: false
   failed_when: false
@@ -85,7 +82,7 @@
     - common
 
 - name: impacket - Verify getST.py is available
-  ansible.builtin.command: impacket-GetST --help
+  ansible.builtin.command: impacket-getST --help
   register: impacket_getST
   changed_when: false
   failed_when: false
