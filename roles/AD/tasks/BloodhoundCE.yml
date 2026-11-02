@@ -16,6 +16,8 @@
   template:
     src: "files/bloodHoundCE/{{ item }}"
     dest: "{{ login_home }}/BloodHoundCE/{{ item }}"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
     mode: "0664"
   loop:
     - ".env"

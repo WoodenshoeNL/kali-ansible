@@ -9,19 +9,9 @@
     - windapsearch
     - AD
 
-- name: windapsearch - Get latest release version
-  ansible.builtin.uri:
-    url: https://api.github.com/repos/ropnop/go-windapsearch/releases/latest
-    return_content: yes
-    follow_redirects: all
-  register: windapsearch_release
-  tags:
-    - windapsearch
-    - AD
-
 - name: windapsearch - Download latest Windapsearch binary
   get_url:
-    url: "https://github.com/ropnop/go-windapsearch/releases/download/{{ windapsearch_release.json.tag_name }}/windapsearch-linux-amd64"
+    url: "https://github.com/ropnop/go-windapsearch/releases/latest/download/windapsearch-linux-amd64"
     dest: "/opt/windapsearch/windapsearch"
     mode: "0755"
     force: true       # always refresh to latest

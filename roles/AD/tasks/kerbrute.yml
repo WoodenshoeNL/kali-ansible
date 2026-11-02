@@ -1,16 +1,8 @@
-- name: kerbrute - Get latest release version
-  ansible.builtin.uri:
-    url: https://api.github.com/repos/ropnop/kerbrute/releases/latest
-    return_content: yes
-    follow_redirects: all
-  register: kerbrute_release
-  tags:
-    - kerbrute
-    - AD
-
+# The asset name carries no version, so releases/latest/download avoids the
+# rate-limited api.github.com lookup (60 requests/hour per NAT).
 - name: kerbrute - download & install latest
   ansible.builtin.get_url:
-    url: "https://github.com/ropnop/kerbrute/releases/download/{{ kerbrute_release.json.tag_name }}/kerbrute_linux_amd64"
+    url: "https://github.com/ropnop/kerbrute/releases/latest/download/kerbrute_linux_amd64"
     dest: "/usr/local/bin/kerbrute"
     mode: "0755"
     owner: root

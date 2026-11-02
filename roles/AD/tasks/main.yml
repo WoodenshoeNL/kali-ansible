@@ -47,5 +47,5 @@
 - name: Run rusthound-ce setup
   import_tasks: rusthound-ce.yml
 
-- name: Run runascs setup
-  import_tasks: runascs.yml
+# RunasCs is a Windows .NET tool; Common/stockpile.yml stages RunasCs.exe in
+# /stockpile/RunasCs. There is no Linux build and no Kali package.
