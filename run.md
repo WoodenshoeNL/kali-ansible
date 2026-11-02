@@ -136,6 +136,7 @@ sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu 
 | `install_torbrowser` | No | `false` | Install Tor Browser. |
 | `install_terraform` | No | `false` | Install Terraform. |
 | `install_1password` | No | `false` | Install 1Password desktop app. |
+| `install_nessus` | No | `false` | Install Nessus (Tenable .deb). nessusd is not started; start it and enter the activation code yourself. |
 | `install_claude_code` | No | `false` | Install Claude Code CLI. Opt-in — AI CLIs change too much for default installs. |
 | `install_codex` | No | `false` | Install OpenAI Codex CLI (+ NodeSource Node.js). Opt-in — AI CLIs change too much for default installs. |
 | `install_cursor` | No | `false` | Install Cursor editor. Opt-in — AI CLIs change too much for default installs. |

@@ -13,6 +13,8 @@ install_mullvad: false
 install_torbrowser: false
 install_terraform: false
 install_1password: false
+# Nessus (commercial): installs the Tenable .deb, never starts nessusd.
+install_nessus: false
 
 # AI tools - opt-in (they change too much to install by default).
 install_claude_code: false

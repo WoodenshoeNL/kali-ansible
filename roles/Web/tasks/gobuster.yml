@@ -1,0 +1,11 @@
+# Kali and Ubuntu 26.04 (universe) both package gobuster 3.8.2, the current
+# upstream release, so apt everywhere.
+- name: gobuster - install gobuster package
+  ansible.builtin.apt:
+    name: gobuster
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - gobuster
+    - web

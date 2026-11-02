@@ -65,3 +65,5 @@
 - name: Run - Maltego setup
   import_tasks: maltego.yml
 
+- name: Run whois setup
+  import_tasks: whois.yml

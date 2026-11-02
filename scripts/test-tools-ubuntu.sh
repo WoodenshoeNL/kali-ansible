@@ -162,6 +162,15 @@ test_path "MFASweep" "/stockpile/MFASweep/MFASweep.ps1"
 test_path "LaZagne" "/stockpile/LaZagne/LaZagne.exe"
 echo ""
 
+# --- Web / Cloud / OSINT (added 2026-11) ---
+echo "--- Web / Cloud / OSINT (added 2026-11) ---"
+test_cmd "prowler" "prowler --version"
+test_cmd "trufflehog" "trufflehog --version"
+test_cmd "testssl.sh" "testssl.sh --version"
+test_cmd "gobuster" "gobuster version"
+test_cmd "whois" "whois --version"
+echo ""
+
 # --- Network ---
 echo "--- Network ---"
 test_cmd "enum4linux-ng" "enum4linux-ng -h"

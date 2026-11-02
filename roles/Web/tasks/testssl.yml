@@ -1,0 +1,21 @@
+# testssl.sh is packaged in Kali (3.2.4) and Ubuntu 26.04 universe (3.2.2).
+# Debian renames the script to /usr/bin/testssl; link the upstream name too.
+- name: testssl - install testssl.sh package
+  ansible.builtin.apt:
+    name: testssl.sh
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - testssl
+    - web
+
+- name: testssl - link upstream name testssl.sh
+  ansible.builtin.file:
+    src: /usr/bin/testssl
+    dest: /usr/local/bin/testssl.sh
+    state: link
+    force: true
+  tags:
+    - testssl
+    - web

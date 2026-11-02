@@ -46,3 +46,12 @@
 
 - name: Run - Burp Suite setup
   import_tasks: burp.yml
+
+- name: Run TruffleHog setup
+  import_tasks: trufflehog.yml
+
+- name: Run testssl.sh setup
+  import_tasks: testssl.yml
+
+- name: Run Gobuster setup
+  import_tasks: gobuster.yml

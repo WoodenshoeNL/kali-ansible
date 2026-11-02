@@ -13,6 +13,7 @@ Optional tools and environment-specific setups. Most tasks run only when `instal
 | `install_torbrowser` | `false` | Install Tor Browser. |
 | `install_terraform` | `false` | Install Terraform. |
 | `install_1password` | `false` | Install 1Password desktop app. |
+| `install_nessus` | `false` | Install Nessus; nessusd is not started. |
 | `install_claude_code` | `false` | Install Claude Code CLI. |
 | `install_codex` | `false` | Install OpenAI Codex CLI (+ NodeSource Node.js). |
 | `install_cursor` | `false` | Install Cursor editor (not on `esx`). |

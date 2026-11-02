@@ -1,0 +1,79 @@
+# Nessus (Tenable, commercial): opt-in, imported only when install_nessus is
+# true. The .deb is a public download (requires_auth: false in Tenable's
+# downloads API); the licence/activation code is entered afterwards.
+#
+# - Installed only when the package is absent. Once activated, Nessus updates
+#   its own engine and plugins (Settings > Software Update), which dpkg does
+#   not see, so reinstalling the .deb on every new release would fight that.
+# - The service is never enabled or started here. The package's postinst does
+#   not enable nessusd on a fresh install (deb-systemd-helper update-state) and
+#   does not start it, so it stays off until the user starts it.
+# - Version, file name and SHA-256 come from the downloads API; get_url checks
+#   the hash. Kali gets the Debian build, Ubuntu the Ubuntu build.
+
+- name: nessus - Read installed package state
+  ansible.builtin.command: dpkg-query -W -f=${db:Status-Status} nessus
+  register: nessus_installed
+  changed_when: false
+  failed_when: false
+  tags:
+    - nessus
+    - extra
+
+- name: nessus - Download and install the Tenable package
+  when: nessus_installed.stdout | trim != "installed"
+  tags:
+    - nessus
+    - extra
+  block:
+    - name: nessus - Resolve latest .deb and its SHA-256 from Tenable
+      ansible.builtin.shell: |
+        set -eo pipefail
+        curl -fsSL https://www.tenable.com/downloads/api/v2/pages/nessus \
+          | jq -r --arg re "^Nessus-[0-9.]+-${NESSUS_DIST}_amd64\\.deb$" \
+              '[.releases.latest[][] | select(.file | test($re))][0] | "\(.file) \(.sha256)"'
+      args:
+        executable: /bin/bash
+      environment:
+        NESSUS_DIST: "{{ 'ubuntu1604' if vmware_env == 'ubuntu' else 'debian10' }}"
+      register: nessus_latest
+      changed_when: false
+      failed_when: >-
+        nessus_latest.rc != 0
+        or nessus_latest.stdout is not regex('^Nessus-[0-9.]+-[a-z0-9]+_amd64\.deb [0-9a-f]{64}$')
+
+    - name: nessus - Create download directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: nessus
+      register: nessus_tmp
+
+    - name: nessus - Download package (checksum verified)
+      ansible.builtin.get_url:
+        url: "https://www.tenable.com/downloads/api/v2/pages/nessus/files/{{ nessus_latest.stdout.split()[0] }}"
+        checksum: "sha256:{{ nessus_latest.stdout.split()[1] }}"
+        dest: "{{ nessus_tmp.path }}/{{ nessus_latest.stdout.split()[0] }}"
+        mode: "0644"
+        timeout: 300
+
+    - name: nessus - Install package
+      ansible.builtin.apt:
+        deb: "{{ nessus_tmp.path }}/{{ nessus_latest.stdout.split()[0] }}"
+
+  always:
+    - name: nessus - Cleanup
+      ansible.builtin.file:
+        path: "{{ nessus_tmp.path }}"
+        state: absent
+      when: nessus_tmp.path is defined
+
+- name: nessus - How to start and activate
+  ansible.builtin.debug:
+    msg:
+      - "Nessus is installed but nessusd is NOT enabled or started."
+      - "Start:    sudo systemctl start nessusd   (add 'enable' to start at boot)"
+      - "Activate: open https://localhost:8834/ and enter the activation code,"
+      - "          or: sudo /opt/nessus/sbin/nessuscli fetch --register <ACTIVATION-CODE>"
+  tags:
+    - nessus
+    - extra

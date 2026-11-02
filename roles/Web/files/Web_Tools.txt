@@ -89,3 +89,23 @@ MeowEye
 
 ================================================================================
 
+TruffleHog
+----------
+  Usage: trufflehog git <repo-url> --results=verified | trufflehog filesystem <dir> | trufflehog github --org=<org>
+  Description: Secret scanner with 800+ detectors that verifies found credentials against the live service.
+  OPSEC: PARTIALLY SAFE - Scanning is local, but verification logs in with each found secret; use --no-verification to stay passive.
+  GitHub: https://github.com/trufflesecurity/trufflehog
+
+testssl.sh
+----------
+  Usage: testssl <host:port> | testssl.sh --fast <url>
+  Description: Checks TLS/SSL ciphers, protocols, certificates and known flaws (Heartbleed, ROBOT, etc.).
+  OPSEC: NOT SAFE - Hundreds of handshakes per target, easily seen by IDS/WAF.
+  GitHub: https://github.com/testssl/testssl.sh
+
+Gobuster
+--------
+  Usage: gobuster dir -u <url> -w <wordlist> | gobuster dns -do <domain> -w <wordlist> | gobuster vhost -u <url> -w <wordlist> --ad
+  Description: Brute-forcer for directories/files, DNS subdomains, virtual hosts and S3/GCS buckets.
+  OPSEC: NOT SAFE - High volume of requests, easily detected by WAF/IDS.
+  GitHub: https://github.com/OJ/gobuster

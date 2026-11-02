@@ -64,11 +64,9 @@ EntraFalcon
 
 ================================================================================
 
-
-
-
-
-
-
-
-
+Prowler
+-------
+  Usage: prowler aws | prowler azure --az-cli-auth | prowler m365 --az-cli-auth
+  Description: Cloud security posture scanner (AWS, Azure, GCP, M365, Kubernetes, GitHub) with CIS/compliance checks.
+  OPSEC: NOT SAFE - Many read-only API calls, all logged in CloudTrail / Entra ID / Activity logs.
+  GitHub: https://github.com/prowler-cloud/prowler

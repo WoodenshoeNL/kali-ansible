@@ -31,3 +31,6 @@
 
 - name: Run EntraFalcon setup
   import_tasks: EntraFalcon.yml
+
+- name: Run Prowler setup
+  import_tasks: prowler.yml

@@ -119,3 +119,9 @@ Amass
 
 ================================================================================
 
+whois
+-----
+  Usage: whois <domain> | whois <ip>
+  Description: Queries WHOIS registries for domain registrant, registrar and IP allocation (netblock owner) data.
+  OPSEC: SAFE - Queries go to registries, not the target.
+  GitHub: https://github.com/rfc1036/whois

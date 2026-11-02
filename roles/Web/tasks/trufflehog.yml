@@ -1,0 +1,84 @@
+# TruffleHog: release binary on every environment. Ubuntu 26.04 has no
+# package, and Kali's (3.99.2-0kali1 on 2026-11-02, upstream 3.99.7) lags the
+# detector updates that are the point of the tool.
+# The asset name carries the version, so read the tag from the releases/latest
+# redirect (no api.github.com), skip the download when that version is already
+# installed, and verify the tarball against the published checksums file.
+
+- name: trufflehog - Resolve latest release tag
+  ansible.builtin.shell: |
+    set -eo pipefail
+    url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/trufflesecurity/trufflehog/releases/latest)
+    tag=${url##*/tag/}
+    [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "unexpected release URL: $url" >&2; exit 1; }
+    echo "${tag#v}"
+  args:
+    executable: /bin/bash
+  register: trufflehog_version
+  changed_when: false
+  tags:
+    - trufflehog
+    - web
+
+- name: trufflehog - Read installed version
+  ansible.builtin.shell: |
+    set -eo pipefail
+    if [ -x /usr/local/bin/trufflehog ]; then
+      /usr/local/bin/trufflehog --version 2>&1 | awk '/^trufflehog /{print $2}'
+    fi
+  args:
+    executable: /bin/bash
+  register: trufflehog_installed
+  changed_when: false
+  failed_when: false
+  tags:
+    - trufflehog
+    - web
+
+- name: trufflehog - Download, verify and install
+  when: trufflehog_installed.stdout | trim != trufflehog_version.stdout
+  tags:
+    - trufflehog
+    - web
+  block:
+    - name: trufflehog - Create download directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: trufflehog
+      register: trufflehog_tmp
+
+    - name: trufflehog - Download release tarball (checksum verified)
+      ansible.builtin.get_url:
+        url: "https://github.com/trufflesecurity/trufflehog/releases/download/v{{ trufflehog_version.stdout }}/trufflehog_{{ trufflehog_version.stdout }}_linux_amd64.tar.gz"
+        checksum: "sha256:https://github.com/trufflesecurity/trufflehog/releases/download/v{{ trufflehog_version.stdout }}/trufflehog_{{ trufflehog_version.stdout }}_checksums.txt"
+        dest: "{{ trufflehog_tmp.path }}/trufflehog.tar.gz"
+        mode: "0644"
+
+    - name: trufflehog - Extract release tarball
+      ansible.builtin.unarchive:
+        src: "{{ trufflehog_tmp.path }}/trufflehog.tar.gz"
+        dest: "{{ trufflehog_tmp.path }}"
+        remote_src: yes
+
+    - name: trufflehog - Install binary to /usr/local/bin
+      ansible.builtin.copy:
+        src: "{{ trufflehog_tmp.path }}/trufflehog"
+        dest: /usr/local/bin/trufflehog
+        owner: root
+        group: root
+        mode: "0755"
+        remote_src: yes
+
+  always:
+    - name: trufflehog - Cleanup
+      ansible.builtin.file:
+        path: "{{ trufflehog_tmp.path }}"
+        state: absent
+      when: trufflehog_tmp.path is defined
+
+- name: trufflehog - Verify installation
+  ansible.builtin.command: /usr/local/bin/trufflehog --version
+  changed_when: false
+  tags:
+    - trufflehog
+    - web

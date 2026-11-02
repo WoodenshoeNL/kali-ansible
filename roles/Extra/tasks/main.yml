@@ -45,3 +45,7 @@
 - name: Run Beads Rust setup
   import_tasks: beads_rust.yml
   when: install_beads_rust | default(true) | bool
+
+- name: Run Nessus setup
+  import_tasks: nessus.yml
+  when: install_nessus | default(false) | bool
