@@ -1,63 +1,46 @@
+# todo
 
+Checked against the roles on 2026-11-02. Already installed and removed from
+this list: AzureHound, Krbrelayx, ROADtools, BloodHound CE + bloodhound-python,
+Burp, Coercer, mitm6, Responder, wfuzz, evil-winrm, windapsearch, Certipy,
+NetExec (README.md and install.md describe its install).
 
-To fix:
-- ADCollector.exe
-- BloodhoundCE
+## To fix
 
-To Check:
-- NXC
-- certify
+- ADCollector.exe: `Common/tasks/ADCollector.yml` is commented out in
+  `stockpile.yml`; it needs `mono-complete`/`mono-xbuild`, and
+  `mono-xbuild` is not in kali-rolling.
+- BloodHound CE: listed as "to fix" before; check what is wrong with
+  `roles/AD/files/bloodHoundCE` on the next run.
+- LdapRelayScan: manual steps in install.md, "need fix".
 
-Add tools:
+## To check
+
+- certify (the Windows one; Certipy is installed)
+- GhidraMCP 1.4 against Ghidra 12.2 (works on 12.1.4; declares 11.3.2)
+
+## Tools to add
+
 - prowler
 - adconnectdump
 - LaZagne
 - MFASweep
-- AzureHound
 - Hoaxshell
-- Krbrelayx
 - Libesedb
 - Ntdsxtract
 - PKINITtools
 - Pretender
-- ROADtools-hybrid
-- Bloodhound
 - Nessus
 - Aquatone
-- BloodHound-python
-- Burpsuite
-- Coercer
-- Ldapdomaindump
-- Mitm6
-- Responder
-- wfuzz
+- ldapdomaindump (a dependency of impacket, not on PATH)
 - gobuster
-- evil-winrm
 - SSHscan
-- TestSSL
-- windapsearch.py
+- testssl.sh
+- trufflehog
+- whois
+- DomainPasswordSpray, Snaffler, BloodHound collectors (stockpile)
 
+## Download to the stockpile
 
-
-
-Download tools to vmdisk:
 - AADInternals
 - adPeas
-
-
-
-Fix read right seclist/rockyou
-
-
-whois tool
-
-sudo apt install python3-yaml python3-jinja2
-
-https://github.com/trufflesecurity/trufflehog
-
-
-
-ubuntu:
-
-nmap
-certipy
