@@ -1,9 +1,17 @@
 # todo
 
-Checked against the roles on 2026-11-02. Already installed and removed from
-this list: AzureHound, Krbrelayx, ROADtools, BloodHound CE + bloodhound-python,
-Burp, Coercer, mitm6, Responder, wfuzz, evil-winrm, windapsearch, Certipy,
-NetExec (README.md and install.md describe its install).
+Checked against the roles on 2026-11-02. Installed since, and removed from
+this list: PKINITtools, ldapdomaindump, adconnectdump, libesedb, Pretender,
+Hoaxshell, prowler, trufflehog, testssl.sh, gobuster, whois, Nessus
+(opt-in: install_nessus=true), and in the stockpile DomainPasswordSpray,
+Snaffler, SharpHound, adPEAS, AADInternals, MFASweep, LaZagne.
+
+Decided against:
+- Aquatone: archived, last release 2019; GoWitness is installed.
+- Ntdsxtract: Python 2 only, last commit 2016; ntdsdotsqlite/secretsdump.
+- SSHscan: abandoned 2021; ssh-audit is installed.
+- Certify: Certify.exe is already in the stockpile (Ghostpack-CompiledBinaries,
+  SharpCollection); GhostPack/Certify publishes no release binaries.
 
 ## To fix
 
@@ -16,31 +24,11 @@ NetExec (README.md and install.md describe its install).
 
 ## To check
 
-- certify (the Windows one; Certipy is installed)
 - GhidraMCP 1.4 against Ghidra 12.2 (works on 12.1.4; declares 11.3.2)
-
-## Tools to add
-
-- prowler
-- adconnectdump
-- LaZagne
-- MFASweep
-- Hoaxshell
-- Libesedb
-- Ntdsxtract
-- PKINITtools
-- Pretender
-- Nessus
-- Aquatone
-- ldapdomaindump (a dependency of impacket, not on PATH)
-- gobuster
-- SSHscan
-- testssl.sh
-- trufflehog
-- whois
-- DomainPasswordSpray, Snaffler, BloodHound collectors (stockpile)
+- prowler is pinned to Python 3.13 (5.47.0 requires <3.14); drop the pin
+  once prowler supports 3.14.
 
 ## Download to the stockpile
 
-- AADInternals
-- adPeas
+- adconnectdump's Windows binaries (ADSyncDecrypt, ADSyncQuery,
+  ADSyncCertDump; Azure DevOps builds)
