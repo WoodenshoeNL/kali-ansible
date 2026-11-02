@@ -1,61 +1,25 @@
-- name: torbrowser - Remove legacy Tor Project key (migration from apt_key)
-  apt_key:
-    id: A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89
+# torbrowser-launcher comes from the distro on both Kali and Ubuntu (universe).
+# The old vmware_env=torbrowser path added deb.torproject.org, which does not
+# carry torbrowser-launcher at all, used apt_key (the apt-key binary is gone
+# from current Debian/Kali, so the task failed) and wrote a kali-rolling suite
+# that repo does not have, breaking every later apt update. Remove its leftovers.
+- name: torbrowser - Remove Tor Project repo and key left by older runs
+  ansible.builtin.file:
+    path: "{{ item }}"
     state: absent
-  when: vmware_env == "torbrowser"
-  tags:
-    - torbrowser
-    - privacy
-
-- name: torbrowser - Fetch Tor Project GPG key
-  get_url:
-    url: https://deb.torproject.org/torproject.org/A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89.asc
-    dest: /tmp/torproject.asc
-    mode: '0644'
-    force: yes
-  when: vmware_env == "torbrowser"
-  tags:
-    - torbrowser
-    - privacy
-
-- name: torbrowser - Dearmor GPG key into keyrings
-  command: gpg --dearmor --output /usr/share/keyrings/torproject.gpg /tmp/torproject.asc
-  args:
-    creates: /usr/share/keyrings/torproject.gpg
-  when: vmware_env == "torbrowser"
-  tags:
-    - torbrowser
-    - privacy
-
-- name: torbrowser - Add Tor Project repository (copy ensures single line, no duplicates)
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/tor.list
-    content: "deb [arch=amd64 signed-by=/usr/share/keyrings/torproject.gpg] https://deb.torproject.org/torproject.org {{ ansible_distribution_release }} main\n"
-    mode: '0644'
-  when: vmware_env == "torbrowser"
+  loop:
+    - /etc/apt/sources.list.d/tor.list
+    - /usr/share/keyrings/torproject.gpg
   tags:
     - torbrowser
     - privacy
 
 - name: torbrowser - Install torbrowser-launcher
-  apt:
-    name:
-      - torbrowser-launcher
-    state: present
-    update_cache: yes
-  when: vmware_env == "torbrowser"
-  tags:
-    - torbrowser
-    - privacy
-
-- name: torbrowser - Install from Kali repos
-  apt:
-    name:
-      - torbrowser-launcher
+  ansible.builtin.apt:
+    name: torbrowser-launcher
     state: present
     update_cache: yes
     cache_valid_time: 3600
-  when: vmware_env != "torbrowser"
   tags:
     - torbrowser
     - privacy

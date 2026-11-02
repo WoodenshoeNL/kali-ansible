@@ -8,9 +8,10 @@
     - terraform
     - extra
 
+# HashiCorp has no kali-rolling suite (404); Kali uses Debian trixie's.
 - name: terraform - Add HashiCorp repository
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.asc] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.asc] https://apt.releases.hashicorp.com {{ 'trixie' if ansible_distribution == 'Kali' else ansible_distribution_release }} main"
     state: present
     filename: hashicorp
   tags:

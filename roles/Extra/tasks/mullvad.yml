@@ -29,9 +29,11 @@
     - mullvad
     - vpn
 
+# Mullvad publishes a distro-independent `stable` suite; per-release suites
+# are missing for kali-rolling and resolute (26.04), both 404.
 - name: Mullvad - Add Mullvad repository
   ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/mullvad-keyring.gpg] https://repository.mullvad.net/deb/stable {{ ansible_distribution_release }} main"
+    repo: "deb [signed-by=/usr/share/keyrings/mullvad-keyring.gpg] https://repository.mullvad.net/deb/stable stable main"
     filename: mullvad
     state: present
   tags:

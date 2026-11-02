@@ -32,35 +32,29 @@
   tags:
     - n8n
 
-- name: n8n - Check if NodeSource repo is configured
-  ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/nodesource.list
-  register: nodesource_repo
-  tags:
-    - n8n
-
 - name: n8n - Add NodeSource GPG key
   ansible.builtin.shell: |
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg
   args:
     creates: /usr/share/keyrings/nodesource.gpg
-  when: not nodesource_repo.stat.exists
   tags:
     - n8n
 
+# Node 24: n8n 2.x declares engines.node >=24 (2.45.7, checked 2026-11-02).
+# n8n and codex share this file; it is always rewritten so an older node_20
+# line from a previous run is replaced, not kept.
 - name: n8n - Add NodeSource repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main"
-    filename: nodesource
-    state: present
-  when: not nodesource_repo.stat.exists
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/nodesource.list
+    content: "deb [signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main\n"
+    mode: "0644"
   tags:
     - n8n
 
 - name: n8n - Install Node.js
   ansible.builtin.apt:
     name: nodejs
-    state: present
+    state: latest
     update_cache: yes
   tags:
     - n8n
@@ -238,12 +232,22 @@
 # ------------------------------------------------------------------------------
 # Firewall
 # ------------------------------------------------------------------------------
+# Kali has no ufw by default; the ufw module fails without the binary.
+- name: n8n - Check for ufw
+  ansible.builtin.stat:
+    path: /usr/sbin/ufw
+  register: n8n_ufw_bin
+  tags:
+    - n8n
+
 - name: n8n - Allow n8n port through UFW
   community.general.ufw:
     rule: allow
     port: "{{ n8n_port }}"
     proto: tcp
-  when: n8n_configure_ufw | bool
+  when:
+    - n8n_configure_ufw | bool
+    - n8n_ufw_bin.stat.exists
   tags:
     - n8n
 
