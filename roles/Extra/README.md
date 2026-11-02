@@ -17,7 +17,7 @@ Optional tools and environment-specific setups. Most tasks run only when `instal
 | `install_codex` | `false` | Install OpenAI Codex CLI (+ NodeSource Node.js). |
 | `install_cursor` | `false` | Install Cursor editor (not on `esx`). |
 | `install_antigravity` | `false` | Install Google Antigravity (not on `esx`). |
-| `vmware_env` | — | Environment profile. Metasploit runs only on `ubuntu`. Cursor/Antigravity skip on `esx` even when opted in. Tor Browser path when `install_torbrowser=true`. |
+| `vmware_env` | — | Environment profile. Metasploit runs only on `ubuntu`. Cursor/Antigravity skip on `esx` even when opted in. |
 
 ## Task conditions
 
@@ -54,9 +54,8 @@ ansible-playbook playbook.yml -e "vmware_env=ubuntu login_user=michel login_home
 |------------|-------|
 | `esx` | Remote Kali — Cursor and Antigravity are **not** installed |
 | `ubuntu` | Metasploit is installed |
-| `torbrowser` (with `install_torbrowser=true`) | Tor Browser uses official Tor Project repo |
 
-**Tor Browser**: When `install_torbrowser=true`, use `vmware_env=torbrowser` for the official Tor Project repo, or another value for Kali repos.
+**Tor Browser**: `install_torbrowser=true` installs `torbrowser-launcher` from the distro on Kali and Ubuntu.
 
 ## Always-run tasks
 

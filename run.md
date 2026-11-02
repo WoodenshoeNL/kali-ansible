@@ -29,6 +29,9 @@ ansible-playbook -i '10.10.10.10,' -u kali --private-key ~/.ssh/key -e 'ansible_
 
 ## Laptop
 
+The laptop runs Ubuntu (26.04 LTS), so use the Ubuntu command below with
+`vmware_env=ubuntu`; the `vmware_env=laptop` form here is for a Kali laptop.
+
 Clone Repo
 ```
 git clone https://github.com/WoodenshoeNL/kali-ansible.git
@@ -53,10 +56,44 @@ sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=worksta
 
 ## Ubuntu
 
-Run for Ansible:
+Run for Ansible (Ubuntu VM or the Ubuntu laptop — same command):
 ```
 sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu login_user=michel login_home=/home/michel"
 ```
+
+The VMware shared folder (`.host:/VMShare` in `/etc/fstab`) is only set up when
+the host is actually a VMware guest (Ansible's virtualization facts), and it
+carries `nofail`. On a physical machine any VMShare line left in `/etc/fstab`
+by an older run is removed. (It used to be written on the laptop too, without
+`nofail`, which dropped boot into emergency mode.)
+
+## Ghidra (opt-in)
+
+Ghidra 12.2 + GhidraMCP + triage scripts, only when asked for:
+```
+sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu login_user=michel login_home=/home/michel install_ghidra=true" --tags Ghidra
+```
+Add `install_ghidra_vms=true` for the KVM/libvirt stack for the Windows lab VM
+(bare metal only; adds the user to the `libvirt` and `kvm` groups). Versions and
+the Ghidra SHA-256 are in `roles/Ghidra/defaults/main.yml`. Ghidra is in
+`~/tools/ghidra` (a symlink to the versioned directory), the MCP bridge in
+`~/tools/ghidramcp` (uv-managed Python 3.13 venv). One manual step remains:
+enable GhidraMCPPlugin in CodeBrowser -> File -> Configure -> Developer.
+
+## hashcat
+
+hashcat 8.0.0 is installed from the official release into `~/tools/hashcat`
+and linked as `/usr/local/bin/hashcat` (pinned with its SHA-256 in
+`roles/Network/defaults/main.yml`). The release build is portable, so
+`hashcat.potfile`, sessions and the kernel cache live in `~/tools/hashcat`.
+Upgrades unpack over that directory and keep the potfile. The distro package
+is left installed; `/usr/local/bin` comes first on PATH.
+
+## GitHub downloads
+
+No task calls `api.github.com` (unauthenticated: 60 requests/hour per source
+IP, shared by everyone behind the same NAT). Latest releases come from
+`releases/latest/download/<asset>` or the `releases/latest` redirect.
 
 ## Codex CLI (OpenAI)
 
@@ -68,7 +105,7 @@ These tools run only when explicitly requested. Add the variable to your `-e` fl
 
 | Tool | Variable | Example |
 |------|----------|---------|
-| Beads (original) | `install_beads=true` | `-e "install_beads=true"` |
+| Beads (original) | `install_beads_original=true` | `-e "install_beads_original=true"` |
 | n8n | `install_n8n=true` | `-e "install_n8n=true"` |
 | Mullvad VPN | `install_mullvad=true` | `-e "install_mullvad=true"` |
 | Tor Browser | `install_torbrowser=true` | `-e "install_torbrowser=true"` |
@@ -81,10 +118,10 @@ These tools run only when explicitly requested. Add the variable to your `-e` fl
 
 Example (Ubuntu with beads, n8n, and Mullvad):
 ```
-sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu login_user=michel login_home=/home/michel install_beads=true install_n8n=true install_mullvad=true"
+sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu login_user=michel login_home=/home/michel install_beads_original=true install_n8n=true install_mullvad=true"
 ```
 
-**Tor Browser**: When `install_torbrowser=true`, use `vmware_env=torbrowser` for the official Tor Project repo, or another value for Kali repos.
+**Tor Browser**: `install_torbrowser=true` installs `torbrowser-launcher` from the distro (Kali or Ubuntu universe). `vmware_env=torbrowser` no longer does anything special.
 
 ## Variables
 
@@ -93,7 +130,7 @@ sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu 
 | `vmware_env` | Yes | — | Environment/profile. Affects which optional tools run. |
 | `login_user` | Yes | — | Unix user for configs (e.g. `kali`, `michel`). |
 | `login_home` | Yes | — | Home directory (e.g. `/home/kali`, `/home/michel`). |
-| `install_beads` | No | `false` | Install original beads (Python/Dolt). Default is `beads_rust` only. |
+| `install_beads_original` | No | `false` | Install original beads (Python/Dolt). Default is `beads_rust` only. |
 | `install_n8n` | No | `false` | Install n8n workflow automation. |
 | `install_mullvad` | No | `false` | Install Mullvad VPN. |
 | `install_torbrowser` | No | `false` | Install Tor Browser. |
@@ -103,6 +140,8 @@ sudo ansible-playbook -i localhost, -c local playbook.yml -e "vmware_env=ubuntu 
 | `install_codex` | No | `false` | Install OpenAI Codex CLI (+ NodeSource Node.js). Opt-in — AI CLIs change too much for default installs. |
 | `install_cursor` | No | `false` | Install Cursor editor. Opt-in — AI CLIs change too much for default installs. |
 | `install_antigravity` | No | `false` | Install Google Antigravity. Opt-in — AI CLIs change too much for default installs. |
+| `install_ghidra` | No | `false` | Ghidra role: Ghidra, GhidraMCP, triage scripts. |
+| `install_ghidra_vms` | No | `false` | With `install_ghidra`: KVM/libvirt stack for the Windows lab VM. |
 
 ### vmware_env values (Extra role)
 

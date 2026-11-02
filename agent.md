@@ -23,7 +23,13 @@ This document helps AI agents and contributors add new tasks to the kali-ansible
 6. **OSINT** — Sherlock, theHarvester, Maltego, etc.
 7. **Extra** — Mullvad, n8n, Cursor, Tor Browser, Terraform, etc.
 8. **SCCM** — Misconfiguration-Manager, ConfigManBearPig, SCCMHunter, SharpSCCM, PXEHacker, sccm-http-looter, go-cmloot.
-9. **Tools** — Placeholder; currently empty.
+9. **Ghidra** — Opt-in (`install_ghidra=true`; `install_ghidra_vms=true` for the KVM lab stack). Ghidra, GhidraMCP, triage scripts. Versions in `roles/Ghidra/defaults/main.yml`.
+10. **Tools** — Placeholder; currently empty and not in `playbook.yml`.
+
+**Targets**: Kali rolling and Ubuntu (24.04, 26.04). Both default to Python 3.14
+and Kali's package set differs from Ubuntu's (e.g. no `docker-compose-v2`,
+`runascs`, `rusthound-ce`; Ubuntu has no `chromium`, `amass`, `sn0int`,
+`python3.13`). Check a package name against both before using it.
 
 ---
 
@@ -60,7 +66,7 @@ roles/
 ### 3.2 Domain roles (AD, Web, Cloud, Network, OSINT, SCCM)
 
 - **main.yml**:
-  1. *(Optional)* Copy `*_Tools.txt` to `{{ login_home }}` with `become: false`, `mode: "0644"`. Tag: role name (e.g. `AD`, `web`).
+  1. *(Optional)* Copy `*_Tools.txt` to `{{ login_home }}` with `become_user: "{{ login_user }}"`, `mode: "0644"`. Tag: role name (e.g. `AD`, `web`).
   2. `import_tasks: <tool>.yml` for each tool, in a sensible order.
 
 - **files/**:
@@ -106,7 +112,8 @@ tags:
 ### 4.4 `become` and `become_user`
 
 - Playbook uses `become: true` by default.
-- **`become: false`**: When copying to `{{ login_home }}` as the control-machine user (e.g. `*_Tools.txt`). - **`become_user: "{{ login_user }}"`**: User-space tools (uv, venv, `~/go`), so config and binaries stay in the target user’s home.
+- **Never `become: false` for files in `{{ login_home }}`**: the playbook is run as `sudo ansible-playbook -c local`, so the connection user is root and `become: false` still writes root-owned files. Use **`become_user: "{{ login_user }}"`** (or `owner`/`group: "{{ login_user }}"`) for anything in the user's home: `*_Tools.txt`, dotfiles, uv tools, venvs, `~/go`.
+- **`file: state=directory` only chowns the leaf.** Creating `~/.config/foo/bar` in one task leaves `~/.config/foo` (and on a new account `~/.config`) owned by root; create each level with an owner (see `roles/Ghidra/tasks/ghidramcp.yml`).
 
 ### 4.5 `when` conditions
 
@@ -121,7 +128,18 @@ tags:
 - **get_url**: Use `force: no` to avoid re-download when file exists, or `force: yes` to always refresh.
 - **unarchive**: Use `creates: /path/to/file` or `remote_src: yes` as appropriate.
 - **git**: `update: yes` for pulls; `depth: 1` for shallow clone.
-- **command/shell**: Prefer `args: creates: /path/to/result` where possible.
+- **command/shell**: Prefer `args: creates: /path/to/result` where possible — but not to guard an install that should track `@latest` (it freezes the tool at its first version; see §5.6).
+- **shell + `pipefail`**: the shell module runs `/bin/sh` (dash), which rejects `set -o pipefail`. Add `args: executable: /bin/bash`.
+
+### 4.7 GitHub releases: never `api.github.com`
+
+Unauthenticated API calls are limited to 60/hour per source IP, shared by
+everyone behind the same NAT; they fail the run once exhausted. Instead:
+- Version-free asset name: `https://github.com/<o>/<r>/releases/latest/download/<asset>` (kerbrute, rusthound-ce, duckdb).
+- Versioned asset name: read the tag from the redirect, then build the URL (ligolo-ng, azurehound):
+  `curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/<o>/<r>/releases/latest` → `.../releases/tag/<tag>`; fail if the tag does not look like one.
+- Newest release that has a given asset: the `releases.atom` feed plus a HEAD on the asset (obsidian).
+- Pinned version: put version + SHA-256 in `roles/<Role>/defaults/main.yml` and pass `checksum:` to `get_url` (Ghidra, hashcat). If upstream publishes a `.sha256`, use `checksum: "sha256:<url of .sha256>"`.
 
 ---
 
@@ -287,7 +305,7 @@ See `roles/AD/tasks/Certipy.yml`.
   tags: [<tool>, <role>]
 ```
 
-See `roles/AD/tasks/ldapx.yml`, `godap.yml`.
+Prefer §5.6: with `creates:` the tool never updates, and no task in the repo uses this form any more.
 
 ### 5.6 Go install (user GOPATH, then copy to /usr/local/bin)
 
@@ -305,15 +323,20 @@ See `roles/AD/tasks/ldapx.yml`, `godap.yml`.
   become_user: "{{ login_user }}"
   environment:
     GOPATH: "{{ login_home }}/go"
+    GOTOOLCHAIN: auto     # distro Go may be older than the module needs
     PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
     TMPDIR: "{{ login_home }}/.cache/go-tmp"
   ansible.builtin.shell: |
     set -euo pipefail
     mkdir -p "$TMPDIR"
+    before=$(sha256sum "$GOPATH/bin/<tool>" 2>/dev/null || true)
     go install github.com/org/repo/cmd/<tool>@latest
+    after=$(sha256sum "$GOPATH/bin/<tool>")
+    [ "$before" = "$after" ] || echo CHANGED
   args:
     executable: /bin/bash
-    creates: "{{ login_home }}/go/bin/<tool>"
+  register: <tool>_go
+  changed_when: "'CHANGED' in <tool>_go.stdout"
   tags: [<tool>, <role>]
 
 - name: <tool> - copy binary to /usr/local/bin
@@ -328,7 +351,7 @@ See `roles/AD/tasks/ldapx.yml`, `godap.yml`.
   tags: [<tool>, <role>]
 ```
 
-See `roles/Web/tasks/nuclei.yml`, `subfinder.yml`, `katana.yml`.
+Runs `go install` every time and reports `changed` only when the binary changed, so tools track `@latest`. Check the module path is current (godap is `/v2`, amass `/v5`). See `roles/Web/tasks/nuclei.yml`, `roles/AD/tasks/godap.yml`.
 
 ### 5.7 Binary from GitHub release (get_url + symlink)
 
@@ -344,10 +367,10 @@ See `roles/Web/tasks/nuclei.yml`, `subfinder.yml`, `katana.yml`.
 
 - name: <tool> - download binary
   get_url:
-    url: "https://github.com/org/repo/releases/download/vX.Y.Z/<binary>-linux-amd64"
+    url: "https://github.com/org/repo/releases/latest/download/<binary>-linux-amd64"
     dest: "/opt/<tool>/<binary>"
     mode: "0755"
-    force: no
+    force: yes   # always refresh to latest
   tags: [<tool>, <role>]
 
 - name: <tool> - symlink into /usr/local/bin
@@ -359,7 +382,7 @@ See `roles/Web/tasks/nuclei.yml`, `subfinder.yml`, `katana.yml`.
   tags: [<tool>, <role>]
 ```
 
-See `roles/AD/tasks/kerbrute.yml`, `windapsearch.yml`.
+See `roles/AD/tasks/kerbrute.yml`, `windapsearch.yml`. No `api.github.com` lookup (§4.7).
 
 ### 5.8 Binary from GitHub release (get_url + unarchive)
 
@@ -450,7 +473,8 @@ See `roles/Network/tasks/hashcat.yml`, `roles/AD/tasks/dploot.yml`, `roles/Web/t
 | System-wide optional installs | `/opt/<tool>` |
 | Symlinked binaries | `/usr/local/bin/<binary>` |
 | Firefox extensions (Kali) | `/usr/lib/firefox-esr/distribution/extensions/` |
-| Firefox extensions (Ubuntu) | `/usr/lib/firefox/distribution/extensions/` |
+| Firefox extensions (Ubuntu, snap) | `/etc/firefox/policies/policies.json` `ExtensionSettings` (the snap ignores `distribution/extensions`) |
+| Release builds kept with their data (hashcat, Ghidra) | `{{ login_home }}/tools/<tool>` |
 | User scripts | `{{ login_home }}/scripts/` |
 | Config templates | `roles/<Role>/files/` |
 

@@ -32,8 +32,8 @@ To print all verification commands without running:
 | uv | `uv --version` |
 | cargo/rust | `cargo --version` (source ~/.cargo/env first) |
 | pwsh | `pwsh --version` |
-| impacket (getTGT.py) | `getTGT.py --help` or `impacket-GetTGT --help` |
-| impacket (secretsdump.py) | `secretsdump.py --help` or `impacket-secretsdump --help` |
+| impacket (getTGT.py) | `impacket-getTGT --help` |
+| impacket (secretsdump.py) | `impacket-secretsdump --help` |
 | zsh | `zsh --version` |
 | docker | `docker --version` |
 | docker-compose | `docker compose version` |
@@ -114,7 +114,7 @@ To print all verification commands without running:
 | evil-winrm | `evil-winrm --version` |
 | evil-winrm-py | `evil-winrm-py --help` |
 | mitm6 | `mitm6 --help` |
-| hashcat | `hashcat --version` |
+| hashcat | `hashcat --version` (expect `v8.0.0`, from `~/tools/hashcat`) |
 | john | `john 2>&1 | head -1 | grep -q 'John the Ripper'` |
 | nmap | `nmap --version` |
 | netexec | `netexec --version` |
