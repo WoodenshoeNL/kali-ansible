@@ -14,15 +14,20 @@
   become_user: "{{ login_user }}"
   environment:
     GOPATH: "{{ login_home }}/go"
+    GOTOOLCHAIN: auto
     PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
     TMPDIR: "{{ login_home }}/.cache/go-tmp"
   ansible.builtin.shell: |
     set -euo pipefail
     mkdir -p "$TMPDIR"
+    before=$(sha256sum "$GOPATH/bin/urlfinder" 2>/dev/null || true)
     go install github.com/projectdiscovery/urlfinder/cmd/urlfinder@latest
+    after=$(sha256sum "$GOPATH/bin/urlfinder")
+    [ "$before" = "$after" ] || echo CHANGED
   args:
     executable: /bin/bash
-    creates: "{{ login_home }}/go/bin/urlfinder"
+  register: urlfinder_go
+  changed_when: "'CHANGED' in urlfinder_go.stdout"
   tags:
     - urlfinder
     - web

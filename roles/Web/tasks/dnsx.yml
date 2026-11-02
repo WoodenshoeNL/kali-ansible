@@ -14,15 +14,20 @@
   become_user: "{{ login_user }}"
   environment:
     GOPATH: "{{ login_home }}/go"
+    GOTOOLCHAIN: auto
     PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
     TMPDIR: "{{ login_home }}/.cache/go-tmp"
   ansible.builtin.shell: |
     set -euo pipefail
     mkdir -p "$TMPDIR"
+    before=$(sha256sum "$GOPATH/bin/dnsx" 2>/dev/null || true)
     go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest
+    after=$(sha256sum "$GOPATH/bin/dnsx")
+    [ "$before" = "$after" ] || echo CHANGED
   args:
     executable: /bin/bash
-    creates: "{{ login_home }}/go/bin/dnsx"
+  register: dnsx_go
+  changed_when: "'CHANGED' in dnsx_go.stdout"
   tags:
     - dnsx
     - web

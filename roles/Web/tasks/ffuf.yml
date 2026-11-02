@@ -14,15 +14,20 @@
   become_user: "{{ login_user }}"
   environment:
     GOPATH: "{{ login_home }}/go"
+    GOTOOLCHAIN: auto
     PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
     TMPDIR: "{{ login_home }}/.cache/go-tmp"
   ansible.builtin.shell: |
     set -euo pipefail
     mkdir -p "$TMPDIR"
+    before=$(sha256sum "$GOPATH/bin/ffuf" 2>/dev/null || true)
     go install github.com/ffuf/ffuf/v2@latest
+    after=$(sha256sum "$GOPATH/bin/ffuf")
+    [ "$before" = "$after" ] || echo CHANGED
   args:
     executable: /bin/bash
-    creates: "{{ login_home }}/go/bin/ffuf"
+  register: ffuf_go
+  changed_when: "'CHANGED' in ffuf_go.stdout"
   tags:
     - ffuf
     - web

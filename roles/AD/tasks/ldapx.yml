@@ -1,17 +1,22 @@
-- name: ldapx - install latest release with go install (idempotent, as login_user)
+- name: ldapx - install latest release with go install (tracks @latest, as login_user)
   become: yes
   become_user: "{{ login_user }}"
   ansible.builtin.shell: |
     set -euo pipefail
     mkdir -p "$TMPDIR"
+    before=$(sha256sum "$GOPATH/bin/ldapx" 2>/dev/null || true)
     go install github.com/Macmod/ldapx@latest
+    after=$(sha256sum "$GOPATH/bin/ldapx")
+    [ "$before" = "$after" ] || echo CHANGED
   args:
     executable: /bin/bash
-    creates: "{{ login_home }}/go/bin/ldapx"
   environment:
     GOPATH: "{{ login_home }}/go"
+    GOTOOLCHAIN: auto
     PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
     TMPDIR: "{{ login_home }}/.cache/go-tmp"
+  register: ldapx_go
+  changed_when: "'CHANGED' in ldapx_go.stdout"
   tags:
     - ldapx
     - AD
