@@ -20,7 +20,7 @@
       HOW TO RUN
 
       pwsh
-      PS> cd EntraFalcon
+      PS> cd entrafalcon
       PS> .\run_EntraFalcon.ps1 -AuthMethod "DeviceCode"
   become: yes
   become_user: "{{ login_user }}"

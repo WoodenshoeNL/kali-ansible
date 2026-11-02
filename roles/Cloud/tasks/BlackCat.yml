@@ -21,7 +21,7 @@
 
       pwsh
       PS> cd blackcat
-      PS> import-module ./blackcat.psd1
+      PS> import-module ./BlackCat.psd1
   become: yes
   become_user: "{{ login_user }}"
   tags:
