@@ -11,7 +11,7 @@ This document helps AI agents and contributors add new tasks to the kali-ansible
 **Key files**:
 - `playbook.yml` — Single play, `hosts: all`, `gather_facts: yes`, `become: true`. Runs roles in order.
 - `run.md` — How to run Ansible (VMware Workstation, remote VM, laptop, Ubuntu, tags).
-- `bootstrap.sh` — Minimal VM bootstrap: `apt install git ansible open-vm-tools-desktop`, mount VMShare, then run the playbook.
+- `bootstrap.sh` — First run on a fresh machine: installs `git ansible`, picks `vmware_env` from the distro and `systemd-detect-virt`, mounts VMShare only on a VMware guest, then runs the playbook (extra args are passed through).
 - `requirements.yml` — Ansible Galaxy collections (e.g. `community.general` for npm, ufw). Install with `ansible-galaxy install -r requirements.yml` if needed.
 
 **Roles** (order matters):
@@ -482,13 +482,14 @@ See `roles/Network/tasks/hashcat.yml`, `roles/AD/tasks/dploot.yml`, `roles/Web/t
 
 ## 8. Bootstrap (`bootstrap.sh`)
 
-The script:
+The script, run as the normal user (it calls sudo):
 
-1. `apt update` and install `git`, `ansible`, `open-vm-tools-desktop`.
-2. Mount VMShare at `/share/VMShare`.
-3. `cd /share/VMShare/kali-ansible` and run the playbook with `vmware_env=workstation`, `login_user=kali`, `login_home=/home/kali`.
+1. Picks the profile: Ubuntu -> `ubuntu`; Kali on VMware -> `workstation`; other Kali -> `laptop`. `login_user`/`login_home` are the invoking user.
+2. `apt-get install git ansible` (the apt `ansible` bundles the needed collections).
+3. VMware guests only: `open-vm-tools-desktop`, mount VMShare at `/share/VMShare`, and use `/share/VMShare/kali-ansible` if it is there.
+4. Runs the playbook from the repo directory; extra arguments go to `ansible-playbook` (e.g. `./bootstrap.sh -e install_ghidra=true`).
 
-New tasks generally do not change bootstrap; ensure they work with that default environment (and with the `run.md` invocations).
+New tasks generally do not change bootstrap; ensure they work with those profiles (and with the `run.md` invocations).
 
 ---
 
