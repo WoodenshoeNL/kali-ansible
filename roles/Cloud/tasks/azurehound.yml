@@ -11,20 +11,29 @@
     - azurehound
     - cloud
 
-- name: azurehound - Get latest release version
-  uri:
-    url: https://api.github.com/repos/BloodHoundAD/AzureHound/releases/latest
-    return_content: yes
-    follow_redirects: all
-  register: azurehound_release
+# The asset name carries the version (AzureHound_v3.1.3_linux_amd64.zip), so
+# resolve the tag from the releases/latest redirect: unlike api.github.com it
+# is not limited to 60 requests/hour per NAT. The repo moved to SpecterOps.
+- name: azurehound - Resolve latest release tag
+  ansible.builtin.shell: |
+    set -euo pipefail
+    url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/SpecterOps/AzureHound/releases/latest)
+    tag=${url##*/tag/}
+    [[ "$tag" =~ ^v[0-9] ]] || { echo "unexpected release URL: $url" >&2; exit 1; }
+    echo "$tag"
+  args:
+    executable: /bin/bash
+  register: azurehound_tag
+  changed_when: false
   when: vmware_env == "ubuntu"
   tags:
     - azurehound
     - cloud
 
-- name: azurehound - Download and install binary
+- name: azurehound - Download release zip (checksum verified)
   get_url:
-    url: "{{ azurehound_release.json.assets | selectattr('name', 'search', 'linux_amd64\\.zip$') | map(attribute='browser_download_url') | first }}"
+    url: "https://github.com/SpecterOps/AzureHound/releases/download/{{ azurehound_tag.stdout }}/AzureHound_{{ azurehound_tag.stdout }}_linux_amd64.zip"
+    checksum: "sha256:https://github.com/SpecterOps/AzureHound/releases/download/{{ azurehound_tag.stdout }}/AzureHound_{{ azurehound_tag.stdout }}_linux_amd64.zip.sha256"
     dest: /tmp/azurehound.zip
   when: vmware_env == "ubuntu"
   tags:

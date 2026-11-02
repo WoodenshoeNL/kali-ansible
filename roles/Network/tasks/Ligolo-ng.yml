@@ -10,10 +10,18 @@
     - pivot
     - network
 
-- name: ligolo-ng - resolve latest release tag with complete agent+proxy assets
+# Asset names carry the version, so take the tag from the releases/latest
+# redirect instead of api.github.com (60 requests/hour per NAT). An empty or
+# odd tag now fails here instead of producing three 404 retries later.
+- name: ligolo-ng - resolve latest release tag
   ansible.builtin.shell: |
-    curl -s -H "User-Agent: ansible" "https://api.github.com/repos/nicocha30/ligolo-ng/releases?per_page=10" \
-      | jq -r '[.[] | select([.assets[].name] | any(endswith("linux_amd64.tar.gz"))) | select([.assets[].name] | any(test("agent.*linux_amd64"))) | select([.assets[].name] | any(test("proxy.*linux_amd64")))][0].tag_name'
+    set -euo pipefail
+    url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/nicocha30/ligolo-ng/releases/latest)
+    tag=${url##*/tag/}
+    [[ "$tag" =~ ^v[0-9] ]] || { echo "unexpected release URL: $url" >&2; exit 1; }
+    echo "$tag"
+  args:
+    executable: /bin/bash
   register: ligolo_tag
   changed_when: false
   tags:
@@ -65,10 +73,16 @@
     - pivot
     - network
 
+# copy compares checksums, so a new release replaces the binaries (the old
+# `install ... creates:` never upgraded them).
 - name: ligolo-ng - install binaries as ligolo-proxy / ligolo-agent
-  ansible.builtin.command: "install -m 0755 /tmp/ligolo-extract-{{ item }}/{{ item }} /usr/local/bin/ligolo-{{ item }}"
-  args:
-    creates: "/usr/local/bin/ligolo-{{ item }}"
+  ansible.builtin.copy:
+    src: "/tmp/ligolo-extract-{{ item }}/{{ item }}"
+    dest: "/usr/local/bin/ligolo-{{ item }}"
+    remote_src: yes
+    owner: root
+    group: root
+    mode: "0755"
   loop:
     - proxy
     - agent
@@ -84,6 +98,20 @@
   loop:
     - /usr/local/bin/proxy
     - /usr/local/bin/agent
+  tags:
+    - ligolo
+    - pivot
+    - network
+
+- name: ligolo-ng - remove downloads
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/ligolo-proxy.tar.gz
+    - /tmp/ligolo-agent.tar.gz
+    - /tmp/ligolo-extract-proxy
+    - /tmp/ligolo-extract-agent
   tags:
     - ligolo
     - pivot
