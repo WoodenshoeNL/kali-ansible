@@ -1,0 +1,15 @@
+# ldapdomaindump: both distros package it (0.9.4) with ldapdomaindump,
+# ldd2bloodhound and ldd2pretty in /usr/bin. PyPI has 0.10.0 (2025), whose
+# only functional change is servicePrincipalName in the output, so the distro
+# package is preferred. The copy impacket pulls into its uv tool venv is a
+# library only and puts nothing on PATH.
+
+- name: ldapdomaindump - install python3-ldapdomaindump package
+  ansible.builtin.apt:
+    name: python3-ldapdomaindump
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - ldapdomaindump
+    - AD

@@ -1,0 +1,51 @@
+# pretender (RedTeam Pentesting): mDNS/LLMNR/NetBIOS-NS and DHCPv6 DNS takeover
+# for relaying, in one Go binary. go.mod needs Go 1.25, so GOTOOLCHAIN=auto
+# fetches a newer toolchain when the distro Go is older.
+# A go-installed build reports "(unknown version)" for --version; the release
+# binaries get it from ldflags.
+
+- name: pretender - create GOPATH for "{{ login_user }}" user
+  ansible.builtin.file:
+    path: "{{ login_home }}/go"
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: '0755'
+  tags:
+    - pretender
+    - network
+
+- name: pretender - install via go install (runs as "{{ login_user }}")
+  become_user: "{{ login_user }}"
+  environment:
+    GOPATH: "{{ login_home }}/go"
+    GOTOOLCHAIN: auto
+    PATH: "{{ login_home }}/go/bin:{{ ansible_facts['env']['PATH'] }}"
+    TMPDIR: "{{ login_home }}/.cache/go-tmp"
+  ansible.builtin.shell: |
+    set -euo pipefail
+    mkdir -p "$TMPDIR"
+    before=$(sha256sum "$GOPATH/bin/pretender" 2>/dev/null || true)
+    go install github.com/RedTeamPentesting/pretender@latest
+    after=$(sha256sum "$GOPATH/bin/pretender")
+    [ "$before" = "$after" ] || echo CHANGED
+  args:
+    executable: /bin/bash
+  register: pretender_go
+  changed_when: "'CHANGED' in pretender_go.stdout"
+  tags:
+    - pretender
+    - network
+
+- name: pretender - copy binary to /usr/local/bin
+  become: true
+  ansible.builtin.copy:
+    src: "{{ login_home }}/go/bin/pretender"
+    dest: /usr/local/bin/pretender
+    owner: root
+    group: root
+    mode: '0755'
+    remote_src: true
+  tags:
+    - pretender
+    - network

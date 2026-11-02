@@ -52,3 +52,9 @@
 
 - name: Run Ligolo-ng setup
   import_tasks: Ligolo-ng.yml
+
+- name: Run Pretender setup
+  import_tasks: pretender.yml
+
+- name: Run Hoaxshell setup
+  import_tasks: hoaxshell.yml

@@ -64,3 +64,17 @@ John the Ripper
 
 ================================================================================
 
+Pretender
+---------
+  Usage: pretender -i <interface> [--dry] [--no-dhcp-dns] [--spoof-for <host>]
+  Description: mDNS/LLMNR/NetBIOS-NS spoofing and DHCPv6 DNS takeover for relay attacks
+               (pair with ntlmrelayx/krbrelayx). Single Go binary.
+  OPSEC: NOT SAFE - Poisons name resolution and rogue DHCPv6 on the local segment, IDS/MDI detectable.
+  GitHub: https://github.com/RedTeamPentesting/pretender
+
+Hoaxshell
+---------
+  Usage: hoaxshell -s <lhost> [-p <port>] [-c cert.pem -k key.pem]
+  Description: PowerShell reverse shell over HTTP(S) polling; generates the payload to run on target.
+  OPSEC: NOT SAFE - Default payloads signatured by Defender/AMSI since 2022, periodic HTTP beaconing.
+  GitHub: https://github.com/t3l3machus/hoaxshell

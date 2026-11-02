@@ -49,3 +49,15 @@
 
 # RunasCs is a Windows .NET tool; Common/stockpile.yml stages RunasCs.exe in
 # /stockpile/RunasCs. There is no Linux build and no Kali package.
+
+- name: Run PKINITtools setup
+  import_tasks: pkinittools.yml
+
+- name: Run ldapdomaindump setup
+  import_tasks: ldapdomaindump.yml
+
+- name: Run adconnectdump setup
+  import_tasks: adconnectdump.yml
+
+- name: Run libesedb setup
+  import_tasks: libesedb.yml

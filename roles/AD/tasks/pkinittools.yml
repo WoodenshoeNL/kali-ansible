@@ -1,0 +1,76 @@
+# PKINITtools (dirkjanm): gettgtpkinit, getnthash, gets4uticket.
+# Not on PyPI and in neither distro, so git clone + uv venv + wrappers.
+# oscrypto 1.3.0 (the latest on PyPI, pulled in by minikerberos) misparses an
+# OpenSSL version whose patch number has two digits ("3.0.13") and every
+# script dies on import with "Error detecting the version of libcrypto". The
+# fix is only on oscrypto's git master, so the venv takes it from there,
+# pinned to the commit that was tested (Python 3.14, 2026-11-02).
+
+- name: PKINITtools - clone repository
+  ansible.builtin.git:
+    repo: "https://github.com/dirkjanm/PKINITtools"
+    dest: "{{ login_home }}/PKINITtools"
+    version: HEAD
+    force: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - pkinittools
+    - AD
+
+- name: PKINITtools - create Python virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/PKINITtools/venv"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  args:
+    creates: "{{ login_home }}/PKINITtools/venv/bin/activate"
+  tags:
+    - pkinittools
+    - AD
+
+- name: PKINITtools - install requirements and fixed oscrypto in virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/PKINITtools/venv/bin/python"
+      - --upgrade
+      - -r
+      - "{{ login_home }}/PKINITtools/requirements.txt"
+      - "oscrypto @ git+https://github.com/wbond/oscrypto.git@76bfdcb7285d856c44f8d0fbafe0ecca1c6d2f8b"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: pkinittools_pip
+  changed_when: "'Installed' in pkinittools_pip.stderr or 'Uninstalled' in pkinittools_pip.stderr"
+  tags:
+    - pkinittools
+    - AD
+
+# The scripts are run with the venv's python; a symlink would use whatever
+# `python3` is first on PATH, which has neither impacket nor minikerberos.
+- name: PKINITtools - create global wrappers in /usr/local/bin
+  ansible.builtin.copy:
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      exec {{ login_home }}/PKINITtools/venv/bin/python {{ login_home }}/PKINITtools/{{ item }}.py "$@"
+  loop:
+    - gettgtpkinit
+    - getnthash
+    - gets4uticket
+  tags:
+    - pkinittools
+    - AD

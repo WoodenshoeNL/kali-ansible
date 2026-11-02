@@ -1,0 +1,13 @@
+# libesedb: esedbexport/esedbinfo, for exporting tables from ESE databases
+# (ntds.dit, SRUM, Windows.edb). Packaged as libesedb-utils on both Kali and
+# Ubuntu (universe).
+
+- name: libesedb - install libesedb-utils package
+  ansible.builtin.apt:
+    name: libesedb-utils
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - libesedb
+    - AD

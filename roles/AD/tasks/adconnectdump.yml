@@ -1,0 +1,73 @@
+# adconnectdump (fox-it/dirkjanm): Entra ID (Azure AD) Connect credential
+# extraction. Only the Python half is installed here: adconnectdump.py (remote
+# dump over SMB/RPC; needs ADSyncQuery.exe + MSSQL LocalDB on Windows to parse
+# the database, or `--existing-db --from-file` with that output) and decrypt.py
+# (parses ADSyncGather output). The Windows binaries (ADSyncDecrypt,
+# ADSyncQuery, ADSyncCertDump) come from upstream's Azure DevOps builds and
+# belong in the stockpile.
+# No requirements.txt upstream; the README names impacket and pycryptodomex.
+
+- name: adconnectdump - clone repository
+  ansible.builtin.git:
+    repo: "https://github.com/fox-it/adconnectdump"
+    dest: "{{ login_home }}/adconnectdump"
+    version: HEAD
+    force: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  tags:
+    - adconnectdump
+    - AD
+
+- name: adconnectdump - create Python virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/adconnectdump/venv"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  args:
+    creates: "{{ login_home }}/adconnectdump/venv/bin/activate"
+  tags:
+    - adconnectdump
+    - AD
+
+- name: adconnectdump - install impacket and pycryptodomex in virtualenv with uv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/adconnectdump/venv/bin/python"
+      - --upgrade
+      - impacket
+      - pycryptodomex
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: adconnectdump_pip
+  changed_when: "'Installed' in adconnectdump_pip.stderr or 'Uninstalled' in adconnectdump_pip.stderr"
+  tags:
+    - adconnectdump
+    - AD
+
+- name: adconnectdump - create global wrappers in /usr/local/bin
+  ansible.builtin.copy:
+    dest: "/usr/local/bin/{{ item.name }}"
+    owner: root
+    group: root
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      exec {{ login_home }}/adconnectdump/venv/bin/python {{ login_home }}/adconnectdump/{{ item.script }} "$@"
+  loop:
+    - { name: adconnectdump, script: adconnectdump.py }
+    - { name: adconnectdump-decrypt, script: decrypt.py }
+  tags:
+    - adconnectdump
+    - AD

@@ -82,11 +82,37 @@ godap
 
 ================================================================================
 
+PKINITtools
+-----------
+  Usage: gettgtpkinit -cert-pfx <pfx> [-pfx-pass <pass>] -dc-ip <dc-ip> <domain>/<user> out.ccache
+         getnthash -key <AS-REP key> -dc-ip <dc-ip> <domain>/<user>   (KRB5CCNAME=out.ccache)
+         gets4uticket kerberos+ccache://<domain>\\<user>:out.ccache@<dc-ip> cifs/<host>@<domain> <target>@<domain> s4u.ccache
+  Description: PKINIT Kerberos tools: TGT from a certificate (shadow credentials, ADCS),
+               NT hash recovery via U2U, S4U2Self tickets.
+  OPSEC: NOT SAFE - Certificate-based AS-REQ (event 4768 with cert info), U2U/S4U requests logged on DC.
+  GitHub: https://github.com/dirkjanm/PKINITtools
 
+ldapdomaindump
+--------------
+  Usage: ldapdomaindump -u '<domain>\<user>' -p <pass> -o <outdir> ldap://<dc-ip>
+  Description: Dumps AD users, groups, computers, policy and trusts over LDAP to HTML/JSON/grep files.
+  OPSEC: NOT SAFE - Large LDAP queries pulling the whole directory, visible to LDAP monitoring/MDI.
+  GitHub: https://github.com/dirkjanm/ldapdomaindump
 
+adconnectdump
+-------------
+  Usage: adconnectdump <domain>/<user>:<pass>@<entra-connect-host>
+         adconnectdump ... --existing-db --from-file out.txt   (ADSyncQuery.exe output from Windows)
+         adconnectdump-decrypt <ADSyncGather output> [encoding]
+  Description: Extracts Entra ID (Azure AD) Connect sync credentials (MSOL_ / Sync_ accounts).
+               Windows binaries (ADSyncDecrypt, ADSyncQuery, ADSyncCertDump) are separate.
+  OPSEC: NOT SAFE - Remote registry/SMB/DPAPI access to the Entra Connect server, admin logons logged.
+  GitHub: https://github.com/fox-it/adconnectdump
 
-
-
-
-
-
+libesedb
+--------
+  Usage: esedbexport -t <outdir> ntds.dit
+         esedbinfo ntds.dit
+  Description: Exports tables from ESE databases (ntds.dit, SRUM, Windows.edb) to text files.
+  OPSEC: SAFE - Offline parsing of already acquired files.
+  GitHub: https://github.com/libyal/libesedb

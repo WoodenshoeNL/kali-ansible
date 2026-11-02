@@ -1,0 +1,81 @@
+# hoaxshell: HTTP(S) beacon-style PowerShell reverse shell.
+# Kali packages it (tracks upstream HEAD); Ubuntu does not, so there it is a
+# git clone + uv venv + wrapper. The script finds payload_templates/ next to
+# itself, so the wrapper runs the clone's hoaxshell.py with the venv python.
+
+- name: hoaxshell - install hoaxshell package (Kali)
+  ansible.builtin.apt:
+    name: hoaxshell
+    state: latest
+    update_cache: yes
+    cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
+  tags:
+    - hoaxshell
+    - network
+
+- name: hoaxshell - clone repository (Ubuntu)
+  ansible.builtin.git:
+    repo: "https://github.com/t3l3machus/hoaxshell"
+    dest: "{{ login_home }}/hoaxshell"
+    version: HEAD
+    force: yes
+  become: yes
+  become_user: "{{ login_user }}"
+  when: vmware_env == "ubuntu"
+  tags:
+    - hoaxshell
+    - network
+
+- name: hoaxshell - create Python virtualenv with uv (Ubuntu)
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - "{{ login_home }}/hoaxshell/venv"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  args:
+    creates: "{{ login_home }}/hoaxshell/venv/bin/activate"
+  when: vmware_env == "ubuntu"
+  tags:
+    - hoaxshell
+    - network
+
+- name: hoaxshell - install requirements in virtualenv with uv (Ubuntu)
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ login_home }}/hoaxshell/venv/bin/python"
+      - --upgrade
+      - -r
+      - "{{ login_home }}/hoaxshell/requirements.txt"
+  become: yes
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: hoaxshell_pip
+  changed_when: "'Installed' in hoaxshell_pip.stderr or 'Uninstalled' in hoaxshell_pip.stderr"
+  when: vmware_env == "ubuntu"
+  tags:
+    - hoaxshell
+    - network
+
+- name: hoaxshell - create global launcher in /usr/local/bin (Ubuntu)
+  ansible.builtin.copy:
+    dest: /usr/local/bin/hoaxshell
+    owner: root
+    group: root
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      exec {{ login_home }}/hoaxshell/venv/bin/python {{ login_home }}/hoaxshell/hoaxshell.py "$@"
+  when: vmware_env == "ubuntu"
+  tags:
+    - hoaxshell
+    - network
