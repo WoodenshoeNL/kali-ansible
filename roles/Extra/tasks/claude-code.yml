@@ -27,12 +27,18 @@
     - claude_code
     - AI
 
-- name: Claude Code - Ensure PATH includes ~/.local/bin in .bashrc
+# Both rc files: Kali's login shell is zsh, Ubuntu's is bash.
+- name: Claude Code - Ensure PATH includes ~/.local/bin in .bashrc and .zshrc
   ansible.builtin.lineinfile:
-    path: "{{ login_home }}/.bashrc"
+    path: "{{ login_home }}/{{ item }}"
     line: 'export PATH="$HOME/.local/bin:$PATH"'
     regexp: '.*\.local/bin.*PATH'
     state: present
+    create: yes
+    mode: "0644"
+  loop:
+    - .bashrc
+    - .zshrc
   become_user: "{{ login_user }}"
   tags:
     - claude_code

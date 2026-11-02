@@ -61,6 +61,17 @@
     - seclists
     - common
 
+# The archive's own mode is kept on extraction; make the wordlist readable by
+# the user (hashcat/john run unprivileged), whatever the tarball says.
+- name: seclists - Make rockyou.txt world-readable
+  ansible.builtin.file:
+    path: /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt
+    mode: "0644"
+  when: rockyou_check_before.stat.exists or rockyou_targz_check.stat.exists
+  tags:
+    - seclists
+    - common
+
 - name: seclists - Verify rockyou.txt exists
   ansible.builtin.stat:
     path: /opt/SecLists/Passwords/Leaked-Databases/rockyou.txt
