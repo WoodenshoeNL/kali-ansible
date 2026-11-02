@@ -15,21 +15,17 @@
     - OSINT
 
 # === Kali Linux installation ===
-- name: sn0int - download kpcyrd signing key (Kali)
-  get_url:
-    url: https://apt.vulns.sexy/kpcyrd.pgp
-    dest: /usr/share/keyrings/apt-vulns-sexy.gpg
-    mode: '0644'
-  when: vmware_env != "ubuntu"
-  tags:
-    - sn0int
-    - OSINT
-
-- name: sn0int - add apt repository (Kali)
-  apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/apt-vulns-sexy.gpg] http://apt.vulns.sexy stable main"
-    filename: apt-vulns-sexy
-    state: present
+# Kali packages sn0int itself (0.26.1-0kali1, newer than kpcyrd's 0.25.0), so
+# the third-party repo is not added on Kali any more. Its key was saved
+# ASCII-armored under a .gpg name, which current apt (sqv) may refuse; clean
+# up what older runs left behind.
+- name: sn0int - remove third-party repo and key left by older runs (Kali)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/share/keyrings/apt-vulns-sexy.gpg
+    - /etc/apt/sources.list.d/apt-vulns-sexy.list
   when: vmware_env != "ubuntu"
   tags:
     - sn0int
@@ -67,7 +63,7 @@
 
 - name: sn0int - download and dearmor signing key (Ubuntu)
   shell: |
-    curl -fsSL https://apt.vulns.sexy/kpcyrd.pgp | gpg --dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg
+    curl -fsSL https://apt.vulns.xyz/kpcyrd.pgp | gpg --dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg
     chmod 644 /usr/share/keyrings/apt-vulns-sexy.gpg
   when: vmware_env == "ubuntu"
   tags:
@@ -76,7 +72,7 @@
 
 - name: sn0int - add apt repository (Ubuntu)
   apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/apt-vulns-sexy.gpg] https://apt.vulns.sexy stable main"
+    repo: "deb [signed-by=/usr/share/keyrings/apt-vulns-sexy.gpg] https://apt.vulns.xyz stable main"
     filename: apt-vulns-sexy
     state: present
   when: vmware_env == "ubuntu"
