@@ -63,8 +63,11 @@
 
 - name: sn0int - download and dearmor signing key (Ubuntu)
   shell: |
+    set -eo pipefail
     curl -fsSL https://apt.vulns.xyz/kpcyrd.pgp | gpg --dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg
     chmod 644 /usr/share/keyrings/apt-vulns-sexy.gpg
+  args:
+    executable: /bin/bash
   when: vmware_env == "ubuntu"
   tags:
     - sn0int

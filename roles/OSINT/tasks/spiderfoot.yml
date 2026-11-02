@@ -70,8 +70,10 @@
   become: yes
   become_user: "{{ login_user }}"
   ansible.builtin.shell: |
+    set -eo pipefail
     grep -v '^lxml' requirements.txt | uv pip install --python "{{ login_home }}/Programs/spiderfoot/venv/bin/python" -r /dev/stdin
   args:
+    executable: /bin/bash
     chdir: "{{ login_home }}/Programs/spiderfoot"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"

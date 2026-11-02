@@ -16,7 +16,10 @@
 
 - name: Beads Rust - Install or update via official install script
   ansible.builtin.shell: |
+    set -eo pipefail
     curl -fsSL "https://raw.githubusercontent.com/Dicklesworthstone/beads_rust/main/install.sh?$(date +%s)" | bash -s -- --system --skip-skills
+  args:
+    executable: /bin/bash
   tags:
     - beads_rust
     - beads

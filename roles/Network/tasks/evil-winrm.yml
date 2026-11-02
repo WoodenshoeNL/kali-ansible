@@ -41,7 +41,7 @@
     - network
 
 - name: evil-winrm - Install via gem (Ubuntu)
-  ansible.builtin.gem:
+  community.general.gem:
     name: evil-winrm
     state: latest
     user_install: no

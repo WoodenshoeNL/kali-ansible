@@ -14,13 +14,19 @@
 
 - name: Dolt - Install or update via official install script
   ansible.builtin.shell: |
-    curl -L https://github.com/dolthub/dolt/releases/latest/download/install.sh | bash
+    set -eo pipefail
+    curl -fsSL https://github.com/dolthub/dolt/releases/latest/download/install.sh | bash
+  args:
+    executable: /bin/bash
   tags:
     - beads_original
 
 - name: Beads - Install or update via official install script
   ansible.builtin.shell: |
+    set -eo pipefail
     curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+  args:
+    executable: /bin/bash
   tags:
     - beads_original
 

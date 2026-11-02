@@ -52,8 +52,11 @@
     - AI
 
 - name: Cursor - Install Cursor CLI
-  ansible.builtin.shell: curl https://cursor.com/install -fsS | bash
+  ansible.builtin.shell: |
+    set -eo pipefail
+    curl https://cursor.com/install -fsS | bash
   args:
+    executable: /bin/bash
     creates: "{{ login_home }}/.local/bin/cursor"
   become_user: "{{ login_user }}"
   when: vmware_env != "esx"

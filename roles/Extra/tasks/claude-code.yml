@@ -13,8 +13,10 @@
 
 - name: Claude Code - Install via official script (Linux/macOS/WSL)
   ansible.builtin.shell: |
+    set -eo pipefail
     curl -fsSL https://claude.ai/install.sh | bash
   args:
+    executable: /bin/bash
     creates: "{{ login_home }}/.local/bin/claude"
   environment:
     HOME: "{{ login_home }}"
