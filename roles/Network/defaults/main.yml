@@ -1,0 +1,6 @@
+---
+# hashcat release installed by tasks/hashcat.yml. Bump both together; the
+# release publishes only a .asc signature, so the SHA-256 was computed from
+# the downloaded hashcat-<version>.7z.
+hashcat_version: "8.0.0"
+hashcat_sha256: "9fa86e1bfd5dd898d3c83aa38a67b08db1ba5d2f5252dffa2af44a8c62585f49"

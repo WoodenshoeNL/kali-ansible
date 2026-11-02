@@ -1,248 +1,100 @@
-- name: hashcat - Check if hashcat is installed
-  ansible.builtin.command: which hashcat
-  register: hashcat_installed
-  changed_when: false
-  failed_when: false
-  tags:
-    - hashcat
-    - network
+# hashcat {{ hashcat_version }} from the official release (Kali and Ubuntu both
+# package 7.1.2). Version and SHA-256 are pinned in roles/Network/defaults.
+#
+# The release build is "portable": it keeps hashcat.potfile, sessions and the
+# kernel cache next to hashcat.bin (verified with 8.0.0 run via a symlink).
+# So it lives in a stable, user-owned ~/tools/hashcat, and an upgrade unpacks
+# the new release over it: the potfile survives, because no release ships one.
+#
+# Replaces the old flow, which on every fresh machine fetched the latest
+# release via api.github.com, copied hashcat.bin away from its data (to
+# /usr/local/bin + /usr/local/share/hashcat) and then deleted
+# ~/.local/share/hashcat, the directory that holds the potfile of the distro
+# hashcat. Nothing here deletes user data. The distro package is left alone.
 
-- name: hashcat - Get current version
-  ansible.builtin.command: hashcat --version
-  register: hashcat_version_check
-  changed_when: false
-  failed_when: false
-  when: hashcat_installed.rc == 0
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Parse version and check if update needed
-  ansible.builtin.set_fact:
-    hashcat_current_version: "{{ hashcat_version_check.stdout | regex_search('v([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first | default('0.0.0') }}"
-  when: hashcat_version_check is defined and hashcat_version_check.stdout is defined
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Compare version with 7.1.2 (Jinja version test, no shell)
-  ansible.builtin.set_fact:
-    hashcat_needs_update: "{{ (hashcat_current_version | default('0.0.0')) is version('7.1.2', '<') }}"
-  when: hashcat_version_check is defined
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Set needs update to true if not installed
-  ansible.builtin.set_fact:
-    hashcat_needs_update: true
-  when: hashcat_installed.rc != 0
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - install/upgrade hashcat package
+- name: hashcat - Install 7-Zip and the OpenCL runtime (ICD loader + PoCL CPU fallback)
   ansible.builtin.apt:
-    name: hashcat
-    state: latest
-    update_cache: yes
-    cache_valid_time: 3600
-  when: hashcat_needs_update | default(true)
-  register: hashcat_apt_install
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Check version after apt install/upgrade
-  ansible.builtin.command: hashcat --version
-  register: hashcat_version_after_apt
-  changed_when: false
-  failed_when: false
-  when: hashcat_needs_update | default(true)
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Parse version after apt install
-  ansible.builtin.set_fact:
-    hashcat_version_after_apt_parsed: "{{ hashcat_version_after_apt.stdout | default('') | regex_search('v([0-9]+\\.[0-9]+\\.[0-9]+)', '\\1') | first | default('0.0.0') }}"
-    hashcat_still_needs_update: false
-  when: 
-    - hashcat_needs_update | default(true)
-    - hashcat_version_after_apt is defined
-    - hashcat_version_after_apt.stdout is defined
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Compare version after apt install with 7.1.2 (Jinja version test)
-  ansible.builtin.set_fact:
-    hashcat_still_needs_update: "{{ (hashcat_version_after_apt_parsed | default('0.0.0')) is version('7.1.2', '<') }}"
-  when: 
-    - hashcat_needs_update | default(true)
-    - hashcat_version_after_apt_parsed is defined
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Check if OpenCL data dir exists (needed when binary is from GitHub)
-  ansible.builtin.stat:
-    path: /usr/local/share/hashcat/OpenCL
-  register: hashcat_opencl_stat
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Set needs data dir when OpenCL missing (e.g. re-run after binary-only install)
-  ansible.builtin.set_fact:
-    hashcat_needs_data_dir: "{{ not (hashcat_opencl_stat.stat.exists | default(false)) }}"
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Set do GitHub fetch (version update OR data dir missing)
-  ansible.builtin.set_fact:
-    hashcat_do_github_fetch: "{{ (hashcat_still_needs_update | default(false)) or (hashcat_needs_data_dir | default(false)) }}"
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Get latest release from GitHub (if apt version too old or data dir missing)
-  ansible.builtin.uri:
-    url: https://api.github.com/repos/hashcat/hashcat/releases/latest
-    return_content: yes
-    follow_redirects: all
-  register: hashcat_github_release
-  when: hashcat_do_github_fetch | default(false)
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Find release asset from GitHub (.7z or Linux zip/tar.gz)
-  ansible.builtin.set_fact:
-    hashcat_github_asset: "{{ (hashcat_github_release.json.assets | default([]) | selectattr('name', 'search', '(hashcat-.*\\.7z|linux.*amd64|linux.*x86_64|.*linux.*\\.(zip|tar\\.gz))') | list | map(attribute='browser_download_url') | first) | default('') }}"
-  when: 
-    - hashcat_do_github_fetch | default(false)
-    - hashcat_github_release.json.assets is defined
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Install p7zip for .7z extraction (GitHub release is 7z)
-  ansible.builtin.apt:
-    name: p7zip-full
+    name:
+      - 7zip
+      - ocl-icd-libopencl1
+      - pocl-opencl-icd
     state: present
     update_cache: yes
     cache_valid_time: 3600
-  when: 
-    - hashcat_do_github_fetch | default(false)
-    - hashcat_github_asset is defined
-    - hashcat_github_asset != ""
   tags:
     - hashcat
     - network
 
-- name: hashcat - Download from GitHub release
-  ansible.builtin.get_url:
-    url: "{{ hashcat_github_asset }}"
-    dest: /tmp/hashcat_download
-    mode: "0644"
-    force: no
-  when: 
-    - hashcat_do_github_fetch | default(false)
-    - hashcat_github_asset is defined
-    - hashcat_github_asset != ""
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Extract GitHub release (.7z or zip/tar.gz)
-  ansible.builtin.shell: |
-    mkdir -p /tmp/hashcat_extract
-    case "{{ hashcat_github_asset }}" in
-      *.7z)  7z x /tmp/hashcat_download -o/tmp/hashcat_extract -y ;;
-      *)     tar -xaf /tmp/hashcat_download -C /tmp/hashcat_extract ;;
-    esac
-  args:
-    creates: /tmp/hashcat_extract
-  when: 
-    - hashcat_do_github_fetch | default(false)
-    - hashcat_github_asset is defined
-    - hashcat_github_asset != ""
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Find extracted hashcat binary path (main binary preferred over .bin)
-  ansible.builtin.shell: |
-    P=$(find /tmp/hashcat_extract -type f -name 'hashcat' 2>/dev/null | head -1)
-    [ -n "$P" ] && echo "$P" || find /tmp/hashcat_extract -type f -name 'hashcat.bin' 2>/dev/null | head -1
-  register: hashcat_binary_path_cmd
-  changed_when: false
-  when: 
-    - hashcat_do_github_fetch | default(false)
-    - hashcat_github_asset is defined
-    - hashcat_github_asset != ""
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Install hashcat data (OpenCL, etc.) to /usr/local/share/hashcat
-  ansible.builtin.shell: |
-    install -d /usr/local/share/hashcat
-    SRC=$(find /tmp/hashcat_extract -maxdepth 1 -mindepth 1 -type d | head -1)
-    cp -r "$SRC"/* /usr/local/share/hashcat/
-  when: 
-    - hashcat_do_github_fetch | default(false)
-    - hashcat_github_asset is defined
-    - hashcat_github_asset != ""
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Copy GitHub binary to /usr/local/bin
-  ansible.builtin.copy:
-    src: "{{ hashcat_binary_path_cmd.stdout }}"
-    dest: /usr/local/bin/hashcat
-    mode: "0755"
-    owner: root
-    group: root
-    remote_src: yes
-  when: 
-    - hashcat_still_needs_update | default(false)
-    - hashcat_binary_path_cmd.stdout is defined
-    - hashcat_binary_path_cmd.stdout | length > 0
-  register: hashcat_github_copy
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Remove apt package when GitHub binary was installed (so correct version is used)
-  ansible.builtin.apt:
-    name: hashcat
-    state: absent
-  when: hashcat_github_copy is changed | default(false)
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Remove outdated user cache (dictstat2 etc.) so v7.x does not warn
-  ansible.builtin.file:
-    path: "{{ login_home }}/.local/share/hashcat"
-    state: absent
-  when: hashcat_do_github_fetch | default(false)
-  tags:
-    - hashcat
-    - network
-
-- name: hashcat - Cleanup GitHub download files
+- name: hashcat - Create ~/tools/hashcat
   ansible.builtin.file:
     path: "{{ item }}"
-    state: absent
+    state: directory
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
   loop:
-    - /tmp/hashcat_download
-    - /tmp/hashcat_extract
-  when: hashcat_do_github_fetch | default(false)
+    - "{{ login_home }}/tools"
+    - "{{ login_home }}/tools/hashcat"
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Check whether {{ hashcat_version }} is already installed
+  ansible.builtin.stat:
+    path: "{{ login_home }}/tools/hashcat/.installed-{{ hashcat_version }}"
+  register: hashcat_marker
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Download and unpack {{ hashcat_version }} (checksum verified)
+  when: not hashcat_marker.stat.exists
+  tags:
+    - hashcat
+    - network
+  block:
+    - name: hashcat - Download release archive
+      ansible.builtin.get_url:
+        url: "https://github.com/hashcat/hashcat/releases/download/v{{ hashcat_version }}/hashcat-{{ hashcat_version }}.7z"
+        dest: "/tmp/hashcat-{{ hashcat_version }}.7z"
+        checksum: "sha256:{{ hashcat_sha256 }}"
+        mode: "0644"
+
+    - name: hashcat - Unpack over ~/tools/hashcat (keeps hashcat.potfile, sessions)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        sz=$(command -v 7z || command -v 7zz)
+        tmp=$(mktemp -d)
+        trap 'rm -rf "$tmp"' EXIT
+        "$sz" x -y -o"$tmp" "/tmp/hashcat-{{ hashcat_version }}.7z" >/dev/null
+        cp -a "$tmp/hashcat-{{ hashcat_version }}/." "{{ login_home }}/tools/hashcat/"
+        rm -f "{{ login_home }}"/tools/hashcat/.installed-*
+        touch "{{ login_home }}/tools/hashcat/.installed-{{ hashcat_version }}"
+      args:
+        executable: /bin/bash
+      become: true
+      become_user: "{{ login_user }}"
+
+  always:
+    - name: hashcat - Remove downloaded archive
+      ansible.builtin.file:
+        path: "/tmp/hashcat-{{ hashcat_version }}.7z"
+        state: absent
+
+- name: hashcat - Link /usr/local/bin/hashcat to the release binary
+  ansible.builtin.file:
+    src: "{{ login_home }}/tools/hashcat/hashcat.bin"
+    dest: /usr/local/bin/hashcat
+    state: link
+    force: yes
+  tags:
+    - hashcat
+    - network
+
+- name: hashcat - Remove data copied to /usr/local/share/hashcat by older runs (never read)
+  ansible.builtin.file:
+    path: /usr/local/share/hashcat
+    state: absent
   tags:
     - hashcat
     - network
@@ -310,9 +162,10 @@
     - network
 
 - name: hashcat - Verify version after installation/update
-  ansible.builtin.command: hashcat --version
+  ansible.builtin.command: /usr/local/bin/hashcat --version
   register: hashcat_final_version
   changed_when: false
+  failed_when: hashcat_final_version.rc != 0 or hashcat_final_version.stdout != 'v' ~ hashcat_version
   tags:
     - hashcat
     - network
