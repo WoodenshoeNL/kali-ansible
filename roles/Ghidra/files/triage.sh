@@ -2,7 +2,7 @@
 # triage.sh — one-command Ghidra bughunt triage on a binary (or a directory of binaries).
 # Usage: triage.sh <binary-or-dir> [outdir]
 set -u
-GHIDRA=~/tools/ghidra_12.1.4_PUBLIC
+GHIDRA="${GHIDRA_INSTALL_DIR:-$HOME/tools/ghidra}"   # symlink to the installed version
 SCRIPTS=~/tools/ghidra-scripts
 IN="${1:?usage: triage.sh <binary-or-dir> [outdir]}"
 OUT="${2:-/tmp/ghidra-triage}"

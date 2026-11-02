@@ -1,8 +1,12 @@
-#!/home/michel/tools/ghidramcp-1.4/venv/bin/python
+#!{{ ghidramcp_dir }}/venv/bin/python
 """ghidra-callers.py — list callers (and decompile them) of functions whose
 name matches a substring. Usage: ghidra-callers.py <binary> <name-substring>"""
 import sys
+import os
 import pyghidra
+
+# pyghidra.start() needs GHIDRA_INSTALL_DIR; default to the role's stable symlink.
+os.environ.setdefault("GHIDRA_INSTALL_DIR", os.path.expanduser("~/tools/ghidra"))
 
 pyghidra.start()
 

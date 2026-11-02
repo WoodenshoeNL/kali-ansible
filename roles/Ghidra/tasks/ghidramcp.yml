@@ -1,72 +1,141 @@
-# GhidraMCP 1.4 (GhidraMCP/GhidraMCP fork) + python bridge.
+# GhidraMCP (GhidraMCP/GhidraMCP) + python bridge.
 # - Extension installs into the Ghidra user settings dir as an EXTRACTED
 #   directory; keeping the zip next to it triggers "Duplicate Extension Folder"
-# - Release zip is nested (outer zip contains GhidraMCP-release-1-4/<inner>.zip)
-# - Bridge needs python 3.10-3.13 (3.14 unsupported by pyghidra/mcp)
+# - Release zip is nested (outer zip contains GhidraMCP-release-<v>/<inner>.zip
+#   plus bridge_mcp_ghidra.py)
+# - 1.4's extension.properties declares ghidraVersion=11.3.2. It was enabled
+#   and working on Ghidra 12.1.4 (RAPIER, 2026-10-13); not yet re-checked on 12.2.
+# - Bridge needs python 3.10-3.13 (3.14 unsupported by pyghidra/mcp). Ubuntu
+#   24.04/26.04 do not package python3.13, so uv provides a managed 3.13.
 # - One-time MANUAL step remains: enable GhidraMCPPlugin in the GUI
 #   (CodeBrowser -> File -> Configure -> Developer); server = 127.0.0.1:8080
 
-- name: GhidraMCP - Install python3.13 venv support
-  ansible.builtin.apt:
-    name: python3.13-venv
-    state: present
-    update_cache: yes
-    cache_valid_time: 3600
+- name: GhidraMCP - Set facts
+  ansible.builtin.set_fact:
+    ghidramcp_tag: "{{ ghidramcp_version | replace('.', '-') }}"
   tags:
     - ghidramcp
 
-- name: GhidraMCP - Download release zip
-  ansible.builtin.get_url:
-    url: "https://github.com/GhidraMCP/GhidraMCP/releases/download/1.4/GhidraMCP-1-4.zip"
-    dest: "/tmp/GhidraMCP-1-4.zip"
-    mode: "0644"
+- name: GhidraMCP - Check whether this version's extension and bridge are already installed
+  ansible.builtin.stat:
+    path: "{{ ghidramcp_dir }}/.installed-{{ ghidramcp_version }}-{{ ghidra_version }}"
+  register: ghidramcp_marker
   tags:
     - ghidramcp
 
-- name: GhidraMCP - Unpack outer zip to /tmp
+- name: GhidraMCP - Create work directory for the release zip
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: ghidramcp
+  register: ghidramcp_tmp
+  when: not ghidramcp_marker.stat.exists
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Download and unpack release zip
   ansible.builtin.unarchive:
-    src: "/tmp/GhidraMCP-1-4.zip"
-    dest: "/tmp"
-    creates: "/tmp/GhidraMCP-release-1-4/GhidraMCP-1-4.zip"
+    src: "https://github.com/GhidraMCP/GhidraMCP/releases/download/{{ ghidramcp_version }}/GhidraMCP-{{ ghidramcp_tag }}.zip"
+    dest: "{{ ghidramcp_tmp.path }}"
+    remote_src: yes
+  when: not ghidramcp_marker.stat.exists
   tags:
     - ghidramcp
 
-- name: GhidraMCP - Create user extension directory
+# ansible's file module only chowns the leaf; create every level explicitly so
+# ~/.config and ~/.config/ghidra are never left owned by root.
+- name: GhidraMCP - Create user extension directory (each level owned by the user)
   ansible.builtin.file:
-    path: "{{ login_home }}/.config/ghidra/ghidra_12.1.4_PUBLIC/Extensions"
+    path: "{{ item }}"
     state: directory
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
     mode: "0755"
+  loop:
+    - "{{ login_home }}/.config"
+    - "{{ login_home }}/.config/ghidra"
+    - "{{ ghidra_user_dir }}"
+    - "{{ ghidra_user_dir }}/Extensions"
+    - "{{ ghidramcp_dir }}"
   tags:
     - ghidramcp
 
-- name: GhidraMCP - Unpack inner extension zip
+- name: GhidraMCP - Unpack inner extension zip into the Ghidra user dir
   ansible.builtin.unarchive:
-    src: "/tmp/GhidraMCP-release-1-4/GhidraMCP-1-4.zip"
-    dest: "{{ login_home }}/.config/ghidra/ghidra_12.1.4_PUBLIC/Extensions"
-    creates: "{{ login_home }}/.config/ghidra/ghidra_12.1.4_PUBLIC/Extensions/GhidraMCP/extension.properties"
+    src: "{{ ghidramcp_tmp.path }}/GhidraMCP-release-{{ ghidramcp_tag }}/GhidraMCP-{{ ghidramcp_tag }}.zip"
+    dest: "{{ ghidra_user_dir }}/Extensions"
+    remote_src: yes
+    creates: "{{ ghidra_user_dir }}/Extensions/GhidraMCP/extension.properties"
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
+  when: not ghidramcp_marker.stat.exists
   tags:
     - ghidramcp
 
-- name: GhidraMCP - Remove leftover zip (avoids duplicate-extension warning)
+- name: GhidraMCP - Keep the MCP bridge script
+  ansible.builtin.copy:
+    src: "{{ ghidramcp_tmp.path }}/GhidraMCP-release-{{ ghidramcp_tag }}/bridge_mcp_ghidra.py"
+    dest: "{{ ghidramcp_dir }}/bridge_mcp_ghidra.py"
+    remote_src: yes
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  when: not ghidramcp_marker.stat.exists
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Record the installed version
+  ansible.builtin.copy:
+    dest: "{{ ghidramcp_dir }}/.installed-{{ ghidramcp_version }}-{{ ghidra_version }}"
+    content: "GhidraMCP {{ ghidramcp_version }} for Ghidra {{ ghidra_version }}\n"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0644"
+  when: not ghidramcp_marker.stat.exists
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Remove work directory
   ansible.builtin.file:
-    path: "{{ login_home }}/.config/ghidra/ghidra_12.1.4_PUBLIC/Extensions/GhidraMCP-1-4.zip"
+    path: "{{ ghidramcp_tmp.path }}"
     state: absent
+  when: not ghidramcp_marker.stat.exists
   tags:
     - ghidramcp
 
-- name: GhidraMCP - Create bridge venv (python3.13) and install mcp/pyghidra
-  ansible.builtin.pip:
-    name:
+- name: GhidraMCP - Create bridge venv (uv-managed python {{ ghidramcp_python }})
+  ansible.builtin.command:
+    argv:
+      - uv
+      - venv
+      - --python
+      - "{{ ghidramcp_python }}"
+      - "{{ ghidramcp_dir }}/venv"
+  args:
+    creates: "{{ ghidramcp_dir }}/venv/bin/python"
+  become: true
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  tags:
+    - ghidramcp
+
+- name: GhidraMCP - Install mcp, requests and pyghidra into the bridge venv
+  ansible.builtin.command:
+    argv:
+      - uv
+      - pip
+      - install
+      - --python
+      - "{{ ghidramcp_dir }}/venv/bin/python"
+      - --upgrade
       - mcp
       - requests
       - pyghidra
-    virtualenv: "{{ login_home }}/tools/ghidramcp-1.4/venv"
-    virtualenv_command: "/usr/bin/python3.13 -m venv"
   become: true
   become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+  register: ghidramcp_pip
+  changed_when: "'Installed' in ghidramcp_pip.stderr or 'Uninstalled' in ghidramcp_pip.stderr"
   tags:
     - ghidramcp

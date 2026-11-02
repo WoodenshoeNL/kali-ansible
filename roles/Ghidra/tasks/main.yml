@@ -1,6 +1,8 @@
-# Ghidra role — reverse engineering / bughunting kit
-# Layout mirrors SCCM role: one task file per component, tags per component
-# plus the role tag. User-level ops use become_user (playbook is become:true).
+# Ghidra role — reverse engineering / bughunting kit. Opt-in:
+#   -e install_ghidra=true                (Ghidra + GhidraMCP + triage scripts)
+#   -e install_ghidra_vms=true            (also the KVM/libvirt lab VM stack)
+# playbook.yml gates the whole role on install_ghidra; versions are in
+# defaults/main.yml. User-level ops use become_user (playbook is become:true).
 
 - name: Ghidra - Run core install
   import_tasks: ghidra.yml
@@ -16,6 +18,7 @@
 
 - name: Ghidra - Run Windows lab VM stack
   import_tasks: vms.yml
+  when: install_ghidra_vms | bool
   tags:
     - ghidra-vms
     - Ghidra

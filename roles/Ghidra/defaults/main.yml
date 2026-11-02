@@ -1,0 +1,27 @@
+---
+# Ghidra role: opt-in. playbook.yml only runs it when install_ghidra is true.
+install_ghidra: false
+
+# KVM/libvirt stack for the Windows lab VM. Separate opt-in: it only makes
+# sense on bare metal (nested KVM inside a VMware guest is rarely enabled) and
+# adds the user to the libvirt/kvm groups.
+install_ghidra_vms: false
+
+# Bump all three together. The SHA-256 is in the release notes of
+# https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_<version>_build
+ghidra_version: "12.2"
+ghidra_build_date: "20261016"
+ghidra_sha256: "2c2cd776db3c1f6a097ba418922378ac3649cadd5e844a6f5f088ae628a7be67"
+
+ghidra_dir: "ghidra_{{ ghidra_version }}_PUBLIC"
+ghidra_home: "{{ login_home }}/tools/{{ ghidra_dir }}"
+# Ghidra keeps per-version user settings (and user extensions) here.
+ghidra_user_dir: "{{ login_home }}/.config/ghidra/{{ ghidra_dir }}"
+
+# GhidraMCP 1.4 is still the newest release (checked 2026-11-02). Its
+# extension.properties declares Ghidra 11.3.2; see ghidramcp.yml.
+ghidramcp_version: "1.4"
+ghidramcp_dir: "{{ login_home }}/tools/ghidramcp"
+# The bridge needs Python 3.10-3.13 (3.14 is unsupported by pyghidra/mcp).
+# uv fetches a managed 3.13, because neither Ubuntu 26.04 nor 24.04 packages it.
+ghidramcp_python: "3.13"

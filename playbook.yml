@@ -12,4 +12,6 @@
     - Network
     - OSINT
     - Extra
-    - Ghidra
+    # Opt-in: -e install_ghidra=true (and install_ghidra_vms=true for the KVM lab).
+    - role: Ghidra
+      when: install_ghidra | default(false) | bool

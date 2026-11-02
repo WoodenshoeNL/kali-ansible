@@ -1,5 +1,5 @@
-# Ghidra 12.1.4 core install.
-# Gotchas baked in (verified 2026-10-13 on RAPIER):
+# Ghidra core install (version pinned in defaults/main.yml).
+# Gotchas baked in (verified 2026-10-13 on RAPIER with 12.1.4):
 # - Ghidra 12 rejects JDK 21 ("unsupported java version") — needs JDK 25
 # - openjdk-25-jdk-headless lacks libawt_xawt.so -> GUI UnsatisfiedLinkError,
 #   so install the full JDK
@@ -25,27 +25,46 @@
   tags:
     - ghidra
 
-- name: Ghidra - Download 12.1.4 release zip
+- name: Ghidra - Check whether {{ ghidra_version }} is already unpacked
+  ansible.builtin.stat:
+    path: "{{ ghidra_home }}/ghidraRun"
+  register: ghidra_installed
+  tags:
+    - ghidra
+
+- name: Ghidra - Download {{ ghidra_version }} release zip (checksum verified)
   ansible.builtin.get_url:
-    url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip"
-    dest: "/tmp/ghidra_12.1.4_PUBLIC.zip"
+    url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_{{ ghidra_version }}_build/{{ ghidra_dir }}_{{ ghidra_build_date }}.zip"
+    dest: "/tmp/{{ ghidra_dir }}.zip"
+    checksum: "sha256:{{ ghidra_sha256 }}"
     mode: "0644"
+  when: not ghidra_installed.stat.exists
   tags:
     - ghidra
 
 - name: Ghidra - Unpack to ~/tools
   ansible.builtin.unarchive:
-    src: "/tmp/ghidra_12.1.4_PUBLIC.zip"
+    src: "/tmp/{{ ghidra_dir }}.zip"
     dest: "{{ login_home }}/tools"
-    creates: "{{ login_home }}/tools/ghidra_12.1.4_PUBLIC/ghidraRun"
+    remote_src: yes
+    creates: "{{ ghidra_home }}/ghidraRun"
     owner: "{{ login_user }}"
     group: "{{ login_user }}"
+  when: not ghidra_installed.stat.exists
+  tags:
+    - ghidra
+
+- name: Ghidra - Remove downloaded zip
+  ansible.builtin.file:
+    path: "/tmp/{{ ghidra_dir }}.zip"
+    state: absent
+  when: not ghidra_installed.stat.exists
   tags:
     - ghidra
 
 - name: Ghidra - Pin JDK 25 in launch.properties (JAVA_HOME_OVERRIDE)
   ansible.builtin.lineinfile:
-    path: "{{ login_home }}/tools/ghidra_12.1.4_PUBLIC/support/launch.properties"
+    path: "{{ ghidra_home }}/support/launch.properties"
     regexp: '^JAVA_HOME_OVERRIDE='
     line: 'JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-25-openjdk-amd64'
   tags:
@@ -53,10 +72,21 @@
 
 - name: Ghidra - Force non-headless AWT (JDK 25 defaults headless, GUI dies)
   ansible.builtin.lineinfile:
-    path: "{{ login_home }}/tools/ghidra_12.1.4_PUBLIC/support/launch.properties"
+    path: "{{ ghidra_home }}/support/launch.properties"
     regexp: '^VMARGS_LINUX=-Djava\.awt\.headless='
     line: 'VMARGS_LINUX=-Djava.awt.headless=false'
     insertbefore: '^VMARGS_LINUX=-Dsun\.java2d\.pmoffscreen=false'
+  tags:
+    - ghidra
+
+- name: Ghidra - Stable ~/tools/ghidra symlink to the installed version
+  ansible.builtin.file:
+    src: "{{ ghidra_home }}"
+    dest: "{{ login_home }}/tools/ghidra"
+    state: link
+    force: yes
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
   tags:
     - ghidra
 
@@ -84,6 +114,18 @@
     - VulnTriage.java
     - DumpSymbols.java
     - triage.sh
+  tags:
+    - ghidra
+
+# Templates: the shebang points at the GhidraMCP bridge venv (ghidramcp.yml).
+- name: Ghidra - Deploy pyghidra helper scripts
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ login_home }}/tools/ghidra-scripts/{{ item }}"
+    owner: "{{ login_user }}"
+    group: "{{ login_user }}"
+    mode: "0755"
+  loop:
     - ghidra-decompile.py
     - ghidra-callers.py
   tags:
