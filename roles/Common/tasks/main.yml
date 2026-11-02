@@ -139,6 +139,9 @@
 - name: Create stockpile
   import_tasks: stockpile.yml
 
+- name: Create stockpile (AD / Entra tools)
+  import_tasks: stockpile-ad.yml
+
 - name: Run Powershell setup
   import_tasks: powershell.yml
 

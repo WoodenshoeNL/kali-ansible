@@ -141,6 +141,27 @@ test_cmd "sccm-http-looter" "sccm-http-looter -h >/dev/null 2>&1 || [ \$? -eq 2 
 test_cmd "go-cmloot" "go-cmloot -h >/dev/null 2>&1 || [ \$? -eq 2 ]"
 echo ""
 
+# --- AD (added 2026-11) ---
+echo "--- AD (added 2026-11) ---"
+test_cmd "gettgtpkinit (PKINITtools)" "gettgtpkinit -h"
+test_cmd "getnthash (PKINITtools)" "getnthash -h"
+test_cmd "gets4uticket (PKINITtools)" "gets4uticket -h"
+test_cmd "ldapdomaindump" "ldapdomaindump -h"
+test_cmd "adconnectdump" "adconnectdump -h"
+test_cmd "esedbexport (libesedb)" "command -v esedbexport"
+echo ""
+
+# --- Stockpile (AD / Entra) ---
+echo "--- Stockpile (AD / Entra) ---"
+test_path "DomainPasswordSpray" "/stockpile/DomainPasswordSpray/DomainPasswordSpray.ps1"
+test_path "Snaffler" "/stockpile/Snaffler/Snaffler.exe"
+test_path "SharpHound" "/stockpile/SharpHound/SharpHound.exe"
+test_path "adPEAS" "/stockpile/adPEAS/adPEAS.ps1"
+test_path "AADInternals" "/stockpile/AADInternals/AADInternals.psd1"
+test_path "MFASweep" "/stockpile/MFASweep/MFASweep.ps1"
+test_path "LaZagne" "/stockpile/LaZagne/LaZagne.exe"
+echo ""
+
 # --- Network ---
 echo "--- Network ---"
 test_cmd "enum4linux-ng" "enum4linux-ng -h"
@@ -153,6 +174,8 @@ test_cmd "john" "john 2>&1 | head -1 | grep -q 'John the Ripper'"
 test_cmd "nmap" "nmap --version"
 test_cmd "netexec" "netexec --version 2>&1 | head -1"
 test_cmd "nxc" "nxc --version 2>&1 | head -1"
+test_cmd "pretender" "pretender --help 2>&1 | grep -q 'Usage of'"
+test_cmd "hoaxshell" "hoaxshell -h"
 test_cmd "krbrelayx (venv wrapper)" "krbrelayx -h"
 test_cmd "ligolo-proxy" "ligolo-proxy -h 2>&1 | grep -qi ligolo"
 echo ""

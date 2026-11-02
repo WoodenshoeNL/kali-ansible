@@ -1,0 +1,281 @@
+# Windows-side AD / Entra tools for the stockpile: kept on the host for
+# transfer to targets, never executed here, so files are 0644.
+#
+# Certify is not here: /stockpile/Ghostpack-CompiledBinaries already has
+# Certify.exe (1.x), and /stockpile/SharpCollection has another build.
+# GhostPack/Certify publishes no release binaries, Certify 2.0 included.
+
+- name: DomainPasswordSpray - create destination directory
+  ansible.builtin.file:
+    path: /stockpile/DomainPasswordSpray
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - domainpasswordspray
+    - stockpile
+    - common
+
+# No releases; the script lives on the default branch.
+- name: DomainPasswordSpray - download DomainPasswordSpray.ps1
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/dafthack/DomainPasswordSpray/master/DomainPasswordSpray.ps1
+    dest: /stockpile/DomainPasswordSpray/DomainPasswordSpray.ps1
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+    timeout: 60
+  register: dps_dl
+  retries: 3
+  delay: 5
+  until: dps_dl is not failed
+  tags:
+    - domainpasswordspray
+    - stockpile
+    - common
+
+- name: Snaffler - create destination directory
+  ansible.builtin.file:
+    path: /stockpile/Snaffler
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - snaffler
+    - stockpile
+    - common
+
+- name: Snaffler - download Snaffler.exe (latest release)
+  ansible.builtin.get_url:
+    url: https://github.com/SnaffCon/Snaffler/releases/latest/download/Snaffler.exe
+    dest: /stockpile/Snaffler/Snaffler.exe
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+    timeout: 60
+  register: snaffler_dl
+  retries: 3
+  delay: 5
+  until: snaffler_dl is not failed
+  tags:
+    - snaffler
+    - stockpile
+    - common
+
+# SharpHound from SpecterOps/SharpHound is the BloodHound CE collector (the
+# BloodHoundAD/SharpHound v1 line only feeds legacy BloodHound). AzureHound is
+# installed for Linux elsewhere; its Windows build is not stockpiled.
+- name: SharpHound - create destination directory
+  ansible.builtin.file:
+    path: /stockpile/SharpHound
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - sharphound
+    - stockpile
+    - common
+
+# Asset names carry the version, so take the tag from the releases/latest
+# redirect instead of api.github.com (agent.md 4.7).
+- name: SharpHound - resolve latest release tag
+  ansible.builtin.shell: |
+    set -eo pipefail
+    url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/SpecterOps/SharpHound/releases/latest)
+    tag=${url##*/tag/}
+    [[ "$tag" =~ ^v[0-9] ]] || { echo "unexpected release URL: $url" >&2; exit 1; }
+    echo "$tag"
+  args:
+    executable: /bin/bash
+  register: sharphound_tag
+  changed_when: false
+  tags:
+    - sharphound
+    - stockpile
+    - common
+
+- name: SharpHound - check whether this release is already in the stockpile
+  ansible.builtin.stat:
+    path: "/stockpile/SharpHound/.release-{{ sharphound_tag.stdout }}"
+  register: sharphound_marker
+  tags:
+    - sharphound
+    - stockpile
+    - common
+
+# Upstream publishes a .sha256 next to each zip ("<hash> *<name>").
+- name: SharpHound - download release zip
+  ansible.builtin.get_url:
+    url: "https://github.com/SpecterOps/SharpHound/releases/download/{{ sharphound_tag.stdout }}/SharpHound_{{ sharphound_tag.stdout }}_windows_x86.zip"
+    checksum: "sha256:https://github.com/SpecterOps/SharpHound/releases/download/{{ sharphound_tag.stdout }}/SharpHound_{{ sharphound_tag.stdout }}_windows_x86.zip.sha256"
+    dest: /tmp/SharpHound.zip
+    mode: '0644'
+    timeout: 60
+  register: sharphound_dl
+  retries: 3
+  delay: 5
+  until: sharphound_dl is not failed
+  when: not sharphound_marker.stat.exists
+  tags:
+    - sharphound
+    - stockpile
+    - common
+
+# Flat zip: SharpHound.exe, SharpHound.exe.config, SharpHound.pdb, SharpHound.ps1.
+- name: SharpHound - unpack into stockpile
+  ansible.builtin.unarchive:
+    src: /tmp/SharpHound.zip
+    dest: /stockpile/SharpHound
+    remote_src: yes
+    owner: root
+    group: root
+    mode: '0644'
+  when: not sharphound_marker.stat.exists
+  tags:
+    - sharphound
+    - stockpile
+    - common
+
+- name: SharpHound - record the stockpiled release
+  ansible.builtin.shell: |
+    rm -f /stockpile/SharpHound/.release-*
+    touch "/stockpile/SharpHound/.release-{{ sharphound_tag.stdout }}"
+  when: not sharphound_marker.stat.exists
+  tags:
+    - sharphound
+    - stockpile
+    - common
+
+- name: SharpHound - remove temporary zip
+  ansible.builtin.file:
+    path: /tmp/SharpHound.zip
+    state: absent
+  when: not sharphound_marker.stat.exists
+  tags:
+    - sharphound
+    - stockpile
+    - common
+
+- name: adPEAS - create destination directory
+  ansible.builtin.file:
+    path: /stockpile/adPEAS
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - adpeas
+    - stockpile
+    - common
+
+# adPEAS v2 publishes the script as a release asset (also _min, _obf and
+# _ultra variants; only the plain one is kept).
+- name: adPEAS - download adPEAS.ps1 (latest release)
+  ansible.builtin.get_url:
+    url: https://github.com/61106960/adPEAS/releases/latest/download/adPEAS.ps1
+    dest: /stockpile/adPEAS/adPEAS.ps1
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+    timeout: 60
+  register: adpeas_dl
+  retries: 3
+  delay: 5
+  until: adpeas_dl is not failed
+  tags:
+    - adpeas
+    - stockpile
+    - common
+
+- name: AADInternals - create destination directory
+  ansible.builtin.file:
+    path: /stockpile/AADInternals
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - aadinternals
+    - stockpile
+    - common
+
+# A PowerShell module of many files with no releases: the repo root is the
+# module (Import-Module .\AADInternals.psd1).
+- name: AADInternals - shallow-clone module repo
+  ansible.builtin.git:
+    repo: https://github.com/Gerenios/AADInternals.git
+    dest: /stockpile/AADInternals
+    depth: 1
+    update: yes
+    force: yes
+  tags:
+    - aadinternals
+    - stockpile
+    - common
+
+- name: MFASweep - create destination directory
+  ansible.builtin.file:
+    path: /stockpile/MFASweep
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - mfasweep
+    - stockpile
+    - common
+
+# No releases; the script lives on the default branch.
+- name: MFASweep - download MFASweep.ps1
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/dafthack/MFASweep/master/MFASweep.ps1
+    dest: /stockpile/MFASweep/MFASweep.ps1
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+    timeout: 60
+  register: mfasweep_dl
+  retries: 3
+  delay: 5
+  until: mfasweep_dl is not failed
+  tags:
+    - mfasweep
+    - stockpile
+    - common
+
+- name: LaZagne - create destination directory
+  ansible.builtin.file:
+    path: /stockpile/LaZagne
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - lazagne
+    - stockpile
+    - common
+
+- name: LaZagne - download LaZagne.exe (latest Windows release)
+  ansible.builtin.get_url:
+    url: https://github.com/AlessandroZ/LaZagne/releases/latest/download/LaZagne.exe
+    dest: /stockpile/LaZagne/LaZagne.exe
+    owner: root
+    group: root
+    mode: '0644'
+    force: yes
+    timeout: 60
+  register: lazagne_dl
+  retries: 3
+  delay: 5
+  until: lazagne_dl is not failed
+  tags:
+    - lazagne
+    - stockpile
+    - common
