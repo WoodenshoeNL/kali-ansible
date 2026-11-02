@@ -131,6 +131,18 @@ tags:
 - **command/shell**: Prefer `args: creates: /path/to/result` where possible — but not to guard an install that should track `@latest` (it freezes the tool at its first version; see §5.6).
 - **shell + `pipefail`**: the shell module runs `/bin/sh` (dash), which rejects `set -o pipefail`. Add `args: executable: /bin/bash`.
 
+### 4.6b Report "changed" only for real changes
+
+A second run should be almost all `ok`; then whatever does change stands out.
+Every command/shell task needs `creates:`/`removes:` or a `changed_when:`:
+- `uv pip install`: `register: x` + `changed_when: "'Installed' in x.stderr or 'Uninstalled' in x.stderr"` (a no-op prints "Audited N packages").
+- `uv tool install --force`: uv always reinstalls and says "Installed"; fingerprint the tool env's `*.dist-info` names and `direct_url.json` before and after and echo `CHANGED` (copy `roles/Network/tasks/mitm6.yml`; the dir is uv's normalized name, e.g. `changedetection-io`).
+- `go install ...@latest`: sha256 of the binary before/after (§5.6).
+- Installer scripts (`curl ... | bash`): sha256 of the installed binary before/after (`roles/Common/tasks/uv.yml`).
+- Keyrings: dearmor into a temp file and `install` it only if `cmp` says it differs (`gpg --dearmor` is deterministic).
+- Large pinned downloads: a marker file such as `.installed-<version>` gates download + unpack (Ghidra, hashcat, SharpHound).
+- Facts: always `ansible_facts['...']`, never `ansible_distribution` etc. (injected facts are deprecated in ansible-core 2.20 and removed in 2.24). That includes facts set by modules such as `getent`.
+
 ### 4.7 GitHub releases: never `api.github.com`
 
 Unauthenticated API calls are limited to 60/hour per source IP, shared by
