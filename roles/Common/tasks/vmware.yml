@@ -1,23 +1,54 @@
+# VMware shared folder (.host:/VMShare -> /share/VMShare).
+#
+# Only on a real VMware guest. vmware_env=ubuntu is used both for Ubuntu VMs and
+# for a physical Ubuntu laptop; on the laptop this used to write a vmhgfs-fuse
+# line into /etc/fstab without `nofail`. That mount can never succeed off
+# VMware, so the next boot stopped in emergency mode. Hence:
+#   - the mount is gated on the virtualization facts, not only vmware_env
+#   - the fstab line carries `nofail` so even a VM without the share still boots
+#   - on any host that is NOT a VMware guest, a stale VMShare line is removed
 
-- name: VMware Mount - Make sure mount-point exists
-  file:
-    path: /share/VMShare
-    state: directory
-  when: vmware_env in ["workstation", "ubuntu"]
+- name: VMware Mount - Decide whether this host is a VMware guest
+  ansible.builtin.set_fact:
+    is_vmware_guest: >-
+      {{ (ansible_virtualization_type | default('') | lower) == 'vmware'
+         and (ansible_virtualization_role | default('') == 'guest') }}
   tags:
     - vmware
     - common
 
-- name: VMware Mount - Mount VMShare and keep it in /etc/fstab
-  mount:
+- name: VMware Mount - Make sure mount-point exists
+  ansible.builtin.file:
+    path: /share/VMShare
+    state: directory
+  when:
+    - vmware_env in ["workstation", "ubuntu"]
+    - is_vmware_guest | bool
+  tags:
+    - vmware
+    - common
+
+- name: VMware Mount - Record VMShare in /etc/fstab (nofail, so a missing share never blocks boot)
+  ansible.posix.mount:
     src: ".host:/VMShare"
     path: /share/VMShare
     fstype: fuse.vmhgfs-fuse
-    opts: allow_other,auto_unmount,defaults
-    state: present # ensure mounted - use 'present' instead of 'mounted' for idempotency
+    opts: allow_other,auto_unmount,nofail,defaults
+    state: present
     dump: 0
-    passno: 0                                   # record in fstab
-  when: vmware_env in ["workstation", "ubuntu"]
+    passno: 0
+  when:
+    - vmware_env in ["workstation", "ubuntu"]
+    - is_vmware_guest | bool
+  tags:
+    - vmware
+    - common
+
+- name: VMware Mount - Remove a stale VMShare fstab line on hosts that are not VMware guests
+  ansible.posix.mount:
+    path: /share/VMShare
+    state: absent_from_fstab
+  when: not (is_vmware_guest | bool)
   tags:
     - vmware
     - common
