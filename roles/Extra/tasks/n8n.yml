@@ -10,7 +10,7 @@
   ansible.builtin.set_fact:
     n8n_host: "{{ n8n_host | default('0.0.0.0') }}"
     n8n_port: "{{ n8n_port | default('5678') }}"
-    n8n_webhook_url: "{{ n8n_webhook_url | default('http://' + ansible_default_ipv4.address + ':' + (n8n_port | default('5678') | string) + '/') }}"
+    n8n_webhook_url: "{{ n8n_webhook_url | default('http://' + ansible_facts['default_ipv4']['address'] + ':' + (n8n_port | default('5678') | string) + '/') }}"
     n8n_secure_cookie: "{{ n8n_secure_cookie | default('false') }}"
     n8n_configure_ufw: "{{ n8n_configure_ufw | default(true) }}"
     n8n_basic_auth_active: "{{ n8n_basic_auth_active | default(false) }}"
@@ -260,7 +260,7 @@
   ansible.builtin.debug:
     msg:
       - "n8n installed successfully!"
-      - "Access URL: http://{{ ansible_default_ipv4.address }}:{{ n8n_port }}"
+      - "Access URL: http://{{ ansible_facts['default_ipv4']['address'] }}:{{ n8n_port }}"
       - "Encryption key stored in: /home/n8n/.n8n/.env"
   tags:
     - n8n

@@ -28,7 +28,7 @@
     path: /usr/share/keyrings
     state: directory
     mode: '0755'
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
   tags:
     - common
     - core
@@ -39,7 +39,7 @@
     dest: /tmp/microsoft-common.asc
     mode: '0644'
     force: yes
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
   tags:
     - common
     - core
@@ -47,7 +47,7 @@
 - name: Common - Install Microsoft GPG key for existing repos (e.g. code)
   ansible.builtin.shell: |
     gpg --batch --yes --dearmor -o /usr/share/keyrings/microsoft.gpg /tmp/microsoft-common.asc
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
   tags:
     - common
     - core
@@ -58,7 +58,7 @@
     patterns: '*.list,*.sources'
     contains: 'packages.microsoft.com/repos/code'
   register: code_repo_sources_files
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
   tags:
     - common
     - core
@@ -70,7 +70,7 @@
     replace: 'deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main'
   loop: "{{ (code_repo_sources_files.files | default([])) | map(attribute='path') | list }}"
   when:
-    - ansible_os_family == 'Debian'
+    - ansible_facts['os_family'] == 'Debian'
     - code_repo_sources_files is not skipped
     - (code_repo_sources_files.matched | default(0)) > 0
   tags:
@@ -96,7 +96,7 @@
       - docker.io
       # Kali's docker-compose IS v2 (2.40.x) and it has no docker-compose-v2;
       # Ubuntu dropped v1 docker-compose in 25.10 and ships v2 as docker-compose-v2.
-      - "{{ 'docker-compose' if ansible_distribution == 'Kali' else 'docker-compose-v2' }}"
+      - "{{ 'docker-compose' if ansible_facts['distribution'] == 'Kali' else 'docker-compose-v2' }}"
       - python3
       - python3-lxml
       - git
@@ -105,7 +105,7 @@
       - moreutils
       - rlwrap
       - build-essential
-      - "{{ 'freerdp2-x11' if (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'jammy') else 'freerdp3-x11' }}"
+      - "{{ 'freerdp2-x11' if (ansible_facts['distribution'] == 'Ubuntu' and ansible_facts['distribution_release'] == 'jammy') else 'freerdp3-x11' }}"
       - unzip
       - libssl-dev
       - pkg-config

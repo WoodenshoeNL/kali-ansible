@@ -30,7 +30,7 @@
       - venv
       - "{{ login_home }}/Programs/blackbird/venv"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     creates: "{{ login_home }}/Programs/blackbird/venv"
   tags:
@@ -50,7 +50,7 @@
       - -r
       - "{{ login_home }}/Programs/blackbird/requirements.txt"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     chdir: "{{ login_home }}/Programs/blackbird"
   tags:

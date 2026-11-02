@@ -30,7 +30,7 @@
   become_user: "{{ login_user }}"
   environment:
     HOME: "{{ login_home }}"
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   tags:
     - uv
     - common

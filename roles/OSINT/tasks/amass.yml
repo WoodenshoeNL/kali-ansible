@@ -14,7 +14,7 @@
   environment:
     GOPATH: "{{ login_home }}/go"
     GOTOOLCHAIN: auto
-    PATH: "{{ login_home }}/go/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ login_home }}/go/bin:{{ ansible_facts['env']['PATH'] }}"
     TMPDIR: "{{ login_home }}/.cache/go-tmp"
   ansible.builtin.shell: |
     set -euo pipefail

@@ -41,7 +41,7 @@
   become_user: "{{ login_user }}"
   environment:
     # ~/.cargo/bin needed if aardwolf has to compile its Rust extension
-    PATH: "{{ login_home }}/.local/bin:{{ login_home }}/.cargo/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ login_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   when: vmware_env == "ubuntu"
   tags:
     - netexec

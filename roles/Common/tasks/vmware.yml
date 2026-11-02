@@ -11,8 +11,8 @@
 - name: VMware Mount - Decide whether this host is a VMware guest
   ansible.builtin.set_fact:
     is_vmware_guest: >-
-      {{ (ansible_virtualization_type | default('') | lower) == 'vmware'
-         and (ansible_virtualization_role | default('') == 'guest') }}
+      {{ (ansible_facts['virtualization_type'] | default('') | lower) == 'vmware'
+         and (ansible_facts['virtualization_role'] | default('') == 'guest') }}
   tags:
     - vmware
     - common

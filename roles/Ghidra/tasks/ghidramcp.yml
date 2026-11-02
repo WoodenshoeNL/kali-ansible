@@ -115,7 +115,7 @@
   become: true
   become_user: "{{ login_user }}"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   tags:
     - ghidramcp
 
@@ -134,7 +134,7 @@
   become: true
   become_user: "{{ login_user }}"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   register: ghidramcp_pip
   changed_when: "'Installed' in ghidramcp_pip.stderr or 'Uninstalled' in ghidramcp_pip.stderr"
   tags:

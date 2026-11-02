@@ -26,10 +26,10 @@
   set_fact:
     azcli_suite: >-
       {{ 'bookworm'
-         if (ansible_distribution == 'Kali' and
-             ansible_distribution_release == 'kali-rolling')
-         else (ansible_distribution_release
-               if ansible_distribution_release in azcli_suites.stdout_lines
+         if (ansible_facts['distribution'] == 'Kali' and
+             ansible_facts['distribution_release'] == 'kali-rolling')
+         else (ansible_facts['distribution_release']
+               if ansible_facts['distribution_release'] in azcli_suites.stdout_lines
                else 'noble') }}
   tags:
     - azcli

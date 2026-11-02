@@ -35,11 +35,11 @@
 - name: Preflight - vmware_env matches the distribution
   ansible.builtin.assert:
     that:
-      - (vmware_env == 'ubuntu') == (ansible_distribution == 'Ubuntu')
+      - (vmware_env == 'ubuntu') == (ansible_facts['distribution'] == 'Ubuntu')
     fail_msg: >-
-      This host runs {{ ansible_distribution }} {{ ansible_distribution_version }},
+      This host runs {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }},
       but vmware_env={{ vmware_env }}.
-      {{ 'On Ubuntu use vmware_env=ubuntu.' if ansible_distribution == 'Ubuntu'
+      {{ 'On Ubuntu use vmware_env=ubuntu.' if ansible_facts['distribution'] == 'Ubuntu'
          else 'vmware_env=ubuntu is only for Ubuntu hosts; on Kali use workstation, laptop or esx.' }}
     quiet: true
   tags:
@@ -55,10 +55,10 @@
 - name: Preflight - login_home is login_user's home directory
   ansible.builtin.assert:
     that:
-      - getent_passwd[login_user][4] == login_home
+      - ansible_facts['getent_passwd'][login_user][4] == login_home
     fail_msg: >-
       login_home={{ login_home }}, but the home directory of {{ login_user }} is
-      {{ getent_passwd[login_user][4] }}. Files would be written to the wrong place.
+      {{ ansible_facts['getent_passwd'][login_user][4] }}. Files would be written to the wrong place.
     quiet: true
   tags:
     - always

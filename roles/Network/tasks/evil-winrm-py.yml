@@ -11,7 +11,7 @@
       - krb5-pkinit
     state: present
     update_cache: true
-  when: ansible_os_family == "Debian"
+  when: ansible_facts['os_family'] == "Debian"
   tags:
     - evil-winrm-py
     - network
@@ -28,7 +28,7 @@
       - --force
       - "evil-winrm-py[kerberos]"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   tags:
     - evil-winrm-py
     - network

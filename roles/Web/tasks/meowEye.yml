@@ -36,7 +36,7 @@
       - venv
       - /opt/meowEye/venv
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     creates: /opt/meowEye/venv/bin/python
   tags:
@@ -58,7 +58,7 @@
       - "setuptools<71"
       - "blinker<1.8.0"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     chdir: /opt/meowEye
   tags:

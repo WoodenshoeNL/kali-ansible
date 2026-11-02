@@ -20,7 +20,7 @@
     creates: "{{ login_home }}/.local/bin/claude"
   environment:
     HOME: "{{ login_home }}"
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('/usr/local/bin:/usr/bin:/bin') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('/usr/local/bin:/usr/bin:/bin') }}"
   become_user: "{{ login_user }}"
   when: claude_code_check.rc != 0
   tags:

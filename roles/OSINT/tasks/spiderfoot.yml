@@ -42,7 +42,7 @@
       - venv
       - "{{ login_home }}/Programs/spiderfoot/venv"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     creates: "{{ login_home }}/Programs/spiderfoot/venv"
   tags:
@@ -61,7 +61,7 @@
       - "{{ login_home }}/Programs/spiderfoot/venv/bin/python"
       - "lxml>=5.0"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   tags:
     - spiderfoot
     - OSINT
@@ -76,7 +76,7 @@
     executable: /bin/bash
     chdir: "{{ login_home }}/Programs/spiderfoot"
   environment:
-    PATH: "{{ login_home }}/.local/bin:{{ ansible_env.PATH | default('') }}"
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   tags:
     - spiderfoot
     - OSINT
