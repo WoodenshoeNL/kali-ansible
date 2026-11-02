@@ -32,26 +32,21 @@
     - OSINT
 
 # === Ubuntu installation ===
-- name: sn0int - remove stale apt.vulns.sexy keyring (Ubuntu)
-  file:
-    path: /usr/share/keyrings/apt-vulns-sexy.gpg
-    state: absent
-  when: vmware_env == "ubuntu"
-  tags:
-    - sn0int
-    - OSINT
-
-- name: sn0int - find stale vulns repo configs (Ubuntu)
+# kpcyrd's repo (apt.vulns.sexy now redirects to apt.vulns.xyz). Every step
+# only changes something when it differs, so a re-run reports ok: the old
+# version deleted key and repo file and recreated them on every run.
+- name: sn0int - remove other vulns repo files from older runs (Ubuntu)
   ansible.builtin.find:
     paths: /etc/apt/sources.list.d
     patterns: "*vulns*"
+    excludes: "apt-vulns-sexy.list"
   register: sn0int_stale_repos
   when: vmware_env == "ubuntu"
   tags:
     - sn0int
     - OSINT
 
-- name: sn0int - remove stale vulns repo configs (Ubuntu)
+- name: sn0int - delete them (Ubuntu)
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
@@ -61,23 +56,30 @@
     - sn0int
     - OSINT
 
-- name: sn0int - download and dearmor signing key (Ubuntu)
-  shell: |
+- name: sn0int - install signing key when it changed (Ubuntu)
+  ansible.builtin.shell: |
     set -eo pipefail
-    curl -fsSL https://apt.vulns.xyz/kpcyrd.pgp | gpg --dearmor -o /usr/share/keyrings/apt-vulns-sexy.gpg
-    chmod 644 /usr/share/keyrings/apt-vulns-sexy.gpg
+    tmp=$(mktemp); trap 'rm -f "$tmp"' EXIT
+    curl -fsSL https://apt.vulns.xyz/kpcyrd.pgp | gpg --batch --yes --dearmor -o "$tmp"
+    if ! cmp -s "$tmp" /usr/share/keyrings/apt-vulns-sexy.gpg; then
+      install -m 0644 "$tmp" /usr/share/keyrings/apt-vulns-sexy.gpg; echo CHANGED
+    fi
   args:
     executable: /bin/bash
+  register: sn0int_key
+  changed_when: "'CHANGED' in sn0int_key.stdout"
   when: vmware_env == "ubuntu"
   tags:
     - sn0int
     - OSINT
 
-- name: sn0int - add apt repository (Ubuntu)
-  apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/apt-vulns-sexy.gpg] https://apt.vulns.xyz stable main"
-    filename: apt-vulns-sexy
-    state: present
+# copy, not apt_repository: the file holds exactly this one line, so an old
+# apt.vulns.sexy line from earlier runs is replaced rather than kept beside it.
+- name: sn0int - apt repository (Ubuntu)
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/apt-vulns-sexy.list
+    content: "deb [signed-by=/usr/share/keyrings/apt-vulns-sexy.gpg] https://apt.vulns.xyz stable main\n"
+    mode: "0644"
   when: vmware_env == "ubuntu"
   tags:
     - sn0int

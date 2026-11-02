@@ -62,6 +62,10 @@
   command: python3 quiet_firefox.py
   args:
     chdir: "{{ login_home }}/scripts"
+  register: quiet_firefox_run
+  changed_when: >-
+    'Created/updated user.js' in quiet_firefox_run.stdout
+    or 'Cleared cached telemetry' in quiet_firefox_run.stdout
   become: true
   become_user: "{{ login_user }}"
   environment:

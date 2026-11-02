@@ -45,8 +45,16 @@
     - core
 
 - name: Common - Install Microsoft GPG key for existing repos (e.g. code)
+  # Replace the keyring only when the key changed, so a re-run reports ok.
   ansible.builtin.shell: |
-    gpg --batch --yes --dearmor -o /usr/share/keyrings/microsoft.gpg /tmp/microsoft-common.asc
+    set -eo pipefail
+    tmp=$(mktemp); trap 'rm -f "$tmp"' EXIT
+    gpg --batch --yes --dearmor -o "$tmp" /tmp/microsoft-common.asc
+    if ! cmp -s "$tmp" "/usr/share/keyrings/microsoft.gpg"; then install -m 0644 "$tmp" "/usr/share/keyrings/microsoft.gpg"; echo CHANGED; fi
+  args:
+    executable: /bin/bash
+  register: ms_common_key
+  changed_when: "'CHANGED' in ms_common_key.stdout"
   when: ansible_facts['os_family'] == 'Debian'
   tags:
     - common

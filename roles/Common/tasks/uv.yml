@@ -25,7 +25,17 @@
     - core
 
 - name: uv - Install uv via standalone installer (runs as {{ login_user }})
-  ansible.builtin.shell: /tmp/uv-install.sh
+  ansible.builtin.shell: |
+    set -eo pipefail
+    # changed only when the uv binary changed (the installer always reinstalls)
+    fp() { sha256sum "$HOME/.local/bin/uv" 2>/dev/null || true; }
+    before=$(fp)
+    /tmp/uv-install.sh
+    [ "$before" = "$(fp)" ] || echo CHANGED
+  args:
+    executable: /bin/bash
+  register: uv_install
+  changed_when: "'CHANGED' in uv_install.stdout"
   become: yes
   become_user: "{{ login_user }}"
   environment:

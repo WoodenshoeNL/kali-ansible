@@ -328,6 +328,21 @@ def write_userjs(profile: Path, prefs: dict, dry: bool = False, no_backup: bool 
     userjs = profile / "user.js"
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    # Generate user.js content
+    lines = [BANNER.format(count=len(prefs), timestamp=timestamp)]
+    for key, value in prefs.items():
+        js_val = json.dumps(value)  # renders true/false/"string"/0
+        lines.append(f'user_pref("{key}", {js_val});')
+    data = "\n".join(lines) + "\n"
+
+    # Already up to date (only the "Generated:" timestamp would differ): leave
+    # it alone, so re-runs neither rewrite the file nor pile up backups.
+    def _sans_timestamp(text: str) -> str:
+        return "\n".join(l for l in text.splitlines() if not l.startswith("// Generated: "))
+    if userjs.exists() and _sans_timestamp(userjs.read_text(encoding="utf-8")) == _sans_timestamp(data):
+        print(f"  [=] user.js already up to date: {userjs}")
+        return
+
     # Backup existing user.js if it exists and backup is enabled
     if not no_backup and userjs.exists():
         backup_name = f"user.js.backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -337,13 +352,6 @@ def write_userjs(profile: Path, prefs: dict, dry: bool = False, no_backup: bool 
             print(f"  [+] Backed up existing user.js to: {backup_path}")
         else:
             print(f"  [DRY] Would backup {userjs} to {backup_path}")
-
-    # Generate user.js content
-    lines = [BANNER.format(count=len(prefs), timestamp=timestamp)]
-    for key, value in prefs.items():
-        js_val = json.dumps(value)  # renders true/false/"string"/0
-        lines.append(f'user_pref("{key}", {js_val});')
-    data = "\n".join(lines) + "\n"
 
     if dry:
         print(f"--- {userjs} ---")

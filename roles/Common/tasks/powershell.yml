@@ -92,11 +92,19 @@
     - core
 
 - name: powershell - Build combined signing keyring (legacy 2015 + current 2023 keys)
+  # Replace the keyring only when its content changed, so a re-run reports ok.
   ansible.builtin.shell: |
+    set -eo pipefail
     rm -rf /tmp/ms-prod-ext && mkdir -p /tmp/ms-prod-ext
     dpkg-deb -x /tmp/packages-microsoft-prod.deb /tmp/ms-prod-ext
     gpg --batch --yes --dearmor -o /tmp/microsoft-legacy.gpg /tmp/microsoft-powershell.asc
-    cat /tmp/microsoft-legacy.gpg /tmp/ms-prod-ext/usr/share/keyrings/microsoft-prod.gpg > /usr/share/keyrings/microsoft-powershell.gpg
+    tmp=$(mktemp); trap 'rm -f "$tmp"' EXIT
+    cat /tmp/microsoft-legacy.gpg /tmp/ms-prod-ext/usr/share/keyrings/microsoft-prod.gpg > "$tmp"
+    if ! cmp -s "$tmp" "/usr/share/keyrings/microsoft-powershell.gpg"; then install -m 0644 "$tmp" "/usr/share/keyrings/microsoft-powershell.gpg"; echo CHANGED; fi
+  args:
+    executable: /bin/bash
+  register: pwsh_keyring
+  changed_when: "'CHANGED' in pwsh_keyring.stdout"
   when: (ansible_facts['os_family'] == 'Debian' and ansible_facts['distribution'] != 'Kali')
   tags:
     - powershell
