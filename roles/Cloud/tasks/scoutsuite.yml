@@ -40,6 +40,8 @@
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: scoutsuite_pip
+  changed_when: "'Installed' in scoutsuite_pip.stderr or 'Uninstalled' in scoutsuite_pip.stderr"
   tags:
     - scoutsuite
     - cloud

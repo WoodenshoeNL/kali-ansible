@@ -62,6 +62,8 @@
       - "lxml>=5.0"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: spiderfoot_pip
+  changed_when: "'Installed' in spiderfoot_pip.stderr or 'Uninstalled' in spiderfoot_pip.stderr"
   tags:
     - spiderfoot
     - OSINT
@@ -77,6 +79,8 @@
     chdir: "{{ login_home }}/Programs/spiderfoot"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: spiderfoot_pip
+  changed_when: "'Installed' in spiderfoot_pip.stderr or 'Uninstalled' in spiderfoot_pip.stderr"
   tags:
     - spiderfoot
     - OSINT

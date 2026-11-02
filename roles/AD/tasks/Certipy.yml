@@ -40,6 +40,8 @@
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: certipy_pip
+  changed_when: "'Installed' in certipy_pip.stderr or 'Uninstalled' in certipy_pip.stderr"
   tags:
     - certipy
     - AD

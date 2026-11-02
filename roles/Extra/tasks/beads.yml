@@ -15,32 +15,49 @@
 - name: Dolt - Install or update via official install script
   ansible.builtin.shell: |
     set -eo pipefail
+    # changed only when the installed dolt binary changed
+    fp() { f=$(command -v dolt 2>/dev/null) && sha256sum "$f" || true; }
+    before=$(fp)
     curl -fsSL https://github.com/dolthub/dolt/releases/latest/download/install.sh | bash
+    [ "$before" = "$(fp)" ] || echo CHANGED
   args:
     executable: /bin/bash
+  register: dolt_install
+  changed_when: "'CHANGED' in dolt_install.stdout"
   tags:
     - beads_original
 
 - name: Beads - Install or update via official install script
   ansible.builtin.shell: |
     set -eo pipefail
+    # changed only when the installed bd binary changed
+    fp() { f=$(command -v bd 2>/dev/null) && sha256sum "$f" || true; }
+    before=$(fp)
     curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+    [ "$before" = "$(fp)" ] || echo CHANGED
   args:
     executable: /bin/bash
+  register: beads_install
+  changed_when: "'CHANGED' in beads_install.stdout"
   tags:
     - beads_original
 
 - name: Install beads-mcp for Cursor via uv
-  ansible.builtin.command:
-    argv:
-      - uv
-      - tool
-      - install
-      - --force
-      - beads-mcp
+  # changed only when the tool's package versions or git commit changed
+  # (--force reinstalls everything, and uv always says "Installed").
+  ansible.builtin.shell: |
+    set -eo pipefail
+    fp() { d="$(uv tool dir)/beads-mcp"; { ls -d "$d"/lib/python*/site-packages/*.dist-info 2>/dev/null | xargs -rn1 basename || true; cat "$d"/lib/python*/site-packages/*.dist-info/direct_url.json 2>/dev/null || true; } | sha256sum; }
+    before=$(fp)
+    uv tool install --force beads-mcp
+    [ "$before" = "$(fp)" ] || echo CHANGED
+  args:
+    executable: /bin/bash
   become: yes
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: beads_mcp_uv
+  changed_when: "'CHANGED' in beads_mcp_uv.stdout"
   tags:
     - beads_original

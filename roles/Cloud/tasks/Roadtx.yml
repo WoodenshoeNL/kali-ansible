@@ -40,6 +40,8 @@
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: roadtx_pip
+  changed_when: "'Installed' in roadtx_pip.stderr or 'Uninstalled' in roadtx_pip.stderr"
   tags:
     - roadtx
     - cloud

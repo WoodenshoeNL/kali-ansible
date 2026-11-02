@@ -41,6 +41,8 @@
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: ntdsdotsqlite_pip
+  changed_when: "'Installed' in ntdsdotsqlite_pip.stderr or 'Uninstalled' in ntdsdotsqlite_pip.stderr"
   tags:
     - ntdsdotsqlite
     - AD

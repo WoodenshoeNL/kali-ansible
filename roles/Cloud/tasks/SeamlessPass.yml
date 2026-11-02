@@ -34,6 +34,8 @@
       - install
       - seamlesspass
       - "setuptools<71"
+  register: seamlesspass_pip
+  changed_when: "'Successfully installed' in seamlesspass_pip.stdout"
   become: yes
   become_user: "{{ login_user }}"
   environment:

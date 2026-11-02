@@ -29,20 +29,24 @@
     - network
 
 - name: netexec - Install/upgrade via uv from git (Ubuntu)
-  ansible.builtin.command:
-    argv:
-      - uv
-      - tool
-      - install
-      - --upgrade
-      - --force
-      - "netexec @ git+https://github.com/Pennyw0rth/NetExec.git"
+  # changed only when the tool's package versions or git commit changed
+  # (--force reinstalls everything, and uv always says "Installed").
+  ansible.builtin.shell: |
+    set -eo pipefail
+    fp() { d="$(uv tool dir)/netexec"; { ls -d "$d"/lib/python*/site-packages/*.dist-info 2>/dev/null | xargs -rn1 basename || true; cat "$d"/lib/python*/site-packages/*.dist-info/direct_url.json 2>/dev/null || true; } | sha256sum; }
+    before=$(fp)
+    uv tool install --upgrade --force 'netexec @ git+https://github.com/Pennyw0rth/NetExec.git'
+    [ "$before" = "$(fp)" ] || echo CHANGED
+  args:
+    executable: /bin/bash
   become: yes
   become_user: "{{ login_user }}"
   environment:
     # ~/.cargo/bin needed if aardwolf has to compile its Rust extension
     PATH: "{{ login_home }}/.local/bin:{{ login_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   when: vmware_env == "ubuntu"
+  register: netexec_uv
+  changed_when: "'CHANGED' in netexec_uv.stdout"
   tags:
     - netexec
     - network

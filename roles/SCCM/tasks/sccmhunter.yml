@@ -44,6 +44,8 @@
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     chdir: "{{ login_home }}/sccmhunter"
+  register: sccmhunter_pip
+  changed_when: "'Installed' in sccmhunter_pip.stderr or 'Uninstalled' in sccmhunter_pip.stderr"
   tags:
     - sccmhunter
     - SCCM

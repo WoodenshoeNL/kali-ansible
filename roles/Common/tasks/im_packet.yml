@@ -40,6 +40,8 @@
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: impacket_pip
+  changed_when: "'Installed' in impacket_pip.stderr or 'Uninstalled' in impacket_pip.stderr"
   tags:
     - impacket
     - common

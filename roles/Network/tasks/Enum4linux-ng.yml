@@ -23,18 +23,23 @@
     - network
 
 - name: enum4linux-ng - install via uv from git (Ubuntu)
-  ansible.builtin.command:
-    argv:
-      - uv
-      - tool
-      - install
-      - --force
-      - "enum4linux-ng @ git+https://github.com/cddmp/enum4linux-ng.git"
+  # changed only when the tool's package versions or git commit changed
+  # (--force reinstalls everything, and uv always says "Installed").
+  ansible.builtin.shell: |
+    set -eo pipefail
+    fp() { d="$(uv tool dir)/enum4linux-ng"; { ls -d "$d"/lib/python*/site-packages/*.dist-info 2>/dev/null | xargs -rn1 basename || true; cat "$d"/lib/python*/site-packages/*.dist-info/direct_url.json 2>/dev/null || true; } | sha256sum; }
+    before=$(fp)
+    uv tool install --force 'enum4linux-ng @ git+https://github.com/cddmp/enum4linux-ng.git'
+    [ "$before" = "$(fp)" ] || echo CHANGED
+  args:
+    executable: /bin/bash
   become: yes
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   when: vmware_env == "ubuntu"
+  register: enum4linux_ng_uv
+  changed_when: "'CHANGED' in enum4linux_ng_uv.stdout"
   tags:
     - enum4linux-ng
     - network

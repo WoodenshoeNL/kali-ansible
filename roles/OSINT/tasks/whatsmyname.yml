@@ -53,6 +53,8 @@
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     chdir: "{{ login_home }}/Programs/WhatsMyName-Python"
+  register: whatsmyname_pip
+  changed_when: "'Installed' in whatsmyname_pip.stderr or 'Uninstalled' in whatsmyname_pip.stderr"
   tags:
     - whatsmyname
     - OSINT

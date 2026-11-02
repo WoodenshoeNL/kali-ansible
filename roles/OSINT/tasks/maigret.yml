@@ -1,17 +1,21 @@
 
 - name: maigret - install/upgrade maigret via uv
-  ansible.builtin.command:
-    argv:
-      - uv
-      - tool
-      - install
-      - --upgrade
-      - --force
-      - maigret
+  # changed only when the tool's package versions or git commit changed
+  # (--force reinstalls everything, and uv always says "Installed").
+  ansible.builtin.shell: |
+    set -eo pipefail
+    fp() { d="$(uv tool dir)/maigret"; { ls -d "$d"/lib/python*/site-packages/*.dist-info 2>/dev/null | xargs -rn1 basename || true; cat "$d"/lib/python*/site-packages/*.dist-info/direct_url.json 2>/dev/null || true; } | sha256sum; }
+    before=$(fp)
+    uv tool install --upgrade --force maigret
+    [ "$before" = "$(fp)" ] || echo CHANGED
+  args:
+    executable: /bin/bash
   become: yes
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: maigret_uv
+  changed_when: "'CHANGED' in maigret_uv.stdout"
   tags:
     - maigret
     - OSINT

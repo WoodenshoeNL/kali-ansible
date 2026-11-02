@@ -84,6 +84,8 @@
   when: 
     - vmware_env == "ubuntu"
     - bloodyad_check.rc != 0
+  register: bloodyad_pip
+  changed_when: "'Installed' in bloodyad_pip.stderr or 'Uninstalled' in bloodyad_pip.stderr"
   tags:
     - BloodyAD
     - AD

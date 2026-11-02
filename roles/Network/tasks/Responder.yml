@@ -48,6 +48,8 @@
   become_user: "{{ login_user }}"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  register: responder_pip
+  changed_when: "'Installed' in responder_pip.stderr or 'Uninstalled' in responder_pip.stderr"
   tags:
     - responder
     - network

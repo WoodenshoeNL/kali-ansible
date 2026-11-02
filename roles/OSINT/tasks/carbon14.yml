@@ -55,7 +55,8 @@
     chdir: "{{ login_home }}/Programs/Carbon14"
   environment:
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
-  changed_when: true
+  register: carbon14_pip
+  changed_when: "'Installed' in carbon14_pip.stderr or 'Uninstalled' in carbon14_pip.stderr"
   tags:
     - carbon14
     - OSINT

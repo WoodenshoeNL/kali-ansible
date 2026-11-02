@@ -53,6 +53,8 @@
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     chdir: "{{ login_home }}/Programs/blackbird"
+  register: blackbird_pip
+  changed_when: "'Installed' in blackbird_pip.stderr or 'Uninstalled' in blackbird_pip.stderr"
   tags:
     - blackbird
     - OSINT

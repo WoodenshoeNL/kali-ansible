@@ -61,6 +61,8 @@
     PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
   args:
     chdir: /opt/meowEye
+  register: meoweye_pip
+  changed_when: "'Installed' in meoweye_pip.stderr or 'Uninstalled' in meoweye_pip.stderr"
   tags:
     - meowEye
     - web
