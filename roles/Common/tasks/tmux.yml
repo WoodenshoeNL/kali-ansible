@@ -13,7 +13,7 @@
     - core
 
 - name: Tmux - Deploy .tmux.conf (template)
-  become: false
+  become_user: "{{ login_user }}"
   template:
     src: .tmux.conf
     dest: "{{ login_home }}/.tmux.conf"
@@ -24,7 +24,7 @@
     - core
 
 - name: Ensure .tmux dirs
-  become: false
+  become_user: "{{ login_user }}"
   file:
     path: "{{ item }}"
     state: directory
@@ -38,7 +38,7 @@
     - core
 
 - name: Clone TPM
-  become: false
+  become_user: "{{ login_user }}"
   git:
     repo: https://github.com/tmux-plugins/tpm.git
     dest: "{{ login_home }}/.tmux/plugins/tpm"
@@ -50,7 +50,7 @@
     - core
 
 - name: Clone TPM plugins (so tmux works by default, no prefix+I needed)
-  become: false
+  become_user: "{{ login_user }}"
   git:
     repo: "https://github.com/{{ item }}.git"
     dest: "{{ login_home }}/.tmux/plugins/{{ item.split('/')[-1] }}"
@@ -65,7 +65,7 @@
     - core
 
 - name: Tmux - add quick reminder read-me
-  become: false
+  become_user: "{{ login_user }}"
   ansible.builtin.copy:
     dest: "{{ login_home }}/Tmux_README_First_RUN.txt"
     mode: "0644"
@@ -83,7 +83,7 @@
     - core
 
 - name: Tmux - Copy Tmux_cheat-sheet.txt into {{ login_home }}
-  become: false
+  become_user: "{{ login_user }}"
   copy:
     src: Tmux_cheat-sheet.txt
     dest: "{{ login_home }}/Tmux_cheat-sheet.txt"
@@ -93,12 +93,18 @@
     - common
     - core
 
+# Both rc files: Ubuntu's login shell is bash, Kali's is zsh.
 - name: Tmux - Add persistent tt alias
   ansible.builtin.lineinfile:
-    path: "{{ login_home }}/.bashrc"
+    path: "{{ login_home }}/{{ item }}"
     regexp: '^alias tt='
     line: "alias tt='tmux new-session -s main || tmux attach -t main'"
     state: present
+    create: yes
+    mode: "0644"
+  loop:
+    - .bashrc
+    - .zshrc
   become_user: "{{ login_user }}"
   tags:
     - tmux

@@ -1,6 +1,6 @@
 
 - name: AD - Copy AD_Tools.txt to home directory
-  become: false
+  become_user: "{{ login_user }}"
   copy:
     src: AD_Tools.txt
     dest: "{{ login_home }}/AD_Tools.txt"

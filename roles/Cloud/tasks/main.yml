@@ -1,6 +1,6 @@
 
 - name: Cloud - Copy Cloud_Tools.txt to home directory
-  become: false
+  become_user: "{{ login_user }}"
   copy:
     src: Cloud_Tools.txt
     dest: "{{ login_home }}/Cloud_Tools.txt"

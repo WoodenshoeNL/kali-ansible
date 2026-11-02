@@ -1,6 +1,6 @@
 
 - name: Network - Copy Network_Tools.txt to home directory
-  become: false
+  become_user: "{{ login_user }}"
   copy:
     src: Network_Tools.txt
     dest: "{{ login_home }}/Network_Tools.txt"

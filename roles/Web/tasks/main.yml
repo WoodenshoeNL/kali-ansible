@@ -1,6 +1,6 @@
 
 - name: Web - Copy Web_Tools.txt to home directory
-  become: false
+  become_user: "{{ login_user }}"
   copy:
     src: Web_Tools.txt
     dest: "{{ login_home }}/Web_Tools.txt"

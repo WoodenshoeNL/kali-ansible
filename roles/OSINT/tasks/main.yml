@@ -1,6 +1,6 @@
 
 - name: OSINT - Copy OSINT_Tools.txt to home directory
-  become: false
+  become_user: "{{ login_user }}"
   copy:
     src: OSINT_Tools.txt
     dest: "{{ login_home }}/OSINT_Tools.txt"

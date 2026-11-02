@@ -1,5 +1,5 @@
 - name: SCCM - Copy SCCM_Tools.txt to home directory
-  become: false
+  become_user: "{{ login_user }}"
   copy:
     src: SCCM_Tools.txt
     dest: "{{ login_home }}/SCCM_Tools.txt"
