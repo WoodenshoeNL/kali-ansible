@@ -10,7 +10,11 @@
     - meowEye
     - web
 
-- name: meowEye - ensure chromium browser is installed
+# Kali only: Ubuntu has no chromium/chromium-driver debs (chromium-browser is
+# a snap transition stub), so this task aborted the Ubuntu run. On Ubuntu,
+# Common/chrome.yml installs google-chrome and Selenium Manager (selenium 4.6+)
+# fetches the matching chromedriver on first use.
+- name: meowEye - ensure chromium browser is installed (Kali)
   become: true
   apt:
     name:
@@ -19,6 +23,7 @@
     state: present
     update_cache: yes
     cache_valid_time: 3600
+  when: vmware_env != "ubuntu"
   tags:
     - meowEye
     - web

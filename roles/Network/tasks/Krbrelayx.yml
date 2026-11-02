@@ -44,18 +44,35 @@
     - krbrelayx
     - network
 
+# The scripts' shebang is `#!/usr/bin/env python`, so symlinking them ran the
+# system python, never the venv with impacket: on Ubuntu (no `python`) they
+# failed with "env: python: not found", on Kali they only worked through the
+# distro's python3-impacket. Real wrappers run them with the venv's python.
+- name: krbrelayx - remove old symlinks (copy would write through them into the repo)
+  ansible.builtin.shell: |
+    for t in krbrelayx addspn printerbug dnstool; do
+      if [ -L "/usr/local/bin/$t" ]; then rm -f "/usr/local/bin/$t"; echo "removed $t"; fi
+    done
+  register: krbrelayx_old_links
+  changed_when: krbrelayx_old_links.stdout | length > 0
+  tags:
+    - krbrelayx
+    - network
+
 - name: krbrelayx - create global wrappers in /usr/local/bin
-  ansible.builtin.file:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    state: link
-    force: yes
-    follow: false
+  ansible.builtin.copy:
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      exec {{ login_home }}/krbrelayx/venv/bin/python {{ login_home }}/krbrelayx/{{ item }}.py "$@"
   loop:
-    - { src: "{{ login_home }}/krbrelayx/krbrelayx.py", dest: /usr/local/bin/krbrelayx }
-    - { src: "{{ login_home }}/krbrelayx/addspn.py", dest: /usr/local/bin/addspn }
-    - { src: "{{ login_home }}/krbrelayx/printerbug.py", dest: /usr/local/bin/printerbug }
-    - { src: "{{ login_home }}/krbrelayx/dnstool.py", dest: /usr/local/bin/dnstool }
+    - krbrelayx
+    - addspn
+    - printerbug
+    - dnstool
   tags:
     - krbrelayx
     - network
