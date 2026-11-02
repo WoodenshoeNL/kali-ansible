@@ -1,0 +1,12 @@
+---
+# Collections the playbook uses beyond ansible-core. The `ansible` package from
+# apt (Kali, Ubuntu) already bundles both, so on a fresh machine this is only
+# needed with a bare ansible-core:
+#   ansible-galaxy collection install -r requirements.yml
+collections:
+  # ansible.posix.mount (Common/vmware.yml); state absent_from_fstab needs >= 1.5.0
+  - name: ansible.posix
+    version: ">=1.5.0"
+  # community.general.npm and .ufw (Extra/n8n.yml), .gem (Network/evil-winrm.yml)
+  - name: community.general
+    version: ">=8.0.0"
