@@ -89,9 +89,15 @@
     - network
 
 - name: netexec - Verify installation
+  # Run as the login user: a root-run `netexec --version` writes root-owned
+  # __pycache__/*.pyc into the venv, which later breaks user-run upgrades.
+  # NetExec prints the version on stdout but exits 1 — accept rc 0 and 1.
   ansible.builtin.command: netexec --version
+  become: yes
+  become_user: "{{ login_user }}"
   register: netexec_version
   changed_when: false
+  failed_when: netexec_version.rc not in [0, 1]
   tags:
     - netexec
     - network
