@@ -28,6 +28,29 @@
     - netexec
     - network
 
+- name: netexec - Detect root-owned files in tool dir (old root-run installs)
+  # Pre-become-fix installs ran uv as root, leaving root-owned files under the
+  # tool dir that make later user-run upgrades fail mid-replace (broken tool).
+  ansible.builtin.shell: |
+    find "{{ login_home }}/.local/share/uv/tools/netexec" ! -user "{{ login_user }}" -print -quit 2>/dev/null | grep -q .
+  register: netexec_root_owned
+  changed_when: false
+  failed_when: false
+  args:
+    executable: /bin/bash
+  tags:
+    - netexec
+    - network
+
+- name: netexec - Purge tool dir when root-owned files found
+  ansible.builtin.file:
+    path: "{{ login_home }}/.local/share/uv/tools/netexec"
+    state: absent
+  when: netexec_root_owned.rc is defined and netexec_root_owned.rc == 0
+  tags:
+    - netexec
+    - network
+
 - name: netexec - Install/upgrade via uv from git (Ubuntu)
   # changed only when the tool's package versions or git commit changed
   # (--force reinstalls everything, and uv always says "Installed").
