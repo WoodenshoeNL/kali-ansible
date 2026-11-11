@@ -79,7 +79,7 @@ To print all verification commands without running:
 | AADInternals | `test -d /stockpile/AADInternals` (Common role) |
 | Az / Microsoft.Graph | `pwsh -NoProfile -Command 'if ((Get-Module -ListAvailable Az) -and (Get-Module -ListAvailable Microsoft.Graph)) { exit 0 } else { exit 1 }'` |
 | TokenTactics | `pwsh -NoProfile -Command 'if (Get-Module -ListAvailable TokenTactics) { exit 0 } else { exit 1 }'` |
-| cloudfox | `cloudfox version` |
+| cloudfox | `cloudfox --help` |
 | TeamFiltration | `command -v TeamFiltration` |
 | spraycan | `spraycan --help` |
 

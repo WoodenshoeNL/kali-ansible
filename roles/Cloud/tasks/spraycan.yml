@@ -3,11 +3,12 @@
 # No releases; clone + upstream install.sh builds a .venv AND the npm frontend
 # (needs nodejs+npm from apt). The full install is expensive, so it only reruns
 # when the requirements/package fingerprints change after a git update.
-- name: SprayCan - install nodejs and npm (frontend build dependency)
+- name: SprayCan - install nodejs, npm and python3-venv (build dependencies)
   ansible.builtin.apt:
     name:
       - nodejs
       - npm
+      - python3-venv
     state: present
     update_cache: yes
     cache_valid_time: 3600
