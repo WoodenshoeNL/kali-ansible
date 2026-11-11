@@ -38,9 +38,6 @@
 - name: Run GraphSpy setup
   import_tasks: graphspy.yml
 
-- name: Run AADInternals setup
-  import_tasks: aadinternals.yml
-
 - name: Run Az/Microsoft.Graph PowerShell module setup
   import_tasks: azpsmodules.yml
 

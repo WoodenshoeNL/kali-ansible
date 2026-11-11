@@ -12,8 +12,11 @@
       if [ "$present" = "yes" ] && [ "{{ psgallery_upgrade | default('false') }}" != "true" ]; then
         continue
       fi
-      # Microsoft.Graph declares RequireLicenseAcceptance -> -AcceptLicense
-      pwsh -NoProfile -Command "Install-PSResource -Name $m -Scope AllUsers -TrustRepository -AcceptLicense -Reinstall:({{ psgallery_upgrade | default('false') }} -eq 'true') -ErrorAction Stop"
+      # Microsoft.Graph declares RequireLicenseAcceptance -> -AcceptLicense.
+      # -Repository PSGallery: without it PSResourceGet also searches
+      # MicrosoftArtifactRegistry, which 404s and aborts the install when
+      # combined with -ErrorAction Stop (seen live 2026-11-11).
+      pwsh -NoProfile -Command "Install-PSResource -Name $m -Repository PSGallery -Scope AllUsers -TrustRepository -AcceptLicense -Reinstall:({{ psgallery_upgrade | default('false') }} -eq 'true') -ErrorAction Stop"
       changed="$changed $m"
     done
     if [ -n "$changed" ]; then echo "INSTALLED:$changed"; else echo ALREADY_INSTALLED; fi

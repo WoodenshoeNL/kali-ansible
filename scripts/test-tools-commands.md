@@ -76,7 +76,7 @@ To print all verification commands without running:
 | BlackCat | `test -d ~/blackcat` |
 | EntraFalcon | `test -d ~/entrafalcon` |
 | graphspy | `graphspy -h` |
-| AADInternals | `pwsh -NoProfile -Command 'if (Get-Module -ListAvailable AADInternals) { exit 0 } else { exit 1 }'` |
+| AADInternals | `test -d /stockpile/AADInternals` (Common role) |
 | Az / Microsoft.Graph | `pwsh -NoProfile -Command 'if ((Get-Module -ListAvailable Az) -and (Get-Module -ListAvailable Microsoft.Graph)) { exit 0 } else { exit 1 }'` |
 | TokenTactics | `pwsh -NoProfile -Command 'if (Get-Module -ListAvailable TokenTactics) { exit 0 } else { exit 1 }'` |
 | cloudfox | `cloudfox version` |

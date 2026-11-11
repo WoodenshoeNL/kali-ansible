@@ -80,7 +80,10 @@ GraphSpy
   GitHub: https://github.com/RedByte1337/GraphSpy
 AADInternals (PowerShell module)
 --------------------------------
-  Usage: pwsh, Import-Module AADInternals (e.g. Get-AADIntTenantID, Invoke-AADIntReconAsOutsider)
+  Location: /stockpile/AADInternals (installed by the Common role)
+  Usage: pwsh, Import-Module /stockpile/AADInternals/AADInternals.psd1
+    (e.g. Get-AADIntTenantID, Invoke-AADIntReconAsOutsider)
+
   Description: Entra ID / Azure AD offensive toolkit - tenant recon, MFA method
     abuse, token manipulation, B2B backdoors.
   OPSEC: NOT SAFE - Graph API and auth events logged in Entra ID.
