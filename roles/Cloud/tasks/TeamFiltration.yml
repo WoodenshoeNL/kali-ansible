@@ -1,0 +1,74 @@
+# TeamFiltration (Flangvik): cross-platform framework for enumerating,
+# spraying, exfiltrating and backdooring M365 / Entra ID accounts. Prebuilt
+# Linux binary from releases; asset names embed the version, so resolve the
+# latest tag from the releases/latest redirect (ligolo pattern).
+- name: TeamFiltration - resolve latest release tag
+  ansible.builtin.shell: |
+    set -euo pipefail
+    url=$(curl -fsSLI -o /dev/null -w '%{url_effective}' https://github.com/Flangvik/TeamFiltration/releases/latest)
+    tag=${url##*/tag/}
+    [[ "$tag" =~ ^v[0-9] ]] || { echo "unexpected release URL: $url" >&2; exit 1; }
+    echo "$tag"
+  args:
+    executable: /bin/bash
+  register: teamfiltration_tag
+  changed_when: false
+  tags:
+    - teamfiltration
+    - cloud
+
+- name: TeamFiltration - download latest linux release zip
+  ansible.builtin.get_url:
+    url: "https://github.com/Flangvik/TeamFiltration/releases/download/{{ teamfiltration_tag.stdout }}/TeamFiltration-{{ teamfiltration_tag.stdout }}-linux-x86_64.zip"
+    dest: "/tmp/teamfiltration-{{ teamfiltration_tag.stdout }}.zip"
+    mode: "0644"
+    timeout: 60
+  register: teamfiltration_dl
+  retries: 3
+  delay: 5
+  until: teamfiltration_dl is not failed
+  tags:
+    - teamfiltration
+    - cloud
+
+- name: TeamFiltration - create extract directory
+  ansible.builtin.file:
+    path: /tmp/teamfiltration-extract
+    state: directory
+    mode: "0755"
+  tags:
+    - teamfiltration
+    - cloud
+
+- name: TeamFiltration - extract release zip
+  ansible.builtin.unarchive:
+    src: "/tmp/teamfiltration-{{ teamfiltration_tag.stdout }}.zip"
+    dest: /tmp/teamfiltration-extract
+    remote_src: yes
+  tags:
+    - teamfiltration
+    - cloud
+
+# copy compares checksums, so a new release replaces the binary.
+- name: TeamFiltration - install binary into /usr/local/bin
+  ansible.builtin.copy:
+    src: /tmp/teamfiltration-extract/TeamFiltration
+    dest: /usr/local/bin/TeamFiltration
+    remote_src: yes
+    owner: root
+    group: root
+    mode: "0755"
+  tags:
+    - teamfiltration
+    - cloud
+
+- name: TeamFiltration - remove downloads
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/tmp/teamfiltration-{{ teamfiltration_tag.stdout }}.zip"
+    - /tmp/teamfiltration-extract
+  tags:
+    - teamfiltration
+    - cloud

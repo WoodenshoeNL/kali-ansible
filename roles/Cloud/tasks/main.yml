@@ -37,3 +37,18 @@
 
 - name: Run GraphSpy setup
   import_tasks: graphspy.yml
+
+- name: Run AADInternals setup
+  import_tasks: aadinternals.yml
+
+- name: Run Az/Microsoft.Graph PowerShell module setup
+  import_tasks: azpsmodules.yml
+
+- name: Run TokenTacticsV2 setup
+  import_tasks: TokenTacticsV2.yml
+
+- name: Run CloudFox setup
+  import_tasks: cloudfox.yml
+
+- name: Run TeamFiltration setup
+  import_tasks: TeamFiltration.yml

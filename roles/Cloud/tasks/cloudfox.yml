@@ -1,0 +1,59 @@
+# CloudFox (BishopFox): situational awareness / attack-path enumeration for
+# cloud pentests (Azure + AWS + GCP). Release asset names are unversioned, so
+# releases/latest/download/ works directly; copy (not install creates:) keeps
+# upgrades working via checksum comparison.
+- name: cloudfox - download latest linux release zip
+  ansible.builtin.get_url:
+    url: https://github.com/BishopFox/cloudfox/releases/latest/download/cloudfox-linux-amd64.zip
+    dest: /tmp/cloudfox-linux-amd64.zip
+    mode: "0644"
+    timeout: 60
+  register: cloudfox_dl
+  retries: 3
+  delay: 5
+  until: cloudfox_dl is not failed
+  tags:
+    - cloudfox
+    - cloud
+
+- name: cloudfox - create extract directory
+  ansible.builtin.file:
+    path: /tmp/cloudfox-extract
+    state: directory
+    mode: "0755"
+  tags:
+    - cloudfox
+    - cloud
+
+- name: cloudfox - extract release zip
+  ansible.builtin.unarchive:
+    src: /tmp/cloudfox-linux-amd64.zip
+    dest: /tmp/cloudfox-extract
+    remote_src: yes
+  tags:
+    - cloudfox
+    - cloud
+
+# copy compares checksums, so a new release replaces the binary.
+- name: cloudfox - install binary into /usr/local/bin
+  ansible.builtin.copy:
+    src: /tmp/cloudfox-extract/cloudfox/cloudfox
+    dest: /usr/local/bin/cloudfox
+    remote_src: yes
+    owner: root
+    group: root
+    mode: "0755"
+  tags:
+    - cloudfox
+    - cloud
+
+- name: cloudfox - remove downloads
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/cloudfox-linux-amd64.zip
+    - /tmp/cloudfox-extract
+  tags:
+    - cloudfox
+    - cloud

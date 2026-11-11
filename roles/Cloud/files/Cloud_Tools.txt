@@ -78,3 +78,38 @@ GraphSpy
     phishing, token handling). Local use only - no built-in auth.
   OPSEC: NOT SAFE - Graph API / auth events logged in Entra ID audit logs.
   GitHub: https://github.com/RedByte1337/GraphSpy
+AADInternals (PowerShell module)
+--------------------------------
+  Usage: pwsh, Import-Module AADInternals (e.g. Get-AADIntTenantID, Invoke-AADIntReconAsOutsider)
+  Description: Entra ID / Azure AD offensive toolkit - tenant recon, MFA method
+    abuse, token manipulation, B2B backdoors.
+  OPSEC: NOT SAFE - Graph API and auth events logged in Entra ID.
+  GitHub: https://github.com/Gerenios/AADInternals
+Az + Microsoft.Graph (PowerShell modules)
+-----------------------------------------
+  Usage: pwsh, Connect-AzAccount | Connect-MgGraph
+  Description: Official Microsoft SDK modules for authenticated Azure RBAC and
+    Graph API enumeration (Get-AzResource, Get-MgUser, role assignments).
+  OPSEC: NOT SAFE - all API calls logged by Microsoft.
+  Docs: https://learn.microsoft.com/powershell/azure/
+TokenTacticsV2
+--------------
+  Usage: pwsh, Import-Module TokenTactics (e.g. Get-AzureToken -Client MicrosoftGraph)
+  Description: Entra ID token toolkit - obtain/exchange/refresh tokens across
+    flows (device-code phishing to FOCI resources: Graph, Outlook, SharePoint, Teams).
+  OPSEC: NOT SAFE - auth events logged; conditional access may flag device-code flows.
+  GitHub: https://github.com/f-bader/TokenTacticsV2
+CloudFox
+--------
+  Usage: cloudfox az --subscriptions <id> | cloudfox az all-checks
+  Description: Situational awareness and attack-path enumeration for cloud
+    pentests (Azure, AWS, GCP) - principals, RBAC, role assumptions, storage.
+  OPSEC: NOT SAFE - many read-only API calls, all logged.
+  GitHub: https://github.com/BishopFox/cloudfox
+TeamFiltration
+--------------
+  Usage: TeamFiltration --validate --teamfile teamfile.json
+  Description: Enumerate, spray, exfiltrate and backdoor M365 / Entra ID
+    accounts (Teams, OneDrive, Outlook); pairs with token tooling.
+  OPSEC: NOT SAFE - spray and auth events logged; lockout risk.
+  GitHub: https://github.com/Flangvik/TeamFiltration

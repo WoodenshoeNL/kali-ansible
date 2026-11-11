@@ -1,0 +1,26 @@
+# Official Microsoft PowerShell SDK modules needed for authenticated Azure /
+# Entra ID / Graph work: Az (ResourceManager/RBAC) and Microsoft.Graph.
+# Large downloads (Az alone ~200 MB, several minutes). Installed AllUsers
+# (root-owned) into /usr/local/share/powershell/Modules. Idempotent: skipped
+# when already installed; -e psgallery_upgrade=true forces reinstall/upgrade.
+- name: Az/Graph PS modules - install Az and Microsoft.Graph (AllUsers)
+  ansible.builtin.shell: |
+    set -eo pipefail
+    changed=""
+    for m in Az Microsoft.Graph; do
+      present=$(pwsh -NoProfile -Command "if (Get-Module -ListAvailable $m) { 'yes' } else { 'no' }")
+      if [ "$present" = "yes" ] && [ "{{ psgallery_upgrade | default('false') }}" != "true" ]; then
+        continue
+      fi
+      # Microsoft.Graph declares RequireLicenseAcceptance -> -AcceptLicense
+      pwsh -NoProfile -Command "Install-PSResource -Name $m -Scope AllUsers -TrustRepository -AcceptLicense -Reinstall:({{ psgallery_upgrade | default('false') }} -eq 'true') -ErrorAction Stop"
+      changed="$changed $m"
+    done
+    if [ -n "$changed" ]; then echo "INSTALLED:$changed"; else echo ALREADY_INSTALLED; fi
+  args:
+    executable: /bin/bash
+  register: azps_install
+  changed_when: "'ALREADY_INSTALLED' not in azps_install.stdout"
+  tags:
+    - azpsmodules
+    - cloud

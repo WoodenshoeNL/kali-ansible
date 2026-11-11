@@ -1,0 +1,56 @@
+# TokenTacticsV2 (f-bader): PowerShell module for obtaining/exchanging Entra ID
+# tokens (device-code phishing to FOCI resources: Graph, Outlook, SharePoint,
+# Teams). Not on PSGallery - cloned from GitHub. The repo root IS the module
+# dir (TokenTactics.psd1/.psm1), so a symlink named TokenTactics into the
+# AllUsers module path makes it importable for every user.
+- name: TokenTacticsV2 - clone repository
+  ansible.builtin.git:
+    repo: https://github.com/f-bader/TokenTacticsV2.git
+    dest: "{{ login_home }}/TokenTacticsV2"
+    version: main
+    update: yes
+  become: true
+  become_user: "{{ login_user }}"
+  tags:
+    - tokentactics
+    - cloud
+
+- name: TokenTacticsV2 - ensure AllUsers PowerShell module directory
+  ansible.builtin.file:
+    path: /usr/local/share/powershell/Modules
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags:
+    - tokentactics
+    - cloud
+
+- name: TokenTacticsV2 - link module into AllUsers module path
+  ansible.builtin.file:
+    src: "{{ login_home }}/TokenTacticsV2"
+    dest: /usr/local/share/powershell/Modules/TokenTactics
+    state: link
+    force: yes
+  tags:
+    - tokentactics
+    - cloud
+
+- name: TokenTacticsV2 - add quick reminder read-me
+  ansible.builtin.copy:
+    dest: "{{ login_home }}/README_TokenTactics_RUN.txt"
+    mode: "0644"
+    content: |
+      HOW TO RUN (TokenTacticsV2)
+
+      pwsh
+      PS> Import-Module TokenTactics
+      PS> Get-Command -Module TokenTactics
+      # e.g. fetch a refresh token via device code, then refresh to a FOCI
+      # resource and hand the access token to GraphSpy:
+      PS> Get-AzureToken -Client MicrosoftGraph
+  become: true
+  become_user: "{{ login_user }}"
+  tags:
+    - tokentactics
+    - cloud
