@@ -1,0 +1,67 @@
+# SprayCan (DroppedSyn): local Azure / Entra ID security assessment tool -
+# modular Graph + ARM scans with a local web GUI (Canvas on 127.0.0.1:8787).
+# No releases; clone + upstream install.sh builds a .venv AND the npm frontend
+# (needs nodejs+npm from apt). The full install is expensive, so it only reruns
+# when the requirements/package fingerprints change after a git update.
+- name: SprayCan - install nodejs and npm (frontend build dependency)
+  ansible.builtin.apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  tags:
+    - spraycan
+    - cloud
+
+- name: SprayCan - clone repository
+  ansible.builtin.git:
+    repo: https://github.com/DroppedSyn/SprayCan.git
+    dest: "{{ login_home }}/SprayCan"
+    version: main
+    update: yes
+  become: true
+  become_user: "{{ login_user }}"
+  tags:
+    - spraycan
+    - cloud
+
+- name: SprayCan - run upstream install.sh when dependencies changed
+  # Fingerprint requirements.txt + frontend/package.json: a plain `creates`
+  # guard would never pick up upstream changes after `git update`.
+  ansible.builtin.shell: |
+    set -eo pipefail
+    cd "{{ login_home }}/SprayCan"
+    fp=$(cat requirements.txt frontend/package.json | sha256sum | cut -d' ' -f1)
+    if [ -d .venv ] && [ "$(cat .install-fingerprint 2>/dev/null)" = "$fp" ]; then
+      echo UNCHANGED
+    else
+      bash install.sh
+      echo "$fp" > .install-fingerprint
+      echo INSTALLED
+    fi
+  args:
+    executable: /bin/bash
+  register: spraycan_install
+  changed_when: "'UNCHANGED' not in spraycan_install.stdout"
+  become: true
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/bin:{{ login_home }}/.local/bin"
+  tags:
+    - spraycan
+    - cloud
+
+- name: SprayCan - install launcher into /usr/local/bin
+  ansible.builtin.copy:
+    dest: /usr/local/bin/spraycan
+    owner: root
+    group: root
+    mode: "0755"
+    content: |
+      #!/bin/bash
+      exec {{ login_home }}/SprayCan/.venv/bin/python {{ login_home }}/SprayCan/SprayCan.py "$@"
+  tags:
+    - spraycan
+    - cloud

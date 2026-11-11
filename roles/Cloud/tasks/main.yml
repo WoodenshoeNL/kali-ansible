@@ -52,3 +52,6 @@
 
 - name: Run TeamFiltration setup
   import_tasks: TeamFiltration.yml
+
+- name: Run SprayCan setup
+  import_tasks: spraycan.yml

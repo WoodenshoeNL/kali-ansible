@@ -113,3 +113,12 @@ TeamFiltration
     accounts (Teams, OneDrive, Outlook); pairs with token tooling.
   OPSEC: NOT SAFE - spray and auth events logged; lockout risk.
   GitHub: https://github.com/Flangvik/TeamFiltration
+SprayCan
+--------
+  Location: ~/SprayCan  (launcher: spraycan)
+  Usage: spraycan  (Canvas GUI on http://127.0.0.1:8787) | spraycan --blind |
+    spraycan --headless --tenant <id> --auth-mode device-code --scan 2
+  Description: Local Azure / Entra ID security assessment tool - modular
+    Microsoft Graph and ARM scans with a local web GUI to review output.
+  OPSEC: NOT SAFE - Graph API / ARM calls logged in Entra ID and Activity logs.
+  GitHub: https://github.com/DroppedSyn/SprayCan

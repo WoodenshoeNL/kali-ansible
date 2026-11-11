@@ -81,6 +81,7 @@ To print all verification commands without running:
 | TokenTactics | `pwsh -NoProfile -Command 'if (Get-Module -ListAvailable TokenTactics) { exit 0 } else { exit 1 }'` |
 | cloudfox | `cloudfox version` |
 | TeamFiltration | `command -v TeamFiltration` |
+| spraycan | `spraycan --help` |
 
 ### AD
 | Tool | Verification Command |

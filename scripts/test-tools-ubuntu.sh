@@ -172,6 +172,7 @@ test_cmd "Microsoft.Graph (pwsh module)" "pwsh -NoProfile -Command 'if (Get-Modu
 test_cmd "TokenTactics (pwsh module)" "pwsh -NoProfile -Command 'if (Get-Module -ListAvailable TokenTactics) { exit 0 } else { exit 1 }'"
 test_cmd "cloudfox" "cloudfox version"
 test_cmd "TeamFiltration" "command -v TeamFiltration"
+test_cmd "spraycan" "spraycan --help"
 test_cmd "trufflehog" "trufflehog --version"
 test_cmd "testssl.sh" "testssl.sh --version"
 test_cmd "gobuster" "gobuster version"
