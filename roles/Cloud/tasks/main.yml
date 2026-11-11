@@ -34,3 +34,6 @@
 
 - name: Run Prowler setup
   import_tasks: prowler.yml
+
+- name: Run GraphSpy setup
+  import_tasks: graphspy.yml

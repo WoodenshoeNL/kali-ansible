@@ -1,0 +1,35 @@
+# GraphSpy: Entra ID / M365 initial-access and post-exploitation tool with a
+# browser-based GUI (RedByte1337). Flask app on PyPI; all deps are pure
+# Python and requires-python allows 3.14, so no interpreter pin needed.
+# Running `graphspy` serves the GUI on http://127.0.0.1:5000 - local use
+# only, no built-in auth.
+- name: graphspy - install/upgrade graphspy via uv
+  # changed only when the tool's package versions changed
+  # (--force reinstalls everything, and uv always says "Installed").
+  ansible.builtin.shell: |
+    set -eo pipefail
+    fp() { d="$(uv tool dir)/graphspy"; { ls -d "$d"/lib/python*/site-packages/*.dist-info 2>/dev/null | xargs -rn1 basename || true; cat "$d"/lib/python*/site-packages/*.dist-info/direct_url.json 2>/dev/null || true; } | sha256sum; }
+    before=$(fp)
+    uv tool install --upgrade --force graphspy
+    [ "$before" = "$(fp)" ] || echo CHANGED
+  args:
+    executable: /bin/bash
+  register: graphspy_uv
+  changed_when: "'CHANGED' in graphspy_uv.stdout"
+  become: true
+  become_user: "{{ login_user }}"
+  environment:
+    PATH: "{{ login_home }}/.local/bin:{{ ansible_facts['env']['PATH'] | default('') }}"
+  tags:
+    - graphspy
+    - cloud
+
+- name: graphspy - symlink into /usr/local/bin
+  ansible.builtin.file:
+    src: "{{ login_home }}/.local/bin/graphspy"
+    dest: /usr/local/bin/graphspy
+    state: link
+    force: true
+  tags:
+    - graphspy
+    - cloud

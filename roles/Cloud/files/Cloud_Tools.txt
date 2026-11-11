@@ -70,3 +70,11 @@ Prowler
   Description: Cloud security posture scanner (AWS, Azure, GCP, M365, Kubernetes, GitHub) with CIS/compliance checks.
   OPSEC: NOT SAFE - Many read-only API calls, all logged in CloudTrail / Entra ID / Activity logs.
   GitHub: https://github.com/prowler-cloud/prowler
+GraphSpy
+--------
+  Usage: graphspy  (GUI on http://127.0.0.1:5000; -i/-p to change host/port)
+  Description: Entra ID / M365 initial access and post-exploitation tool with a
+    browser-based GUI (OneDrive, SharePoint, Outlook, Teams, Entra enumeration,
+    phishing, token handling). Local use only - no built-in auth.
+  OPSEC: NOT SAFE - Graph API / auth events logged in Entra ID audit logs.
+  GitHub: https://github.com/RedByte1337/GraphSpy

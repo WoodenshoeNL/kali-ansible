@@ -167,6 +167,7 @@ echo ""
 # --- Web / Cloud / OSINT (added 2026-11) ---
 echo "--- Web / Cloud / OSINT (added 2026-11) ---"
 test_cmd "prowler" "prowler --version"
+test_cmd "graphspy" "graphspy -h"
 test_cmd "trufflehog" "trufflehog --version"
 test_cmd "testssl.sh" "testssl.sh --version"
 test_cmd "gobuster" "gobuster version"

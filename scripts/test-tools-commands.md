@@ -75,6 +75,7 @@ To print all verification commands without running:
 | seamlesspass | `seamlesspass --help` |
 | BlackCat | `test -d ~/blackcat` |
 | EntraFalcon | `test -d ~/entrafalcon` |
+| graphspy | `graphspy -h` |
 
 ### AD
 | Tool | Verification Command |
